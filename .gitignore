@@ -1,0 +1,33 @@
+# Entornos virtuales e instalaciones locales
+venv/
+.venv/
+env/
+ENV/
+
+# Cache y archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Herramientas de empaquetado e instalacion
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Configuracion local y secretos
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs y archivos temporales
+*.log
+*.tmp
+*.temp
+
+dashboard/data/csv/*
+!dashboard/data/csv/.gitkeep
