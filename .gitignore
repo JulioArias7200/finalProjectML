@@ -30,4 +30,8 @@ pip-wheel-metadata/
 *.temp
 
 dashboard/data/csv/*
+dashboard/data/sav/*
+
 !dashboard/data/csv/.gitkeep
+!dashboard/data/sav/.gitkeep
+
