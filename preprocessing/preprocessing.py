@@ -8,8 +8,10 @@ agregación de insumos por empresa y prevención de fuga de datos (data leakage)
 
 import logging
 import sys
+import json
+from datetime import datetime
 from pathlib import Path
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, Dict
 import numpy as np
 import pandas as pd
 
@@ -273,36 +275,158 @@ def run_preprocessing(
     save_outputs: bool = True
 ) -> pd.DataFrame:
     """
-    Ejecuta el pipeline completo de preprocesamiento de extremo a extremo:
-    1. Carga de datos crudos (data/raw/).
-    2. Limpieza de Sección 10 y centinelas 99999.
-    3. Agregación de insumos por empresa (ID).
-    4. Cruce relacional Left Join y exclusión de fuga de datos.
-    5. Mapeo a macrosectores CAEB.
-    6. Transformación logarítmica de predictores y target.
-    7. Exportación a data/processed/ (CSV y Parquet opcional).
+    Ejecuta el pipeline completo de preprocesamiento de extremo a extremo y genera
+    automáticamente la bitácora de evolución por etapas (bitacora_preprocesamiento.json):
+    1. Tratamiento de centinelas 99999 y anomalías numéricas.
+    2. Agregación de Sección 10 a nivel empresarial.
+    3. Normalización categórica CAEB y estandarización geográfica.
+    4. Políticas anti-leakage y validación de variable objetivo.
+    5. Transformación logarítmica log(1 + x) de predictores y target.
+    6. Exportación a data/processed/ (CSV y Parquet opcional).
     
     Returns:
         DataFrame completamente preprocesado y listo para modelado.
     """
     logger.info("=== INICIANDO PIPELINE DE PREPROCESAMIENTO ===")
-    
-    # 1. Cargar datos crudos
+    bitacora_etapas: List[Dict[str, Any]] = []
+
+    # Cargar datos crudos
     df_gen, df_mat = load_raw_datasets(raw_dir)
     
-    # 2. Limpiar materiales
-    df_mat_clean = clean_materials_data(df_mat)
-    
-    # 3. Agregar materiales por ID
-    df_mat_agg = aggregate_materials_by_enterprise(df_mat_clean)
-    
-    # 4. Fusión y limpieza general
-    merged_df = merge_and_clean_enterprise_data(df_gen, df_mat_agg)
-    
-    # 5. Ingeniería de características y transformaciones
-    processed_df = apply_feature_transformations(merged_df)
+    # -------------------------------------------------------------------------
+    # ETAPA 1: Tratamiento de centinelas 99999
+    # -------------------------------------------------------------------------
+    mat_rows_before, mat_cols_before = df_mat.shape
+    centinelas_mat = int((df_mat[["valor_co", "valor_uti"]].isin([CENTINELA_VAL, str(int(CENTINELA_VAL))])).sum().sum()) if "valor_co" in df_mat.columns and "valor_uti" in df_mat.columns else 0
+    centinelas_gen = 0
+    for col in PREDICTOR_NUM_COLS:
+        if col in df_gen.columns:
+            centinelas_gen += int((pd.to_numeric(df_gen[col], errors="coerce") == CENTINELA_VAL).sum())
+    total_centinelas_afectados = centinelas_mat + centinelas_gen
 
-    # 6. Guardar resultados
+    df_mat_clean = clean_materials_data(df_mat)
+    mat_rows_after, mat_cols_after = df_mat_clean.shape
+
+    bitacora_etapas.append({
+        "etapa": "Tratamiento de centinelas 99999",
+        "orden": 1,
+        "filas_antes": mat_rows_before,
+        "columnas_antes": mat_cols_before,
+        "filas_despues": mat_rows_after,
+        "columnas_despues": mat_cols_after,
+        "valores_afectados": total_centinelas_afectados,
+        "descripcion_regla": "Sustitución de centinelas 99999.0 (código del INE para registros con imputación pendiente o inconsistencia contable) por NaN y acotamiento de valores monetarios anómalos a cero (clip(lower=0))."
+    })
+
+    # -------------------------------------------------------------------------
+    # ETAPA 2: Agregación de la Sección 10
+    # -------------------------------------------------------------------------
+    agg_rows_before, agg_cols_before = df_mat_clean.shape
+    df_mat_agg = aggregate_materials_by_enterprise(df_mat_clean)
+    agg_rows_after, agg_cols_after = df_mat_agg.shape
+
+    bitacora_etapas.append({
+        "etapa": "Agregación de la Sección 10",
+        "orden": 2,
+        "filas_antes": agg_rows_before,
+        "columnas_antes": agg_cols_before,
+        "filas_despues": agg_rows_after,
+        "columnas_despues": agg_cols_after,
+        "valores_afectados": agg_rows_before,
+        "descripcion_regla": f"Transformación de estructura larga ({agg_rows_before} registros de materias primas) a nivel empresarial por 'ID' único ({agg_rows_after} empresas), calculando variedad (n_insumos), compras totales (total_valor_co) y consumo fabril (total_valor_uti)."
+    })
+
+    # -------------------------------------------------------------------------
+    # ETAPA 3: Normalización categórica CAEB
+    # -------------------------------------------------------------------------
+    gen_rows_before, gen_cols_before = df_gen.shape
+    merged_pre = df_gen.merge(df_mat_agg, on="ID", how="left").copy()
+    merged_pre["n_insumos"] = merged_pre["n_insumos"].fillna(0)
+    merged_pre["total_valor_co"] = merged_pre["total_valor_co"].fillna(0)
+    merged_pre["total_valor_uti"] = merged_pre["total_valor_uti"].fillna(0)
+    merged_pre["depto"] = merged_pre["C2_01"].astype(str).str.strip().str.upper()
+    merged_pre["sector_macro"] = merged_pre["actividad_pricipal_codigo_V1"].apply(map_caeb_to_sector)
+
+    zeros_imputed = int((merged_pre["n_insumos"] == 0).sum())
+    norm_rows_after, norm_cols_after = merged_pre.shape
+
+    bitacora_etapas.append({
+        "etapa": "Normalización categórica CAEB",
+        "orden": 3,
+        "filas_antes": gen_rows_before,
+        "columnas_antes": gen_cols_before,
+        "filas_despues": norm_rows_after,
+        "columnas_despues": norm_cols_after,
+        "valores_afectados": gen_rows_before + zeros_imputed,
+        "descripcion_regla": "Cruce relacional Left Join con Sección 10; mapeo sistemático de 445 códigos CAEB (CIIU Rev. 4) a macrosectores homogéneos; normalización de 9 departamentos e imputación de ceros en insumos para empresas sin manufactura."
+    })
+
+    # -------------------------------------------------------------------------
+    # ETAPA 4: Políticas anti-leakage
+    # -------------------------------------------------------------------------
+    leakage_rows_before, leakage_cols_before = merged_pre.shape
+    target_series = pd.to_numeric(merged_pre.get(TARGET_COL, merged_pre.get(TARGET_ALT_COL)), errors="coerce")
+    merged_pre["target"] = target_series
+    valid_mask = merged_pre["target"].notnull() & (merged_pre["target"] > 0)
+    filtered = merged_pre[valid_mask].copy()
+
+    leak_cols_present = [c for c in EXCLUDED_LEAKAGE_COLS if c in filtered.columns]
+    leakage_rows_after, leakage_cols_after = filtered.shape
+
+    bitacora_etapas.append({
+        "etapa": "Políticas anti-leakage",
+        "orden": 4,
+        "filas_antes": leakage_rows_before,
+        "columnas_antes": leakage_cols_before,
+        "filas_despues": leakage_rows_after,
+        "columnas_despues": leakage_cols_after,
+        "valores_afectados": len(leak_cols_present) + int((~valid_mask).sum()),
+        "descripcion_regla": f"Blindaje metodológico del modelo excluyendo {len(leak_cols_present)} variables macroeconómicas post-encuesta (VBP, VA, CI, VIPP) y componentes de ingresos de Sección 5 (S05_01 a S05_04) que causarían fuga de datos (data leakage)."
+    })
+
+    # -------------------------------------------------------------------------
+    # ETAPA 5: Transformación logarítmica
+    # -------------------------------------------------------------------------
+    trans_rows_before, trans_cols_before = filtered.shape
+    processed_df = apply_feature_transformations(filtered)
+    trans_rows_after, trans_cols_after = processed_df.shape
+
+    bitacora_etapas.append({
+        "etapa": "Transformación logarítmica",
+        "orden": 5,
+        "filas_antes": trans_rows_before,
+        "columnas_antes": trans_cols_before,
+        "filas_despues": trans_rows_after,
+        "columnas_despues": trans_cols_after,
+        "valores_afectados": trans_rows_after * (len(PREDICTOR_NUM_COLS) + 1),
+        "descripcion_regla": f"Aplicación de transformación no lineal log(1 + x) a {len(PREDICTOR_NUM_COLS)} predictores numéricos de estructura productiva y a la variable objetivo, estabilizando la varianza y reduciendo la severa asimetría de cola pesada (Pareto)."
+    })
+
+    # -------------------------------------------------------------------------
+    # Guardar bitácora de preprocesamiento en JSON
+    # -------------------------------------------------------------------------
+    bitacora_data = {
+        "timestamp": datetime.now().isoformat(),
+        "dataset_nombre": "EAIMCS 2017-2018 (INE Bolivia)",
+        "total_etapas": len(bitacora_etapas),
+        "filas_iniciales": gen_rows_before,
+        "filas_finales": trans_rows_after,
+        "columnas_iniciales": gen_cols_before,
+        "columnas_finales": trans_cols_after,
+        "etapas": bitacora_etapas
+    }
+
+    preprocessing_dir = PROJECT_ROOT / "preprocessing"
+    artifacts_dir = PROJECT_ROOT / "dashboard" / "artifacts"
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(preprocessing_dir / "bitacora_preprocesamiento.json", "w", encoding="utf-8") as f:
+        json.dump(bitacora_data, f, indent=2, ensure_ascii=False)
+    with open(artifacts_dir / "bitacora_preprocesamiento.json", "w", encoding="utf-8") as f:
+        json.dump(bitacora_data, f, indent=2, ensure_ascii=False)
+    logger.info("Bitácora de preprocesamiento guardada exitosamente en: %s", preprocessing_dir / "bitacora_preprocesamiento.json")
+
+    # Guardar dataset procesado
     if save_outputs:
         out_dir = Path(output_dir) if output_dir else DEFAULT_PROCESSED_DIR
         out_dir.mkdir(parents=True, exist_ok=True)

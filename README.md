@@ -1,5 +1,7 @@
 # AprendizajeSupervisadoML: Estimación de Ingresos Operativos Anuales (EAIMCS - INE Bolivia)
 
+> 📖 **Documento Maestro Completo:** Para una explicación técnica exhaustiva de todo el proyecto, fundamentación del dataset EAIMCS, preprocesamiento, calibración de Duan y arquitectura MLOps, consulta [DOCUMENTACION.md](file:///c:/Users/RAQUEL%20SERRANO/OneDrive/Documentos/ProyectoFinalML/finalProjectML/DOCUMENTACION.md).
+
 Sistema integral de Machine Learning supervisado (regresión) y Dashboard Web interactivo desarrollado en **Python (Flask + Scikit-Learn + Jinja2 + Plotly.js)** para predecir y auditar los ingresos operativos anuales de empresas bolivianas medianas y grandes, utilizando como fuente oficial los microdatos de la **Encuesta a la Industria Manufacturera, Comercio y Servicios (EAIMCS 2017-2018)** del Instituto Nacional de Estadística (INE) de Bolivia (Catálogo ANDA: `BOL-INE-EAIMCS-2017-2018`).
 
 ---
@@ -29,6 +31,7 @@ El repositorio sigue una arquitectura estandarizada, limpia y completamente modu
 AprendizajeSupervisadoML/
 ├── .gitignore                         -> Exclusión de entornos virtuales, temporales y cachés
 ├── requirements.txt                   -> Dependencias consolidadas del proyecto con versiones fijadas
+├── DOCUMENTACION.md                   -> Documento maestro técnico exhaustivo de todo el proyecto
 ├── README.md                          -> Guía global del repositorio (este documento)
 ├── data/                              -> Capa de datos crudos inmutables y procesados
 │   ├── README.md                      -> Especificación, gobernanza y origen de microdatos

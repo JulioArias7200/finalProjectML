@@ -1,31 +1,126 @@
 {
-  "active_version": "v1.20260922.0615",
-  "last_updated": "2026-09-22T06:15:05.382191",
-  "smearing_factor": 1.148929171627896,
-  "rmse_log": 0.5652420076526077,
+  "active_version": "v1.20260927.0927",
+  "last_updated": "2026-09-27T09:27:07.127881",
+  "smearing_factor": 1.040138648072362,
+  "rmse_log": 0.5696841910067251,
   "versions": [
     {
-      "version": "v1.20260922.0615",
-      "model_type": "LightGBM",
-      "timestamp": "2026-09-22T06:15:05.382158",
+      "version": "v1.20260927.0927",
+      "model_type": "RandomForest",
+      "timestamp": "2026-09-27T09:27:07.127851",
       "dataset_rows": 3153,
       "metrics": {
-        "cv_r2_mean": 0.7797741679733754,
-        "cv_r2_std": 0.0165590998481054,
-        "r2_log": 0.7901572918988581,
-        "mae_log": 0.4260211521750808,
-        "rmse_log": 0.5652420076526077,
-        "r2_bs": 0.7028576700591584,
-        "mae_bs": 23502825.780312043,
-        "rmse_bs": 78023634.57414077,
-        "medae_bs": 5564347.262537982,
-        "medape_percent": 37.330758444843774,
-        "smearing_factor": 1.148929171627896
+        "cv_r2_mean": 0.7724324924737178,
+        "cv_r2_std": 0.018724807899812332,
+        "cv_rmse_mean": 0.5815011695018214,
+        "cv_rmse_std": 0.03328089620830159,
+        "cv_mae_mean": 0.42937843841509327,
+        "cv_mae_std": 0.011576560389751033,
+        "cv_medape_mean": 34.2006044336116,
+        "cv_medape_std": 1.2075270528700344,
+        "cv_folds": [
+          {
+            "fold": 1,
+            "r2": 0.774,
+            "rmse": 0.5838,
+            "mae": 0.4348,
+            "medape": 34.29
+          },
+          {
+            "fold": 2,
+            "r2": 0.7869,
+            "rmse": 0.5848,
+            "mae": 0.426,
+            "medape": 33.66
+          },
+          {
+            "fold": 3,
+            "r2": 0.7359,
+            "rmse": 0.6385,
+            "mae": 0.4472,
+            "medape": 34.4
+          },
+          {
+            "fold": 4,
+            "r2": 0.7828,
+            "rmse": 0.5628,
+            "mae": 0.4269,
+            "medape": 36.18
+          },
+          {
+            "fold": 5,
+            "r2": 0.7825,
+            "rmse": 0.5376,
+            "mae": 0.412,
+            "medape": 32.46
+          }
+        ],
+        "r2_log": 0.7868460636110407,
+        "mae_log": 0.4323121880348838,
+        "rmse_log": 0.5696841910067251,
+        "r2_bs": 0.7528877842643916,
+        "mae_bs": 22888317.314960964,
+        "rmse_bs": 71152640.63932535,
+        "medae_bs": 5351029.536275633,
+        "medape_percent": 36.20035614185486,
+        "smearing_factor": 1.040138648072362,
+        "cobertura_ic_90": 90.33,
+        "hiperparametros": {
+          "n_estimators": 120,
+          "max_depth": 16,
+          "min_samples_split": 4,
+          "random_state": 42,
+          "n_jobs": 1
+        },
+        "razon_decision": "Seleccionado (Modelo Campeón): Mejor desempeño global con R² log = 0.7868 y R² en escala natural = 0.7529 tras calibración Duan Smearing (factor 1.0401), menor error mediano porcentual (MedAPE = 36.20%), alta consistencia entre pliegues de validación cruzada (R² = 0.7724 ± 0.0187) y máxima interpretabilidad mediante feature importance."
       },
       "all_models_metrics": {
         "Ridge": {
           "cv_r2_mean": 0.5475867040562985,
           "cv_r2_std": 0.02727304315831015,
+          "cv_rmse_mean": 0.8194395296821515,
+          "cv_rmse_std": 0.022117736657867565,
+          "cv_mae_mean": 0.6324934183578861,
+          "cv_mae_std": 0.008734020075712104,
+          "cv_medape_mean": 72.45525498697195,
+          "cv_medape_std": 4.548846543195535,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.5619,
+              "rmse": 0.8127,
+              "mae": 0.6373,
+              "medape": 71.03
+            },
+            {
+              "fold": 2,
+              "r2": 0.579,
+              "rmse": 0.822,
+              "mae": 0.6321,
+              "medape": 73.74
+            },
+            {
+              "fold": 3,
+              "r2": 0.5208,
+              "rmse": 0.8601,
+              "mae": 0.6461,
+              "medape": 66.62
+            },
+            {
+              "fold": 4,
+              "r2": 0.5667,
+              "rmse": 0.7951,
+              "mae": 0.6211,
+              "medape": 80.34
+            },
+            {
+              "fold": 5,
+              "r2": 0.5095,
+              "rmse": 0.8073,
+              "mae": 0.6259,
+              "medape": 70.54
+            }
+          ],
           "r2_log": 0.5718348633256344,
           "mae_log": 0.6308967698006944,
           "rmse_log": 0.8074081708433091,
@@ -34,11 +129,62 @@
           "rmse_bs": 99463140.83449805,
           "medae_bs": 13018093.307216253,
           "medape_percent": 74.06764783871085,
-          "smearing_factor": 1.5351707908409853
+          "smearing_factor": 1.5351707908409853,
+          "cobertura_ic_90": 84.63,
+          "hiperparametros": {
+            "alpha": 10.0,
+            "fit_intercept": true,
+            "solver": "auto",
+            "random_state": 42
+          },
+          "razon_decision": "Descartado: Modelo lineal con regularización L2 insuficiente para capturar no-linealidades complejas y rendimientos marginales decrecientes entre insumos, activos fijos y masa salarial (R² log = 0.5718, R² natural = 0.5171). Presenta un MedAPE elevado (74.07%) y sesgo en empresas grandes."
         },
         "RandomForest": {
           "cv_r2_mean": 0.7724324924737178,
           "cv_r2_std": 0.018724807899812332,
+          "cv_rmse_mean": 0.5815011695018214,
+          "cv_rmse_std": 0.03328089620830159,
+          "cv_mae_mean": 0.42937843841509327,
+          "cv_mae_std": 0.011576560389751033,
+          "cv_medape_mean": 34.2006044336116,
+          "cv_medape_std": 1.2075270528700344,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.774,
+              "rmse": 0.5838,
+              "mae": 0.4348,
+              "medape": 34.29
+            },
+            {
+              "fold": 2,
+              "r2": 0.7869,
+              "rmse": 0.5848,
+              "mae": 0.426,
+              "medape": 33.66
+            },
+            {
+              "fold": 3,
+              "r2": 0.7359,
+              "rmse": 0.6385,
+              "mae": 0.4472,
+              "medape": 34.4
+            },
+            {
+              "fold": 4,
+              "r2": 0.7828,
+              "rmse": 0.5628,
+              "mae": 0.4269,
+              "medape": 36.18
+            },
+            {
+              "fold": 5,
+              "r2": 0.7825,
+              "rmse": 0.5376,
+              "mae": 0.412,
+              "medape": 32.46
+            }
+          ],
           "r2_log": 0.7868460636110407,
           "mae_log": 0.4323121880348838,
           "rmse_log": 0.5696841910067251,
@@ -47,44 +193,790 @@
           "rmse_bs": 71152640.63932535,
           "medae_bs": 5351029.536275633,
           "medape_percent": 36.20035614185486,
-          "smearing_factor": 1.040138648072362
+          "smearing_factor": 1.040138648072362,
+          "cobertura_ic_90": 90.33,
+          "hiperparametros": {
+            "n_estimators": 120,
+            "max_depth": 16,
+            "min_samples_split": 4,
+            "random_state": 42,
+            "n_jobs": 1
+          },
+          "razon_decision": "Seleccionado (Modelo Campeón): Mejor desempeño global con R² log = 0.7868 y R² en escala natural = 0.7529 tras calibración Duan Smearing (factor 1.0401), menor error mediano porcentual (MedAPE = 36.20%), alta consistencia entre pliegues de validación cruzada (R² = 0.7724 ± 0.0187) y máxima interpretabilidad mediante feature importance."
         },
-        "LightGBM": {
-          "cv_r2_mean": 0.7797741679733754,
-          "cv_r2_std": 0.0165590998481054,
-          "r2_log": 0.7901572918988581,
-          "mae_log": 0.4260211521750808,
-          "rmse_log": 0.5652420076526077,
-          "r2_bs": 0.7028576700591584,
-          "mae_bs": 23502825.780312043,
-          "rmse_bs": 78023634.57414077,
-          "medae_bs": 5564347.262537982,
-          "medape_percent": 37.330758444843774,
-          "smearing_factor": 1.148929171627896
+        "HistGradientBoosting": {
+          "cv_r2_mean": 0.7699811245154045,
+          "cv_r2_std": 0.013715724965106238,
+          "cv_rmse_mean": 0.5845677105974216,
+          "cv_rmse_std": 0.023689103838551186,
+          "cv_mae_mean": 0.43015679276241825,
+          "cv_mae_std": 0.009320582159497015,
+          "cv_medape_mean": 34.62957681843987,
+          "cv_medape_std": 1.0234204975650474,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.765,
+              "rmse": 0.5952,
+              "mae": 0.4432,
+              "medape": 33.58
+            },
+            {
+              "fold": 2,
+              "r2": 0.7883,
+              "rmse": 0.5829,
+              "mae": 0.4211,
+              "medape": 33.38
+            },
+            {
+              "fold": 3,
+              "r2": 0.7484,
+              "rmse": 0.6233,
+              "mae": 0.4394,
+              "medape": 35.91
+            },
+            {
+              "fold": 4,
+              "r2": 0.7804,
+              "rmse": 0.566,
+              "mae": 0.4259,
+              "medape": 35.59
+            },
+            {
+              "fold": 5,
+              "r2": 0.7678,
+              "rmse": 0.5555,
+              "mae": 0.4212,
+              "medape": 34.68
+            }
+          ],
+          "r2_log": 0.7815326978083318,
+          "mae_log": 0.43661241138755197,
+          "rmse_log": 0.5767408483811518,
+          "r2_bs": 0.728897245827776,
+          "mae_bs": 23662733.020005193,
+          "rmse_bs": 74526526.41723004,
+          "medae_bs": 5689145.7031996995,
+          "medape_percent": 36.93569720916631,
+          "smearing_factor": 1.1067626962017418,
+          "cobertura_ic_90": 90.02,
+          "hiperparametros": {
+            "max_iter": 150,
+            "max_depth": 6,
+            "learning_rate": 0.08,
+            "random_state": 42
+          },
+          "razon_decision": "Descartado: Rendimiento altamente competitivo (R² log = 0.7815, MedAPE = 36.94%), pero con ligera inferioridad frente a Random Forest en escala natural (R² Bs = 0.7289 vs 0.7529) y mayor sensibilidad en las colas superiores sin tuning adicional."
         }
       },
-      "smearing_factor": 1.148929171627896,
+      "smearing_factor": 1.040138648072362,
       "status": "ACTIVE",
-      "framework": "lightgbm",
+      "framework": "scikit-learn",
       "python_version": "3.13.13"
     },
     {
-      "version": "v1.20260922.0613",
-      "model_type": "LightGBM",
-      "timestamp": "2026-09-22T06:13:38.407008",
+      "version": "v1.20260927.0913",
+      "model_type": "RandomForest",
+      "timestamp": "2026-09-27T09:13:24.574562",
       "dataset_rows": 3153,
       "metrics": {
-        "cv_r2_mean": 0.7790282452404464,
-        "cv_r2_std": 0.015312941076136335,
-        "r2_log": 0.7891828758377195,
-        "mae_log": 0.42588859273578294,
-        "rmse_log": 0.5665528537158969,
-        "r2_bs": 0.6990386841894788,
-        "mae_bs": 23226678.24024707,
-        "rmse_bs": 78523428.48089057,
-        "medae_bs": 5197281.137160011,
-        "medape_percent": 36.71749367764423,
-        "smearing_factor": 1.1384031154883976
+        "cv_r2_mean": 0.7724324924737178,
+        "cv_r2_std": 0.018724807899812332,
+        "cv_rmse_mean": 0.5815011695018214,
+        "cv_rmse_std": 0.03328089620830159,
+        "cv_mae_mean": 0.42937843841509327,
+        "cv_mae_std": 0.011576560389751033,
+        "cv_medape_mean": 34.2006044336116,
+        "cv_medape_std": 1.2075270528700344,
+        "cv_folds": [
+          {
+            "fold": 1,
+            "r2": 0.774,
+            "rmse": 0.5838,
+            "mae": 0.4348,
+            "medape": 34.29
+          },
+          {
+            "fold": 2,
+            "r2": 0.7869,
+            "rmse": 0.5848,
+            "mae": 0.426,
+            "medape": 33.66
+          },
+          {
+            "fold": 3,
+            "r2": 0.7359,
+            "rmse": 0.6385,
+            "mae": 0.4472,
+            "medape": 34.4
+          },
+          {
+            "fold": 4,
+            "r2": 0.7828,
+            "rmse": 0.5628,
+            "mae": 0.4269,
+            "medape": 36.18
+          },
+          {
+            "fold": 5,
+            "r2": 0.7825,
+            "rmse": 0.5376,
+            "mae": 0.412,
+            "medape": 32.46
+          }
+        ],
+        "r2_log": 0.7868460636110407,
+        "mae_log": 0.4323121880348838,
+        "rmse_log": 0.5696841910067251,
+        "r2_bs": 0.7528877842643916,
+        "mae_bs": 22888317.314960964,
+        "rmse_bs": 71152640.63932535,
+        "medae_bs": 5351029.536275633,
+        "medape_percent": 36.20035614185486,
+        "smearing_factor": 1.040138648072362,
+        "cobertura_ic_90": 90.33,
+        "hiperparametros": {
+          "n_estimators": 120,
+          "max_depth": 16,
+          "min_samples_split": 4,
+          "random_state": 42,
+          "n_jobs": 1
+        },
+        "razon_decision": "Seleccionado (Modelo Campeón): Mejor desempeño global con R² log = 0.7868 y R² en escala natural = 0.7529 tras calibración Duan Smearing (factor 1.0401), menor error mediano porcentual (MedAPE = 36.20%), alta consistencia entre pliegues de validación cruzada (R² = 0.7724 ± 0.0187) y máxima interpretabilidad mediante feature importance."
+      },
+      "all_models_metrics": {
+        "Ridge": {
+          "cv_r2_mean": 0.5475867040562985,
+          "cv_r2_std": 0.02727304315831015,
+          "cv_rmse_mean": 0.8194395296821515,
+          "cv_rmse_std": 0.022117736657867565,
+          "cv_mae_mean": 0.6324934183578861,
+          "cv_mae_std": 0.008734020075712104,
+          "cv_medape_mean": 72.45525498697195,
+          "cv_medape_std": 4.548846543195535,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.5619,
+              "rmse": 0.8127,
+              "mae": 0.6373,
+              "medape": 71.03
+            },
+            {
+              "fold": 2,
+              "r2": 0.579,
+              "rmse": 0.822,
+              "mae": 0.6321,
+              "medape": 73.74
+            },
+            {
+              "fold": 3,
+              "r2": 0.5208,
+              "rmse": 0.8601,
+              "mae": 0.6461,
+              "medape": 66.62
+            },
+            {
+              "fold": 4,
+              "r2": 0.5667,
+              "rmse": 0.7951,
+              "mae": 0.6211,
+              "medape": 80.34
+            },
+            {
+              "fold": 5,
+              "r2": 0.5095,
+              "rmse": 0.8073,
+              "mae": 0.6259,
+              "medape": 70.54
+            }
+          ],
+          "r2_log": 0.5718348633256344,
+          "mae_log": 0.6308967698006944,
+          "rmse_log": 0.8074081708433091,
+          "r2_bs": 0.5171230127593869,
+          "mae_bs": 34309195.586128876,
+          "rmse_bs": 99463140.83449805,
+          "medae_bs": 13018093.307216253,
+          "medape_percent": 74.06764783871085,
+          "smearing_factor": 1.5351707908409853,
+          "cobertura_ic_90": 84.63,
+          "hiperparametros": {
+            "alpha": 10.0,
+            "fit_intercept": true,
+            "solver": "auto",
+            "random_state": 42
+          },
+          "razon_decision": "Descartado: Modelo lineal con regularización L2 insuficiente para capturar no-linealidades complejas y rendimientos marginales decrecientes entre insumos, activos fijos y masa salarial (R² log = 0.5718, R² natural = 0.5171). Presenta un MedAPE elevado (74.07%) y sesgo en empresas grandes."
+        },
+        "RandomForest": {
+          "cv_r2_mean": 0.7724324924737178,
+          "cv_r2_std": 0.018724807899812332,
+          "cv_rmse_mean": 0.5815011695018214,
+          "cv_rmse_std": 0.03328089620830159,
+          "cv_mae_mean": 0.42937843841509327,
+          "cv_mae_std": 0.011576560389751033,
+          "cv_medape_mean": 34.2006044336116,
+          "cv_medape_std": 1.2075270528700344,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.774,
+              "rmse": 0.5838,
+              "mae": 0.4348,
+              "medape": 34.29
+            },
+            {
+              "fold": 2,
+              "r2": 0.7869,
+              "rmse": 0.5848,
+              "mae": 0.426,
+              "medape": 33.66
+            },
+            {
+              "fold": 3,
+              "r2": 0.7359,
+              "rmse": 0.6385,
+              "mae": 0.4472,
+              "medape": 34.4
+            },
+            {
+              "fold": 4,
+              "r2": 0.7828,
+              "rmse": 0.5628,
+              "mae": 0.4269,
+              "medape": 36.18
+            },
+            {
+              "fold": 5,
+              "r2": 0.7825,
+              "rmse": 0.5376,
+              "mae": 0.412,
+              "medape": 32.46
+            }
+          ],
+          "r2_log": 0.7868460636110407,
+          "mae_log": 0.4323121880348838,
+          "rmse_log": 0.5696841910067251,
+          "r2_bs": 0.7528877842643916,
+          "mae_bs": 22888317.314960964,
+          "rmse_bs": 71152640.63932535,
+          "medae_bs": 5351029.536275633,
+          "medape_percent": 36.20035614185486,
+          "smearing_factor": 1.040138648072362,
+          "cobertura_ic_90": 90.33,
+          "hiperparametros": {
+            "n_estimators": 120,
+            "max_depth": 16,
+            "min_samples_split": 4,
+            "random_state": 42,
+            "n_jobs": 1
+          },
+          "razon_decision": "Seleccionado (Modelo Campeón): Mejor desempeño global con R² log = 0.7868 y R² en escala natural = 0.7529 tras calibración Duan Smearing (factor 1.0401), menor error mediano porcentual (MedAPE = 36.20%), alta consistencia entre pliegues de validación cruzada (R² = 0.7724 ± 0.0187) y máxima interpretabilidad mediante feature importance."
+        },
+        "HistGradientBoosting": {
+          "cv_r2_mean": 0.7699811245154045,
+          "cv_r2_std": 0.013715724965106238,
+          "cv_rmse_mean": 0.5845677105974216,
+          "cv_rmse_std": 0.023689103838551186,
+          "cv_mae_mean": 0.43015679276241825,
+          "cv_mae_std": 0.009320582159497015,
+          "cv_medape_mean": 34.62957681843987,
+          "cv_medape_std": 1.0234204975650474,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.765,
+              "rmse": 0.5952,
+              "mae": 0.4432,
+              "medape": 33.58
+            },
+            {
+              "fold": 2,
+              "r2": 0.7883,
+              "rmse": 0.5829,
+              "mae": 0.4211,
+              "medape": 33.38
+            },
+            {
+              "fold": 3,
+              "r2": 0.7484,
+              "rmse": 0.6233,
+              "mae": 0.4394,
+              "medape": 35.91
+            },
+            {
+              "fold": 4,
+              "r2": 0.7804,
+              "rmse": 0.566,
+              "mae": 0.4259,
+              "medape": 35.59
+            },
+            {
+              "fold": 5,
+              "r2": 0.7678,
+              "rmse": 0.5555,
+              "mae": 0.4212,
+              "medape": 34.68
+            }
+          ],
+          "r2_log": 0.7815326978083318,
+          "mae_log": 0.43661241138755197,
+          "rmse_log": 0.5767408483811518,
+          "r2_bs": 0.728897245827776,
+          "mae_bs": 23662733.020005193,
+          "rmse_bs": 74526526.41723004,
+          "medae_bs": 5689145.7031996995,
+          "medape_percent": 36.93569720916631,
+          "smearing_factor": 1.1067626962017418,
+          "cobertura_ic_90": 90.02,
+          "hiperparametros": {
+            "max_iter": 150,
+            "max_depth": 6,
+            "learning_rate": 0.08,
+            "random_state": 42
+          },
+          "razon_decision": "Descartado: Rendimiento altamente competitivo (R² log = 0.7815, MedAPE = 36.94%), pero con ligera inferioridad frente a Random Forest en escala natural (R² Bs = 0.7289 vs 0.7529) y mayor sensibilidad en las colas superiores sin tuning adicional."
+        }
+      },
+      "smearing_factor": 1.040138648072362,
+      "status": "ARCHIVED",
+      "framework": "scikit-learn",
+      "python_version": "3.13.13"
+    },
+    {
+      "version": "v1.20260927.0908",
+      "model_type": "RandomForest",
+      "timestamp": "2026-09-27T09:08:47.977662",
+      "dataset_rows": 3153,
+      "metrics": {
+        "cv_r2_mean": 0.7724324924737178,
+        "cv_r2_std": 0.018724807899812332,
+        "cv_rmse_mean": 0.5815011695018214,
+        "cv_rmse_std": 0.03328089620830159,
+        "cv_mae_mean": 0.42937843841509327,
+        "cv_mae_std": 0.011576560389751033,
+        "cv_folds": [
+          {
+            "fold": 1,
+            "r2": 0.774,
+            "rmse": 0.5838,
+            "mae": 0.4348
+          },
+          {
+            "fold": 2,
+            "r2": 0.7869,
+            "rmse": 0.5848,
+            "mae": 0.426
+          },
+          {
+            "fold": 3,
+            "r2": 0.7359,
+            "rmse": 0.6385,
+            "mae": 0.4472
+          },
+          {
+            "fold": 4,
+            "r2": 0.7828,
+            "rmse": 0.5628,
+            "mae": 0.4269
+          },
+          {
+            "fold": 5,
+            "r2": 0.7825,
+            "rmse": 0.5376,
+            "mae": 0.412
+          }
+        ],
+        "r2_log": 0.7868460636110407,
+        "mae_log": 0.4323121880348838,
+        "rmse_log": 0.5696841910067251,
+        "r2_bs": 0.7528877842643916,
+        "mae_bs": 22888317.314960964,
+        "rmse_bs": 71152640.63932535,
+        "medae_bs": 5351029.536275633,
+        "medape_percent": 36.20035614185486,
+        "smearing_factor": 1.040138648072362
+      },
+      "all_models_metrics": {
+        "Ridge": {
+          "cv_r2_mean": 0.5475867040562985,
+          "cv_r2_std": 0.02727304315831015,
+          "cv_rmse_mean": 0.8194395296821515,
+          "cv_rmse_std": 0.022117736657867565,
+          "cv_mae_mean": 0.6324934183578861,
+          "cv_mae_std": 0.008734020075712104,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.5619,
+              "rmse": 0.8127,
+              "mae": 0.6373
+            },
+            {
+              "fold": 2,
+              "r2": 0.579,
+              "rmse": 0.822,
+              "mae": 0.6321
+            },
+            {
+              "fold": 3,
+              "r2": 0.5208,
+              "rmse": 0.8601,
+              "mae": 0.6461
+            },
+            {
+              "fold": 4,
+              "r2": 0.5667,
+              "rmse": 0.7951,
+              "mae": 0.6211
+            },
+            {
+              "fold": 5,
+              "r2": 0.5095,
+              "rmse": 0.8073,
+              "mae": 0.6259
+            }
+          ],
+          "r2_log": 0.5718348633256344,
+          "mae_log": 0.6308967698006944,
+          "rmse_log": 0.8074081708433091,
+          "r2_bs": 0.5171230127593869,
+          "mae_bs": 34309195.586128876,
+          "rmse_bs": 99463140.83449805,
+          "medae_bs": 13018093.307216253,
+          "medape_percent": 74.06764783871085,
+          "smearing_factor": 1.5351707908409853
+        },
+        "RandomForest": {
+          "cv_r2_mean": 0.7724324924737178,
+          "cv_r2_std": 0.018724807899812332,
+          "cv_rmse_mean": 0.5815011695018214,
+          "cv_rmse_std": 0.03328089620830159,
+          "cv_mae_mean": 0.42937843841509327,
+          "cv_mae_std": 0.011576560389751033,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.774,
+              "rmse": 0.5838,
+              "mae": 0.4348
+            },
+            {
+              "fold": 2,
+              "r2": 0.7869,
+              "rmse": 0.5848,
+              "mae": 0.426
+            },
+            {
+              "fold": 3,
+              "r2": 0.7359,
+              "rmse": 0.6385,
+              "mae": 0.4472
+            },
+            {
+              "fold": 4,
+              "r2": 0.7828,
+              "rmse": 0.5628,
+              "mae": 0.4269
+            },
+            {
+              "fold": 5,
+              "r2": 0.7825,
+              "rmse": 0.5376,
+              "mae": 0.412
+            }
+          ],
+          "r2_log": 0.7868460636110407,
+          "mae_log": 0.4323121880348838,
+          "rmse_log": 0.5696841910067251,
+          "r2_bs": 0.7528877842643916,
+          "mae_bs": 22888317.314960964,
+          "rmse_bs": 71152640.63932535,
+          "medae_bs": 5351029.536275633,
+          "medape_percent": 36.20035614185486,
+          "smearing_factor": 1.040138648072362
+        },
+        "HistGradientBoosting": {
+          "cv_r2_mean": 0.7699811245154045,
+          "cv_r2_std": 0.013715724965106238,
+          "cv_rmse_mean": 0.5845677105974216,
+          "cv_rmse_std": 0.023689103838551186,
+          "cv_mae_mean": 0.43015679276241825,
+          "cv_mae_std": 0.009320582159497015,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.765,
+              "rmse": 0.5952,
+              "mae": 0.4432
+            },
+            {
+              "fold": 2,
+              "r2": 0.7883,
+              "rmse": 0.5829,
+              "mae": 0.4211
+            },
+            {
+              "fold": 3,
+              "r2": 0.7484,
+              "rmse": 0.6233,
+              "mae": 0.4394
+            },
+            {
+              "fold": 4,
+              "r2": 0.7804,
+              "rmse": 0.566,
+              "mae": 0.4259
+            },
+            {
+              "fold": 5,
+              "r2": 0.7678,
+              "rmse": 0.5555,
+              "mae": 0.4212
+            }
+          ],
+          "r2_log": 0.7815326978083318,
+          "mae_log": 0.43661241138755197,
+          "rmse_log": 0.5767408483811518,
+          "r2_bs": 0.728897245827776,
+          "mae_bs": 23662733.020005193,
+          "rmse_bs": 74526526.41723004,
+          "medae_bs": 5689145.7031996995,
+          "medape_percent": 36.93569720916631,
+          "smearing_factor": 1.1067626962017418
+        }
+      },
+      "smearing_factor": 1.040138648072362,
+      "status": "ARCHIVED",
+      "framework": "scikit-learn",
+      "python_version": "3.13.13"
+    },
+    {
+      "version": "v1.20260922.0855",
+      "model_type": "RandomForest",
+      "timestamp": "2026-09-22T08:55:14.814111",
+      "dataset_rows": 3153,
+      "metrics": {
+        "cv_r2_mean": 0.7724324924737178,
+        "cv_r2_std": 0.018724807899812332,
+        "cv_rmse_mean": 0.5815011695018214,
+        "cv_rmse_std": 0.03328089620830159,
+        "cv_mae_mean": 0.42937843841509327,
+        "cv_mae_std": 0.011576560389751033,
+        "cv_folds": [
+          {
+            "fold": 1,
+            "r2": 0.774,
+            "rmse": 0.5838,
+            "mae": 0.4348
+          },
+          {
+            "fold": 2,
+            "r2": 0.7869,
+            "rmse": 0.5848,
+            "mae": 0.426
+          },
+          {
+            "fold": 3,
+            "r2": 0.7359,
+            "rmse": 0.6385,
+            "mae": 0.4472
+          },
+          {
+            "fold": 4,
+            "r2": 0.7828,
+            "rmse": 0.5628,
+            "mae": 0.4269
+          },
+          {
+            "fold": 5,
+            "r2": 0.7825,
+            "rmse": 0.5376,
+            "mae": 0.412
+          }
+        ],
+        "r2_log": 0.7868460636110407,
+        "mae_log": 0.4323121880348838,
+        "rmse_log": 0.5696841910067251,
+        "r2_bs": 0.7528877842643916,
+        "mae_bs": 22888317.314960964,
+        "rmse_bs": 71152640.63932535,
+        "medae_bs": 5351029.536275633,
+        "medape_percent": 36.20035614185486,
+        "smearing_factor": 1.040138648072362
+      },
+      "all_models_metrics": {
+        "Ridge": {
+          "cv_r2_mean": 0.5475867040562985,
+          "cv_r2_std": 0.02727304315831015,
+          "cv_rmse_mean": 0.8194395296821515,
+          "cv_rmse_std": 0.022117736657867565,
+          "cv_mae_mean": 0.6324934183578861,
+          "cv_mae_std": 0.008734020075712104,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.5619,
+              "rmse": 0.8127,
+              "mae": 0.6373
+            },
+            {
+              "fold": 2,
+              "r2": 0.579,
+              "rmse": 0.822,
+              "mae": 0.6321
+            },
+            {
+              "fold": 3,
+              "r2": 0.5208,
+              "rmse": 0.8601,
+              "mae": 0.6461
+            },
+            {
+              "fold": 4,
+              "r2": 0.5667,
+              "rmse": 0.7951,
+              "mae": 0.6211
+            },
+            {
+              "fold": 5,
+              "r2": 0.5095,
+              "rmse": 0.8073,
+              "mae": 0.6259
+            }
+          ],
+          "r2_log": 0.5718348633256344,
+          "mae_log": 0.6308967698006944,
+          "rmse_log": 0.8074081708433091,
+          "r2_bs": 0.5171230127593869,
+          "mae_bs": 34309195.586128876,
+          "rmse_bs": 99463140.83449805,
+          "medae_bs": 13018093.307216253,
+          "medape_percent": 74.06764783871085,
+          "smearing_factor": 1.5351707908409853
+        },
+        "RandomForest": {
+          "cv_r2_mean": 0.7724324924737178,
+          "cv_r2_std": 0.018724807899812332,
+          "cv_rmse_mean": 0.5815011695018214,
+          "cv_rmse_std": 0.03328089620830159,
+          "cv_mae_mean": 0.42937843841509327,
+          "cv_mae_std": 0.011576560389751033,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.774,
+              "rmse": 0.5838,
+              "mae": 0.4348
+            },
+            {
+              "fold": 2,
+              "r2": 0.7869,
+              "rmse": 0.5848,
+              "mae": 0.426
+            },
+            {
+              "fold": 3,
+              "r2": 0.7359,
+              "rmse": 0.6385,
+              "mae": 0.4472
+            },
+            {
+              "fold": 4,
+              "r2": 0.7828,
+              "rmse": 0.5628,
+              "mae": 0.4269
+            },
+            {
+              "fold": 5,
+              "r2": 0.7825,
+              "rmse": 0.5376,
+              "mae": 0.412
+            }
+          ],
+          "r2_log": 0.7868460636110407,
+          "mae_log": 0.4323121880348838,
+          "rmse_log": 0.5696841910067251,
+          "r2_bs": 0.7528877842643916,
+          "mae_bs": 22888317.314960964,
+          "rmse_bs": 71152640.63932535,
+          "medae_bs": 5351029.536275633,
+          "medape_percent": 36.20035614185486,
+          "smearing_factor": 1.040138648072362
+        },
+        "HistGradientBoosting": {
+          "cv_r2_mean": 0.7699811245154045,
+          "cv_r2_std": 0.013715724965106238,
+          "cv_rmse_mean": 0.5845677105974216,
+          "cv_rmse_std": 0.023689103838551186,
+          "cv_mae_mean": 0.43015679276241825,
+          "cv_mae_std": 0.009320582159497015,
+          "cv_folds": [
+            {
+              "fold": 1,
+              "r2": 0.765,
+              "rmse": 0.5952,
+              "mae": 0.4432
+            },
+            {
+              "fold": 2,
+              "r2": 0.7883,
+              "rmse": 0.5829,
+              "mae": 0.4211
+            },
+            {
+              "fold": 3,
+              "r2": 0.7484,
+              "rmse": 0.6233,
+              "mae": 0.4394
+            },
+            {
+              "fold": 4,
+              "r2": 0.7804,
+              "rmse": 0.566,
+              "mae": 0.4259
+            },
+            {
+              "fold": 5,
+              "r2": 0.7678,
+              "rmse": 0.5555,
+              "mae": 0.4212
+            }
+          ],
+          "r2_log": 0.7815326978083318,
+          "mae_log": 0.43661241138755197,
+          "rmse_log": 0.5767408483811518,
+          "r2_bs": 0.728897245827776,
+          "mae_bs": 23662733.020005193,
+          "rmse_bs": 74526526.41723004,
+          "medae_bs": 5689145.7031996995,
+          "medape_percent": 36.93569720916631,
+          "smearing_factor": 1.1067626962017418
+        }
+      },
+      "smearing_factor": 1.040138648072362,
+      "status": "ARCHIVED",
+      "framework": "scikit-learn",
+      "python_version": "3.13.13"
+    },
+    {
+      "version": "v1.20260922.0853",
+      "model_type": "RandomForest",
+      "timestamp": "2026-09-22T08:53:07.251926",
+      "dataset_rows": 3153,
+      "metrics": {
+        "cv_r2_mean": 0.7724324924737178,
+        "cv_r2_std": 0.018724807899812332,
+        "r2_log": 0.7868460636110407,
+        "mae_log": 0.4323121880348838,
+        "rmse_log": 0.5696841910067251,
+        "r2_bs": 0.7528877842643916,
+        "mae_bs": 22888317.314960964,
+        "rmse_bs": 71152640.63932535,
+        "medae_bs": 5351029.536275633,
+        "medape_percent": 36.20035614185486,
+        "smearing_factor": 1.040138648072362
       },
       "all_models_metrics": {
         "Ridge": {
@@ -113,23 +1005,87 @@
           "medape_percent": 36.20035614185486,
           "smearing_factor": 1.040138648072362
         },
-        "LightGBM": {
-          "cv_r2_mean": 0.7790282452404464,
-          "cv_r2_std": 0.015312941076136335,
-          "r2_log": 0.7891828758377195,
-          "mae_log": 0.42588859273578294,
-          "rmse_log": 0.5665528537158969,
-          "r2_bs": 0.6990386841894788,
-          "mae_bs": 23226678.24024707,
-          "rmse_bs": 78523428.48089057,
-          "medae_bs": 5197281.137160011,
-          "medape_percent": 36.71749367764423,
-          "smearing_factor": 1.1384031154883976
+        "HistGradientBoosting": {
+          "cv_r2_mean": 0.7699811245154045,
+          "cv_r2_std": 0.013715724965106238,
+          "r2_log": 0.7815326978083318,
+          "mae_log": 0.43661241138755197,
+          "rmse_log": 0.5767408483811518,
+          "r2_bs": 0.728897245827776,
+          "mae_bs": 23662733.020005193,
+          "rmse_bs": 74526526.41723004,
+          "medae_bs": 5689145.7031996995,
+          "medape_percent": 36.93569720916631,
+          "smearing_factor": 1.1067626962017418
         }
       },
-      "smearing_factor": 1.1384031154883976,
+      "smearing_factor": 1.040138648072362,
       "status": "ARCHIVED",
-      "framework": "lightgbm",
+      "framework": "scikit-learn",
+      "python_version": "3.13.13"
+    },
+    {
+      "version": "v1.20260922.0650",
+      "model_type": "RandomForest",
+      "timestamp": "2026-09-22T06:50:56.629519",
+      "dataset_rows": 3153,
+      "metrics": {
+        "cv_r2_mean": 0.7724324924737178,
+        "cv_r2_std": 0.018724807899812332,
+        "r2_log": 0.7868460636110407,
+        "mae_log": 0.4323121880348838,
+        "rmse_log": 0.5696841910067251,
+        "r2_bs": 0.7528877842643916,
+        "mae_bs": 22888317.314960964,
+        "rmse_bs": 71152640.63932535,
+        "medae_bs": 5351029.536275633,
+        "medape_percent": 36.20035614185486,
+        "smearing_factor": 1.040138648072362
+      },
+      "all_models_metrics": {
+        "Ridge": {
+          "cv_r2_mean": 0.5475867040562985,
+          "cv_r2_std": 0.02727304315831015,
+          "r2_log": 0.5718348633256344,
+          "mae_log": 0.6308967698006944,
+          "rmse_log": 0.8074081708433091,
+          "r2_bs": 0.5171230127593869,
+          "mae_bs": 34309195.586128876,
+          "rmse_bs": 99463140.83449805,
+          "medae_bs": 13018093.307216253,
+          "medape_percent": 74.06764783871085,
+          "smearing_factor": 1.5351707908409853
+        },
+        "RandomForest": {
+          "cv_r2_mean": 0.7724324924737178,
+          "cv_r2_std": 0.018724807899812332,
+          "r2_log": 0.7868460636110407,
+          "mae_log": 0.4323121880348838,
+          "rmse_log": 0.5696841910067251,
+          "r2_bs": 0.7528877842643916,
+          "mae_bs": 22888317.314960964,
+          "rmse_bs": 71152640.63932535,
+          "medae_bs": 5351029.536275633,
+          "medape_percent": 36.20035614185486,
+          "smearing_factor": 1.040138648072362
+        },
+        "HistGradientBoosting": {
+          "cv_r2_mean": 0.7699811245154045,
+          "cv_r2_std": 0.013715724965106238,
+          "r2_log": 0.7815326978083318,
+          "mae_log": 0.43661241138755197,
+          "rmse_log": 0.5767408483811518,
+          "r2_bs": 0.728897245827776,
+          "mae_bs": 23662733.020005193,
+          "rmse_bs": 74526526.41723004,
+          "medae_bs": 5689145.7031996995,
+          "medape_percent": 36.93569720916631,
+          "smearing_factor": 1.1067626962017418
+        }
+      },
+      "smearing_factor": 1.040138648072362,
+      "status": "ARCHIVED",
+      "framework": "scikit-learn",
       "python_version": "3.13.13"
     },
     {

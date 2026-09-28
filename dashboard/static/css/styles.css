@@ -1,43 +1,55 @@
 /* ==========================================================================
-   ESTILOS CORPORATIVOS: DASHBOARD DE APRENDIZAJE SUPERVISADO (EAIMCS - INE)
-   Paleta alineada al dashboard "EDSA 2023": crema cálido, acento teal,
-   tipografía Inter y tarjetas de borde sutil con acabado "glass".
+   ESTILOS INSTITUCIONALES: DASHBOARD DE APRENDIZAJE SUPERVISADO (EAIMCS - INE)
+   Paleta institucional: azul oscuro, azul claro, dorado/secundario y semáforo de riesgo
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Modo Claro por Defecto */
-  --bg-primary: #fcf8fa;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #f6f3f5;
-  --bg-sidebar: #fcf8fa; /* Sidebar clara, estilo "Data Expert" */
-  --sidebar-hover: #eae7e9;
-  --sidebar-active: #006a61;
+  /* Propuesta Base Paleta Institucional (Tarea 4) */
+  --color-primario: #0B3D62;      /* azul institucional oscuro — confianza, formalidad */
+  --color-primario-claro: #1B5A8C;
+  --color-secundario: #F4B400;    /* amarillo/dorado — acento, dato destacado */
+  --color-alerta-alta: #C0392B;   /* rojo — riesgo alto */
+  --color-alerta-media: #E1A100;  /* ámbar — riesgo medio */
+  --color-alerta-baja: #1E7A46;   /* verde — riesgo bajo */
+  --color-fondo: #F7F8FA;
+  --color-superficie: #FFFFFF;
+  --color-texto-primario: #1A1A1A;
+  --color-texto-secundario: #5C5C5C;
+  --color-borde: #E1E4E8;
 
-  --text-primary: #1b1b1d;
-  --text-secondary: #45464d;
-  --text-muted: #76777d;
-  --text-sidebar: #45464d;
-  --text-sidebar-active: #006a61;
+  /* Mapeo de Variables del Sistema */
+  --bg-primary: var(--color-fondo);
+  --bg-surface: var(--color-superficie);
+  --bg-surface-elevated: #EEF2F6;
+  --bg-sidebar: #FFFFFF;
+  --sidebar-hover: #EEF2F6;
+  --sidebar-active: var(--color-primario);
 
-  --border-color: #e4e2e4;
-  --border-hover: #c6c6cd;
-  --border-subtle: #f0edef;
+  --text-primary: var(--color-texto-primario);
+  --text-secondary: var(--color-texto-secundario);
+  --text-muted: #7E8B9B;
+  --text-sidebar: var(--color-texto-secundario);
+  --text-sidebar-active: var(--color-primario);
+
+  --border-color: var(--color-borde);
+  --border-hover: #C5CBD5;
+  --border-subtle: #ECEFF3;
 
   /* Colores de Acento y Semántica */
-  --primary: #006a61;
-  --primary-hover: #005049;
-  --primary-light: rgba(0, 106, 97, 0.08);
+  --primary: var(--color-primario);
+  --primary-hover: var(--color-primario-claro);
+  --primary-light: rgba(11, 61, 98, 0.08);
 
-  --accent-emerald: #006a61;
-  --accent-emerald-light: rgba(0, 106, 97, 0.08);
-  --accent-amber: #f97316;
-  --accent-amber-light: rgba(249, 115, 22, 0.1);
-  --accent-rose: #ba1a1a;
-  --accent-rose-light: #ffdad6;
-  --accent-indigo: #565e74;
-  --accent-indigo-light: rgba(86, 94, 116, 0.1);
+  --accent-emerald: var(--color-alerta-baja);
+  --accent-emerald-light: rgba(30, 122, 70, 0.12);
+  --accent-amber: var(--color-alerta-media);
+  --accent-amber-light: rgba(225, 161, 0, 0.12);
+  --accent-rose: var(--color-alerta-alta);
+  --accent-rose-light: rgba(192, 57, 43, 0.12);
+  --accent-indigo: var(--color-primario-claro);
+  --accent-indigo-light: rgba(27, 90, 140, 0.12);
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
@@ -47,45 +59,139 @@
   --sidebar-width: 270px;
   --sidebar-width-collapsed: 78px;
   --header-height: 68px;
-  --transition-speed: 0.25s;
+  --transition-speed: 280ms;
+  --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
   --radius-lg: 12px;
   --radius-md: 8px;
   --radius-sm: 6px;
 }
 
-/* Modo Oscuro (misma identidad, superficies oscuras) */
+/* Modo Oscuro Institucional */
 [data-theme="dark"] {
-  --bg-primary: #131314;
-  --bg-surface: #1b1b1d;
-  --bg-surface-elevated: #232325;
-  --bg-sidebar: #131314;
-  --sidebar-hover: #232325;
-  --sidebar-active: #6bd8cb;
+  --color-primario: #3A82C4;
+  --color-primario-claro: #5B9BD5;
+  --color-secundario: #FFD15C;
+  --color-alerta-alta: #E74C3C;
+  --color-alerta-media: #F39C12;
+  --color-alerta-baja: #2ECC71;
+  --color-fondo: #0D131C;
+  --color-superficie: #141C28;
+  --color-texto-primario: #F0F4F8;
+  --color-texto-secundario: #9FB1C4;
+  --color-borde: #223042;
 
-  --text-primary: #f3f0f2;
-  --text-secondary: #c6c6cd;
-  --text-muted: #8a8b91;
-  --text-sidebar: #c6c6cd;
-  --text-sidebar-active: #6bd8cb;
+  --bg-primary: var(--color-fondo);
+  --bg-surface: var(--color-superficie);
+  --bg-surface-elevated: #1B2636;
+  --bg-sidebar: #101722;
+  --sidebar-hover: #1B2636;
+  --sidebar-active: var(--color-primario);
 
-  --border-color: #333335;
-  --border-hover: #45464d;
-  --border-subtle: #232325;
+  --text-primary: var(--color-texto-primario);
+  --text-secondary: var(--color-texto-secundario);
+  --text-muted: #8FA3B7; /* Ratio de contraste ≥ 6.5:1 sobre fondo/superficie oscura (WCAG AA) */
+  --text-sidebar: var(--color-texto-secundario);
+  --text-sidebar-active: var(--color-primario);
 
-  --primary: #6bd8cb;
-  --primary-hover: #89f5e7;
-  --primary-light: rgba(107, 216, 203, 0.14);
+  --border-color: var(--color-borde);
+  --border-hover: #33465E;
+  --border-subtle: #192433;
 
-  --accent-emerald: #6bd8cb;
-  --accent-emerald-light: rgba(107, 216, 203, 0.14);
-  --accent-amber: #dec29a;
-  --accent-amber-light: rgba(222, 194, 154, 0.14);
-  --accent-rose: #ffb4ab;
-  --accent-rose-light: rgba(255, 180, 171, 0.14);
-  --accent-indigo: #bec6e0;
-  --accent-indigo-light: rgba(190, 198, 224, 0.14);
+  --primary: var(--color-primario);
+  --primary-hover: var(--color-primario-claro);
+  --primary-light: rgba(58, 130, 196, 0.16);
 
-  --shadow-card: 0 4px 12px rgba(0,0,0,0.35);
+  --accent-emerald: var(--color-alerta-baja);
+  --accent-emerald-light: rgba(46, 204, 113, 0.16);
+  --accent-amber: var(--color-alerta-media);
+  --accent-amber-light: rgba(243, 156, 18, 0.16);
+  --accent-rose: var(--color-alerta-alta);
+  --accent-rose-light: rgba(231, 76, 60, 0.16);
+  --accent-indigo: var(--color-primario-claro);
+  --accent-indigo-light: rgba(91, 155, 213, 0.16);
+
+  --shadow-card: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* ==========================================================================
+   SOPORTE ANTI-FOUC (PREVENCIÓN DE DESTELLO EN CARGA)
+   ========================================================================== */
+html.no-transition,
+html.no-transition * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
+/* ==========================================================================
+   VIEW TRANSITIONS (REVELADO CIRCULAR DESDE EL BOTÓN DE TEMA)
+   ========================================================================== */
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+::view-transition-new(root) {
+  animation: none;
+  z-index: 9999;
+}
+
+/* ==========================================================================
+   TRANSICIÓN SUAVE DE COLORES (ACOTADA A PROPIEDADES DE COLOR)
+   Duración: 280ms, Easing: cubic-bezier(0.4, 0, 0.2, 1)
+   Exclusivamente sobre: background-color, color, border-color, fill, stroke.
+   NO usa transition: all ni * { transition }. No afecta layout (width, height, margin, padding).
+   ========================================================================== */
+body,
+header,
+.top-navbar,
+.sidebar,
+.sidebar-header,
+.sidebar-menu,
+.sidebar-footer,
+.nav-item-btn,
+.sidebar-toggle-btn,
+.model-badge-card,
+.card,
+.kpi-card,
+.table-container,
+.custom-table-container,
+table,
+thead,
+tbody,
+tr,
+th,
+td,
+input,
+select,
+textarea,
+button,
+.theme-toggle-btn,
+.status-pill,
+.status-pill-subtle,
+.badge,
+.badge-val,
+.badge-title,
+.chart-rationale-box,
+.chart-header,
+.chart-refresh-btn,
+.chart-retry-btn,
+.chart-wrapper,
+.chart-loading-overlay,
+.chart-error-overlay,
+.tooltip,
+.pagination-btn,
+.modal-content,
+.company-modal-card,
+.bunching-card,
+.subnav-tab-btn,
+.btn-predict {
+  transition:
+    background-color 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    fill 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 280ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Reset y Bases */
@@ -104,7 +210,6 @@ body {
   min-height: 100vh;
   display: flex;
   overflow-x: hidden;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 code, pre, .font-mono {
@@ -120,9 +225,9 @@ code, pre, .font-mono {
   background-image: radial-gradient(circle at 20px 20px, rgba(107, 216, 203, 0.06) 1px, transparent 1px);
 }
 
-/* Elevación suave al pasar el cursor, coherente con el resto del sistema */
+/* Elevación suave al pasar el cursor */
 .card, .kpi-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color var(--transition-speed);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .card:hover, .kpi-card:hover {
   transform: translateY(-2px);
@@ -244,7 +349,7 @@ code, pre, .font-mono {
   background: transparent;
   width: 100%;
   text-align: left;
-  transition: all var(--transition-speed) ease;
+  transition: transform 0.2s ease;
 }
 
 .nav-item-btn svg {
@@ -396,11 +501,17 @@ body.sidebar-collapsed .main-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-speed);
 }
 .theme-toggle-btn:hover {
   color: var(--text-primary);
   border-color: var(--border-hover);
+}
+.theme-toggle-btn svg {
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-toggle-btn.animating svg {
+  transform: rotate(180deg) scale(0.6);
+  opacity: 0;
 }
 
 /* ==========================================================================
@@ -714,7 +825,7 @@ body.sidebar-collapsed .main-wrapper {
   width: 100%;
   margin-top: 1rem;
   box-shadow: 0 4px 12px rgba(0, 106, 97, 0.25);
-  transition: all var(--transition-speed);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .btn-predict:hover {
   transform: translateY(-1px);
@@ -863,3 +974,461 @@ body.sidebar-collapsed .main-wrapper {
     padding: 1rem;
   }
 }
+
+/* ==========================================================================
+   MÓDULOS INSTITUCIONALES (TAREA 1, 2, 3 Y 4)
+   ========================================================================== */
+
+/* Badges de Riesgo Institucional (Tarea 3 & 4) */
+.badge-riesgo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.badge-riesgo-alto {
+  background: rgba(192, 57, 43, 0.12);
+  color: var(--color-alerta-alta);
+  border: 1px solid var(--color-alerta-alta);
+}
+.badge-riesgo-medio {
+  background: rgba(225, 161, 0, 0.14);
+  color: var(--color-alerta-media);
+  border: 1px solid var(--color-alerta-media);
+}
+.badge-riesgo-bajo {
+  background: rgba(30, 122, 70, 0.12);
+  color: var(--color-alerta-baja);
+  border: 1px solid var(--color-alerta-baja);
+}
+
+/* Barras de Cobertura y Desviación */
+.progress-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease-in-out;
+}
+
+/* Bunching Analysis Cards */
+.bunching-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.bunching-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.bunching-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.bunching-card.alerta-activa {
+  border-left: 4px solid var(--color-alerta-alta);
+}
+.bunching-card.distribucion-regular {
+  border-left: 4px solid var(--color-alerta-baja);
+}
+
+/* Ficha Individual de Empresa (Modal / Panel) */
+.company-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+.company-modal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  max-width: 680px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: modalFadeIn 0.22s ease-out;
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Navegación Modular de 5 Grupos */
+.sidebar-group-header {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0.75rem 1rem 0.25rem 1rem;
+}
+
+.subnav-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.4rem;
+  overflow-x: auto;
+}
+.subnav-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.subnav-tab-btn:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.subnav-tab-btn.active {
+  color: var(--primary);
+  background: var(--primary-light);
+  border-bottom: 2px solid var(--primary);
+}
+
+/* Timeline y Evolución de Preprocesamiento */
+.prep-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  padding-left: 2rem;
+  margin-top: 1rem;
+}
+.prep-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.95rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--border-color);
+}
+.prep-timeline-step {
+  position: relative;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+.prep-timeline-dot {
+  position: absolute;
+  left: -2rem;
+  top: 1.25rem;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid var(--bg-surface);
+}
+
+/* Cobertura Empírica IC 90% Highlight Card */
+.metric-highlight-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+.metric-highlight-num {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-primario);
+}
+[data-theme="dark"] .metric-highlight-num {
+  color: var(--color-secundario);
+}
+
+/* ==========================================================================
+   BADGES DE RIESGO OPERATIVO (TAREA 3 & TAREA 4)
+   ========================================================================== */
+.badge-riesgo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-riesgo-alto {
+  background-color: rgba(192, 57, 43, 0.14);
+  color: var(--color-alerta-alta);
+  border: 1px solid rgba(192, 57, 43, 0.35);
+}
+.badge-riesgo-medio {
+  background-color: rgba(225, 161, 0, 0.14);
+  color: var(--color-alerta-media);
+  border: 1px solid rgba(225, 161, 0, 0.35);
+}
+.badge-riesgo-bajo {
+  background-color: rgba(30, 122, 70, 0.14);
+  color: var(--color-alerta-baja);
+  border: 1px solid rgba(30, 122, 70, 0.35);
+}
+
+/* ==========================================================================
+   PANEL DE BUNCHING SECTORIAL (TAREA 3)
+   ========================================================================== */
+.bunching-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+.bunching-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.bunching-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+.bunching-card.has-alert {
+  border-left: 4px solid var(--color-alerta-alta);
+}
+.bunching-card.regular {
+  border-left: 4px solid var(--color-alerta-baja);
+}
+.bunching-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.bunching-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.bunching-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.bunching-status {
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.bunching-status.alert {
+  background: rgba(192, 57, 43, 0.14);
+  color: var(--color-alerta-alta);
+  border: 1px solid rgba(192, 57, 43, 0.35);
+}
+.bunching-status.regular {
+  background: rgba(30, 122, 70, 0.14);
+  color: var(--color-alerta-baja);
+  border: 1px solid rgba(30, 122, 70, 0.35);
+}
+.bunching-metrics-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.35rem;
+}
+
+/* ==========================================================================
+   MODAL DE FICHA INDIVIDUAL DE EMPRESA (TAREA 3)
+   ========================================================================== */
+.company-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+.company-modal-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: scaleUp 0.25s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   COMPONENTES DE GRÁFICOS: HEADER, BOTÓN REFRESH, WRAPPER, SKELETON Y ERROR
+   ========================================================================== */
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.chart-header-left {
+  flex: 1;
+}
+.chart-refresh-btn {
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.38rem 0.52rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.chart-refresh-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+.chart-refresh-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+.chart-refresh-btn.spinning svg {
+  animation: spin 0.75s linear infinite;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-loading-overlay,
+.chart-error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--bg-surface);
+  z-index: 10;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.chart-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--color-primario);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.chart-error-overlay {
+  background: var(--bg-surface);
+  color: var(--color-alerta-alta);
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.chart-retry-btn {
+  background: var(--primary);
+  color: #ffffff;
+  border: 1px solid var(--primary);
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chart-retry-btn:hover {
+  background: var(--primary-hover);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   ACCESIBILIDAD: PREFERS-REDUCED-MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+
