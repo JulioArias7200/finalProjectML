@@ -1,0 +1,24 @@
+artifact_path: file:C:/Users/RAQUEL SERRANO/OneDrive/Documentos/ProyectoFinalML/finalProjectML/data/raw/mlruns/1/models/m-f8c70ca2fcfd403c9f1e47613f4fa90d/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.13.13
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.0
+    skops_trusted_types:
+    - sklearn.tree._tree.Tree
+mlflow_version: 3.16.1
+model_id: m-f8c70ca2fcfd403c9f1e47613f4fa90d
+model_size_bytes: 3900452
+model_uuid: m-f8c70ca2fcfd403c9f1e47613f4fa90d
+prompts: null
+run_id: 34dc74f12d544e82847601f325dd80b9
+utc_time_created: '2026-09-22 13:34:19.233912'

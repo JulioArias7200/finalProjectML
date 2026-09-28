@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-09-27T09:25:31.466478",
+  "dataset_nombre": "EAIMCS 2017-2018 (INE Bolivia)",
+  "total_etapas": 5,
+  "filas_iniciales": 3153,
+  "filas_finales": 3153,
+  "columnas_iniciales": 167,
+  "columnas_finales": 185,
+  "etapas": [
+    {
+      "etapa": "Tratamiento de centinelas 99999",
+      "orden": 1,
+      "filas_antes": 6428,
+      "columnas_antes": 8,
+      "filas_despues": 6428,
+      "columnas_despues": 10,
+      "valores_afectados": 0,
+      "descripcion_regla": "Sustitución de centinelas 99999.0 (código del INE para registros con imputación pendiente o inconsistencia contable) por NaN y acotamiento de valores monetarios anómalos a cero (clip(lower=0))."
+    },
+    {
+      "etapa": "Agregación de la Sección 10",
+      "orden": 2,
+      "filas_antes": 6428,
+      "columnas_antes": 10,
+      "filas_despues": 1614,
+      "columnas_despues": 4,
+      "valores_afectados": 6428,
+      "descripcion_regla": "Transformación de estructura larga (6428 registros de materias primas) a nivel empresarial por 'ID' único (1614 empresas), calculando variedad (n_insumos), compras totales (total_valor_co) y consumo fabril (total_valor_uti)."
+    },
+    {
+      "etapa": "Normalización categórica CAEB",
+      "orden": 3,
+      "filas_antes": 3153,
+      "columnas_antes": 167,
+      "filas_despues": 3153,
+      "columnas_despues": 172,
+      "valores_afectados": 4692,
+      "descripcion_regla": "Cruce relacional Left Join con Sección 10; mapeo sistemático de 445 códigos CAEB (CIIU Rev. 4) a macrosectores homogéneos; normalización de 9 departamentos e imputación de ceros en insumos para empresas sin manufactura."
+    },
+    {
+      "etapa": "Políticas anti-leakage",
+      "orden": 4,
+      "filas_antes": 3153,
+      "columnas_antes": 172,
+      "filas_despues": 3153,
+      "columnas_despues": 173,
+      "valores_afectados": 19,
+      "descripcion_regla": "Blindaje metodológico del modelo excluyendo 19 variables macroeconómicas post-encuesta (VBP, VA, CI, VIPP) y componentes de ingresos de Sección 5 (S05_01 a S05_04) que causarían fuga de datos (data leakage)."
+    },
+    {
+      "etapa": "Transformación logarítmica",
+      "orden": 5,
+      "filas_antes": 3153,
+      "columnas_antes": 173,
+      "filas_despues": 3153,
+      "columnas_despues": 185,
+      "valores_afectados": 37836,
+      "descripcion_regla": "Aplicación de transformación no lineal log(1 + x) a 11 predictores numéricos de estructura productiva y a la variable objetivo, estabilizando la varianza y reduciendo la severa asimetría de cola pesada (Pareto)."
+    }
+  ]
+}
