@@ -193,6 +193,18 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("S01_05_A", latest.get("features", {}))
         self.assertIn("latency_ms", latest)
 
+    def test_bitacora_analisis_contract(self):
+        resp = self.client.get("/api/bitacora_analisis")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertIn("meta", data)
+        self.assertIn("metadatos_auditoria", data)
+        self.assertIn("resumen_ejecutivo", data)
+        self.assertIn("hitos_analisis", data)
+        self.assertIn("matriz_control_calidad", data)
+        self.assertGreaterEqual(len(data["hitos_analisis"]), 7)
+        self.assertGreaterEqual(len(data["matriz_control_calidad"]), 5)
+
 
 if __name__ == "__main__":
     unittest.main()

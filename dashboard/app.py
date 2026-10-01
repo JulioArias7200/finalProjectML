@@ -398,6 +398,20 @@ def get_bitacora_modelos():
 
 
 # -------------------------------------------------------------
+# API: BITÁCORA DE ANÁLISIS INTEGRAL DEL PROYECTO
+# -------------------------------------------------------------
+@app.route("/api/bitacora_analisis")
+def get_bitacora_analisis():
+    """Retorna la bitácora consolidada de análisis técnico, auditoría y modelado del proyecto."""
+    data = data_loader.get_project_analysis_log()
+    if isinstance(data, dict) and "error" in data and len(data) == 1:
+        return jsonify(data), 404
+    data_copy = dict(data)
+    data_copy["meta"] = build_meta()
+    return jsonify(data_copy)
+
+
+# -------------------------------------------------------------
 # API: MÓDULO OPERATIVO DE EMPRESAS Y RIESGO (TAREA 3)
 # -------------------------------------------------------------
 @app.route("/api/empresas_riesgo")

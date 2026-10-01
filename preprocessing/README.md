@@ -19,7 +19,7 @@ python preprocessing/preprocessing.py
 python -m unittest discover -s tests -p test_data_contract.py
 ```
 
-En este repositorio puede usarse `./.python/python.exe` si está instalado localmente; esa carpeta está excluida de Git.
+Se ejecuta con el entorno virtual de la raíz (`venv/`, ver README principal): `venv/Scripts/python.exe preprocessing/preprocessing.py` en Windows o `venv/bin/python …` en Linux/macOS.
 
 ## Reglas vigentes
 

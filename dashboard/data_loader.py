@@ -88,6 +88,25 @@ class DashboardDataLoader:
     def get_data(self) -> pd.DataFrame:
         return self.df
 
+    def get_project_analysis_log(self) -> Dict[str, Any]:
+        """Retorna la bitácora consolidada de análisis técnico, auditoría y modelado del proyecto."""
+        if hasattr(self, "_cached_analysis_log") and self._cached_analysis_log is not None:
+            return self._cached_analysis_log
+
+        path_artifacts = self.project_root / "dashboard" / "artifacts" / "bitacora_analisis_proyecto.json"
+        path_models = self.project_root / "models" / "bitacora_analisis_proyecto.json"
+        target_path = path_artifacts if path_artifacts.exists() else path_models
+
+        if target_path.exists():
+            try:
+                import json
+                with open(target_path, "r", encoding="utf-8") as f:
+                    self._cached_analysis_log = json.load(f)
+                    return self._cached_analysis_log
+            except Exception as e:
+                logger.error("Error al cargar bitacora_analisis_proyecto.json: %s", e)
+        return {"error": "bitacora_no_encontrada"}
+
     def get_dictionary(self) -> List[Dict[str, str]]:
         """Retorna el catálogo oficial de variables según docs/02_diccionario_datos_EAIMCS.md."""
         entries = [

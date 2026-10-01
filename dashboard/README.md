@@ -107,20 +107,20 @@ python app.py
 Una vez iniciado, abre tu navegador en:
 👉 **`http://127.0.0.1:5055`**
 
-> Nota: este repositorio incluye un runtime embebido en `.python/` (Python 3.13 con dependencias ya instaladas). Con él, los comandos anteriores se ejecutan como `.python/python.exe dashboard/app.py` desde la raíz; no se requiere entorno virtual.
+> Nota: el proyecto se ejecuta con el entorno virtual de la raíz (`venv/`, creado con `python -m venv venv` y `pip install -r requirements.txt`). En Windows los comandos siguientes se invocan como `venv\Scripts\python.exe …` desde la raíz; en Linux/macOS como `venv/bin/python …` (o activando el entorno con `source venv/bin/activate`).
 
 ### Pruebas y verificación (T18)
 
 ```bash
-# Suite automatizada (32 pruebas, sin servidor):
-.python/python.exe -m unittest discover -s tests
+# Suite automatizada (33 pruebas, sin servidor):
+venv/Scripts/python.exe -m unittest discover -s tests
 
 # Verificación integral del paquete activo (sin servidor):
-.python/python.exe tests/integracion/verificacion_integral.py
+venv/Scripts/python.exe tests/integracion/verificacion_integral.py
 
 # Integración A10 con tráfico controlado (requieren el servidor activo en 127.0.0.1:5055):
-.python/python.exe tests/integracion/prueba_a10_sin_drift.py
-.python/python.exe tests/integracion/prueba_a10_drift_detectado.py
+venv/Scripts/python.exe tests/integracion/prueba_a10_sin_drift.py
+venv/Scripts/python.exe tests/integracion/prueba_a10_drift_detectado.py
 ```
 
 Para regenerar el paquete completo desde la fuente: `preprocessing/preprocessing.py` y luego `models/train.py` (el servidor valida `run_id` y hashes al arrancar; nunca sirve ejecuciones mezcladas).

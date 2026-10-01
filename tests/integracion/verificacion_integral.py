@@ -1,7 +1,7 @@
 """Verificación integral E2E (T18 · A11).
 
 Ejecución (desde la raíz, con el paquete activo):
-    .python/python.exe tests/integracion/verificacion_integral.py
+    venv/Scripts/python.exe tests/integracion/verificacion_integral.py
 
 Comprueba, sin servidor:
 1. Integridad del paquete (manifest.json vs SHA-256 reales, mismo run_id, versión activa).

@@ -366,6 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
     'gobernanza': {
       title: 'Metodología & Gobernanza',
       sub: 'Bitácora de preprocesamiento, análisis exploratorio y marco lógico'
+    },
+    'bitacora_analisis': {
+      title: 'Bitácora de Análisis del Proyecto',
+      sub: 'Trazabilidad integral, auditoría de calidad de datos, benchmark y MLOps'
     }
   };
 
@@ -414,6 +418,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (sectionId === 'gobernanza') {
       // Subtab activo por defecto: gob-pipeline
       loadBitacoraPreprocesamiento();
+    } else if (sectionId === 'bitacora_analisis') {
+      loadBitacoraAnalisis();
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1835,6 +1841,200 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (dictSearchInput) dictSearchInput.addEventListener('input', filterDictionary);
   if (dictSectionFilter) dictSectionFilter.addEventListener('change', filterDictionary);
+
+  // ==========================================================================
+  // MÓDULO 6: BITÁCORA DE ANÁLISIS INTEGRAL DEL PROYECTO
+  // ==========================================================================
+  let analysisLogData = null;
+
+  async function loadBitacoraAnalisis() {
+    const timelineContainer = document.getElementById('analysisLogTimelineContainer');
+    const qualityBody = document.getElementById('qualityMatrixTableBody');
+    const rawViewer = document.getElementById('analysisRawJsonViewer');
+
+    try {
+      if (!analysisLogData) {
+        const res = await fetch('/api/bitacora_analisis');
+        analysisLogData = await res.json();
+      }
+
+      // 1. Poblar Metadatos & Resumen
+      const meta = analysisLogData.metadatos_auditoria || {};
+      const resumen = analysisLogData.resumen_ejecutivo || {};
+
+      const runBadge = document.getElementById('logRunIdBadge');
+      const preBadge = document.getElementById('logPreRunIdBadge');
+      const genDate = document.getElementById('logGeneratedDate');
+
+      if (runBadge) runBadge.textContent = meta.run_id || '—';
+      if (preBadge) preBadge.textContent = meta.preprocessing_run_id || '—';
+      if (genDate) genDate.textContent = meta.fecha_generacion ? new Date(meta.fecha_generacion).toLocaleString('es-BO') : '—';
+
+      const elUniverso = document.getElementById('bitKpiUniverso');
+      const elModelo = document.getElementById('bitKpiModelo');
+      const elDuan = document.getElementById('bitKpiDuan');
+      const elConformal = document.getElementById('bitKpiConformal');
+
+      if (elUniverso) elUniverso.textContent = Number(resumen.universo_analizado || 3153).toLocaleString('es-BO');
+      if (elModelo) elModelo.textContent = resumen.modelo_campeon ? resumen.modelo_campeon.split(' ')[0] : 'Random Forest';
+      if (elDuan) elDuan.textContent = Number(resumen.smearing_factor_duan || 1.04035).toFixed(5);
+      if (elConformal) elConformal.textContent = `${Number(resumen.cobertura_conformal_pct || 90.33).toFixed(2)}%`;
+
+      // 2. Renderizar Hitos
+      renderAnalysisTimeline(analysisLogData.hitos_analisis || []);
+
+      // 3. Renderizar Matriz de Calidad MML
+      renderQualityMatrix(analysisLogData.matriz_control_calidad || []);
+
+      // 4. Renderizar JSON Raw
+      if (rawViewer) {
+        rawViewer.textContent = JSON.stringify(analysisLogData, null, 2);
+      }
+    } catch (err) {
+      console.error('Error al cargar la bitácora de análisis:', err);
+      if (timelineContainer) {
+        timelineContainer.innerHTML = `<div class="card" style="text-align:center; color: var(--color-alerta-alta); padding: 2rem;">Error al cargar la bitácora de análisis del proyecto.</div>`;
+      }
+    }
+  }
+
+  function renderAnalysisTimeline(hitos) {
+    const container = document.getElementById('analysisLogTimelineContainer');
+    if (!container) return;
+
+    if (!hitos || hitos.length === 0) {
+      container.innerHTML = `<div class="card" style="text-align:center; padding: 2rem; color: var(--text-muted);">No se encontraron hitos metodológicos con el filtro seleccionado.</div>`;
+      return;
+    }
+
+    container.innerHTML = hitos.map(h => {
+      const badgeClass = `audit-badge-${h.color_badge || 'indigo'}`;
+      const findings = (h.hallazgos_estadisticos || []).map(f => `<li>${f}</li>`).join('');
+      const formula = h.formula_matematica ? `<div class="audit-formula-box"><strong>Fórmula Matemática:</strong> <code>${h.formula_matematica}</code></div>` : '';
+      const decision = h.decisiones_ingenieria ? `<div class="chart-rationale-box" style="margin-top:0.75rem;"><strong>Decisión de Ingeniería:</strong> ${h.decisiones_ingenieria}</div>` : '';
+
+      return `
+        <div class="audit-timeline-card">
+          <div class="audit-card-header">
+            <div class="audit-card-title">
+              <span style="color: var(--primary); font-family: monospace;">[${h.id}]</span>
+              <span>${h.fase}</span>
+            </div>
+            <span class="audit-badge ${badgeClass}">${h.estado}</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            <span>Responsable: <strong>${h.responsable}</strong></span> · <span>Fecha: ${h.fecha}</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+            ${h.descripcion}
+          </p>
+          ${findings ? `<ul class="audit-findings-list">${findings}</ul>` : ''}
+          ${formula}
+          ${decision}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderQualityMatrix(matriz) {
+    const tbody = document.getElementById('qualityMatrixTableBody');
+    if (!tbody) return;
+
+    if (!matriz || matriz.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-muted);">No hay registros en la matriz de calidad.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = matriz.map(m => `
+      <tr>
+        <td><strong>${m.criterio}</strong></td>
+        <td><span class="var-tag">${m.categoria}</span></td>
+        <td style="font-size: 0.85rem; color: var(--text-secondary);">${m.meta_esperada}</td>
+        <td><strong style="color: var(--color-primario);">${m.valor_obtenido}</strong></td>
+        <td><span class="badge-riesgo badge-riesgo-bajo">${m.estado}</span></td>
+        <td style="font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">${m.evidencia}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Filtrado de la Línea de Tiempo de Hitos
+  const analysisSearchInput = document.getElementById('analysisLogSearchInput');
+  const analysisPhaseFilter = document.getElementById('analysisLogPhaseFilter');
+
+  function filterAnalysisTimeline() {
+    if (!analysisLogData || !analysisLogData.hitos_analisis) return;
+    const q = (analysisSearchInput ? analysisSearchInput.value : '').toLowerCase().trim();
+    const phase = (analysisPhaseFilter ? analysisPhaseFilter.value : '').toLowerCase().trim();
+
+    const filtered = analysisLogData.hitos_analisis.filter(h => {
+      const matchPhase = !phase || (h.fase || '').toLowerCase().includes(phase);
+      if (!matchPhase) return false;
+      if (!q) return true;
+
+      const fullText = `${h.id} ${h.fase} ${h.descripcion} ${(h.hallazgos_estadisticos || []).join(' ')} ${h.decisiones_ingenieria || ''}`.toLowerCase();
+      return fullText.includes(q);
+    });
+
+    renderAnalysisTimeline(filtered);
+  }
+
+  if (analysisSearchInput) analysisSearchInput.addEventListener('input', filterAnalysisTimeline);
+  if (analysisPhaseFilter) analysisPhaseFilter.addEventListener('change', filterAnalysisTimeline);
+
+  // Copiar JSON al portapapeles
+  const btnCopyAnalysisJson = document.getElementById('btnCopyAnalysisJson');
+  if (btnCopyAnalysisJson) {
+    btnCopyAnalysisJson.addEventListener('click', () => {
+      if (!analysisLogData) return;
+      navigator.clipboard.writeText(JSON.stringify(analysisLogData, null, 2))
+        .then(() => {
+          const originalText = btnCopyAnalysisJson.textContent;
+          btnCopyAnalysisJson.textContent = '¡Copiado!';
+          setTimeout(() => btnCopyAnalysisJson.textContent = originalText, 1500);
+        })
+        .catch(() => alert('No se pudo copiar el JSON'));
+    });
+  }
+
+  // Exportar JSON
+  const btnExportAnalysisLogJson = document.getElementById('btnExportAnalysisLogJson');
+  if (btnExportAnalysisLogJson) {
+    btnExportAnalysisLogJson.addEventListener('click', () => {
+      if (!analysisLogData) return;
+      const blob = new Blob([JSON.stringify(analysisLogData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bitacora_analisis_${analysisLogData.metadatos_auditoria?.run_id || 'proyecto'}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // Exportar Matriz MML en CSV
+  const btnExportQualityMatrixCsv = document.getElementById('btnExportQualityMatrixCsv');
+  if (btnExportQualityMatrixCsv) {
+    btnExportQualityMatrixCsv.addEventListener('click', () => {
+      if (!analysisLogData || !analysisLogData.matriz_control_calidad) return;
+      const headers = ['Criterio', 'Categoria', 'Meta Esperada', 'Valor Obtenido', 'Estado', 'Evidencia'];
+      const rows = analysisLogData.matriz_control_calidad.map(m => [
+        `"${m.criterio.replace(/"/g, '""')}"`,
+        `"${m.categoria.replace(/"/g, '""')}"`,
+        `"${m.meta_esperada.replace(/"/g, '""')}"`,
+        `"${m.valor_obtenido.replace(/"/g, '""')}"`,
+        `"${m.estado.replace(/"/g, '""')}"`,
+        `"${m.evidencia.replace(/"/g, '""')}"`
+      ]);
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `matriz_calidad_mml_${analysisLogData.metadatos_auditoria?.run_id || 'proyecto'}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
 
   // Inicializar vista por defecto (Panorama)
   switchSection('panorama');
