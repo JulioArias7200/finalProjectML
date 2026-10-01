@@ -1,0 +1,45 @@
+\section{Antecedentes}
+\label{sec:antecedentes}
+
+\subsection{Marco Contextual e Institucional de la EAIMCS}
+El Instituto Nacional de Estadística (INE) de Bolivia es la entidad técnica rectora encargada de normar, recopilar, procesar y difundir las estadísticas oficiales del país, según los lineamientos establecidos por el Decreto Ley N$^\circ$ 1405 de 1976 \cite{ley1405}. Dentro de sus operaciones estadísticas estructurales, la \textit{Encuesta a la Industria Manufacturera, Comercio y Servicios} (EAIMCS) correspondiente a la gestión contable 2017--2018 constituye el instrumento central para la actualización de las Cuentas Nacionales Anuales \cite{ine2019eaimcs}.
+
+El marco muestral de la EAIMCS 2017--2018 se configuró a partir de un directorio exhaustivo de 10,044 unidades económicas formalmente registradas en la Fundación para el Desarrollo Empresarial (FUNDEMPRESA) y en el Directorio Integrado del Sistema de Cuentas Nacionales. La cobertura del estudio abarcó los nueve departamentos del territorio nacional (La Paz, Santa Cruz, Cochabamba, Tarija, Oruro, Chuquisaca, Potosí, Beni y Pando). 
+
+Por razones metodológicas y presupuestarias, la encuesta adoptó un diseño no probabilístico de selección dirigida focalizado exclusivamente en empresas pertenecientes a los estratos de \textbf{mediana y gran escala}:
+\begin{itemize}
+    \item \textbf{Mediana Empresa:} Unidades productivas con ventas anuales comprendidas entre Bs 2,450,000 y Bs 35,000,000 en el sector fabril, o con personal ocupado entre 20 y 49 trabajadores.
+    \item \textbf{Gran Empresa:} Unidades productivas con ventas anuales superiores a Bs 35,000,000 en manufactura (o > Bs 20,000,000 en comercio y servicios), o con una planta laboral superior a 50 trabajadores dependientes.
+\end{itemize}
+
+El operativo de campo recolectó información primaria proveniente de 3,153 empresas informantes. No obstante, al tratarse de un relevamiento censal por cuotas en un estrato acotado, la tasa de no respuesta observada alcanzó aproximadamente el 55\%, lo cual introduce desafíos estadísticos específicos de representatividad que deben ser ponderados y controlados al momento de inferir patrones de comportamiento económico.
+
+\subsection{Prácticas Tradicionales de Auditoría Fiscal en Bolivia}
+En el ámbito de la recaudación tributaria nacional, gestionada por el Servicio de Impuestos Nacionales (SIN), la selección de sujetos pasivos para procesos de fiscalización externa o auditoría tributaria se ha apoyado históricamente en dos mecanismos predominantes:
+\begin{enumerate}
+    \item \textbf{Muestreo Aleatorio Simple:} Auditorías aleatorias sobre el padrón nacional de contribuyentes, cuya tasa de efectividad en la detección de inconsistencias sustantivas suele ser reducida debido a la baja probabilidad de interceptar desvíos graves por puro azar.
+    \item \textbf{Sistemas de Alertas Basados en Ratios Estáticos:} Umbrales prefijados sobre ratios contables tradicionales (como el ratio de débito/crédito fiscal, margen bruto sobre ventas o relación compras/ingresos). 
+\end{enumerate}
+
+Estos esquemas presentan debilidades estructurales: son incapaces de considerar de manera simultánea la interacción multivariada de factores de producción (tales como la dotación de capital físico, gastos de consumo eléctrico, variedad de materias primas y masa salarial). En consecuencia, las empresas que presentan estructuras de costos complejas o modelos de negocio atípicos pueden ser falsamente catalogadas como riesgosas, mientras que desvíos sutiles pero sistemáticos de subdeclaración en empresas de gran volumen suelen pasar inadvertidos.
+
+\subsection{Estado del Arte en Modelado Económico y Machine Learning}
+Desde una perspectiva teórica, la modelación de la relación entre insumos productivos e ingresos tiene sus raíces en la clásica función de producción de Cobb-Douglas \cite{cobb1928theory}:
+\begin{equation}
+    Y = A \cdot L^\alpha \cdot K^\beta \cdot M^\gamma
+    \label{eq:cobb_douglas}
+\end{equation}
+donde $Y$ representa la producción total (o ingresos brutos), $L$ el trabajo (fuerza laboral y salarios), $K$ el acervo de capital fijo y $M$ los materiales o consumos intermedios. Al aplicar una transformación logarítmica natural, la ecuación (\ref{eq:cobb_douglas}) adopta una forma lineal en los parámetros:
+\begin{equation}
+    \ln(Y) = \ln(A) + \alpha \ln(L) + \beta \ln(K) + \gamma \ln(M) + \varepsilon
+    \label{eq:cobb_douglas_log}
+\end{equation}
+
+Si bien las regresiones lineales econométricas clásicas bajo Mínimos Cuadrados Ordinarios (MCO) han constituido el estándar histórico, la literatura económica contemporánea ha demostrado que los métodos de Aprendizaje Automático No Paramétrico superan sustancialmente a las formulaciones lineales \cite{hastie2009elements}. Algoritmos basados en ensambles de árboles de decisión, tales como \textit{Random Forests} \cite{breiman2001random} y \textit{Gradient Boosting} \cite{chen2016xgboost}, son capaces de:
+\begin{enumerate}
+    \item Capturar relaciones funcionales no lineales altamente complejas y umbrales de rendimientos decrecientes sin necesidad de especificar a priori formas funcionales rígidas.
+    \item Incorporar de manera natural interacciones de orden superior entre factores heterogéneos (por ejemplo, cómo el impacto de la maquinaria instalada depende críticamente de la calificación de la mano de obra contratada).
+    \item Tolerar la presencia de multicolinealidad severa entre insumos complementarios (como energía eléctrica y masa salarial) sin que los coeficientes pierdan estabilidad numérica.
+\end{enumerate}
+
+Asimismo, en el ámbito de la economía pública empírica, la investigación sobre aglomeración de declaraciones fiscales (\textit{bunching}) desarrollada por Saez \cite{saez2010bunching} ha demostrado que los contribuyentes tienden a manipular sus ingresos autodeclarados para situarse justo por debajo de umbrales regulatorios o impositivos. La disponibilidad de un modelo predictivo robusto permite calcular el valor esperado contrafactual y detectar cuantitativamente anomalías residuales en toda la distribución de contribuyentes.

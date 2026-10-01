@@ -1,0 +1,69 @@
+\begin{thebibliography}{}
+
+\bibitem[Bonferroni, 1936]{bonferroni1936teoria}
+Bonferroni, C.~E. (1936).
+\newblock Teoria statistica delle classi e calcolo delle probabilit{\`a}.
+\newblock {\em Pubblicazioni del R Istituto Superiore di Scienze Economiche e
+  Commerciali di Firenze}, 8:3--62.
+
+\bibitem[Breiman, 2001]{breiman2001random}
+Breiman, L. (2001).
+\newblock Random forests.
+\newblock {\em Machine Learning}, 45(1):5--32.
+
+\bibitem[Chen and Guestrin, 2016]{chen2016xgboost}
+Chen, T. and Guestrin, C. (2016).
+\newblock Xgboost: A scalable tree boosting system.
+\newblock In {\em Proceedings of the 22nd ACM SIGKDD International Conference
+  on Knowledge Discovery and Data Mining}, pages 785--794.
+
+\bibitem[Cobb and Douglas, 1928]{cobb1928theory}
+Cobb, C.~W. and Douglas, P.~H. (1928).
+\newblock {\em A Theory of Production}, volume~18.
+
+\bibitem[Duan, 1983]{duan1983smearing}
+Duan, N. (1983).
+\newblock Smearing estimate: A nonparametric retransformation method.
+\newblock {\em Journal of the American Statistical Association},
+  78(383):605--610.
+
+\bibitem[{Gobierno de Bolivia}, 1976]{ley1405}
+{Gobierno de Bolivia} (1976).
+\newblock Decreto ley n$^\circ$ 1405: Ley del sistema nacional de
+  informaci{\'o}n estad{\'\i}stica y secreto estad{\'\i}stico.
+
+\bibitem[Hastie et~al., 2009]{hastie2009elements}
+Hastie, T., Tibshirani, R., and Friedman, J. (2009).
+\newblock {\em The Elements of Statistical Learning: Data Mining, Inference,
+  and Prediction}.
+\newblock Springer Science \& Business Media, New York, 2 edition.
+
+\bibitem[{Instituto Nacional de Estad{\'\i}stica (INE)}, 2019]{ine2019eaimcs}
+{Instituto Nacional de Estad{\'\i}stica (INE)} (2019).
+\newblock Encuesta a la industria manufacturera, comercio y servicios
+  2017--2018: Metodolog{\'\i}a y resultados.
+\newblock Technical report, INE Bolivia, La Paz, Bolivia.
+
+\bibitem[Massey~Jr, 1951]{massey1951kolmogorov}
+Massey~Jr, F.~J. (1951).
+\newblock The kolmogorov-smirnov test for goodness of fit.
+\newblock {\em Journal of the American Statistical Association},
+  46(253):68--78.
+
+\bibitem[Pedregosa et~al., 2011]{pedregosa2011scikit}
+Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel,
+  O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., et~al. (2011).
+\newblock Scikit-learn: Machine learning in python.
+\newblock {\em Journal of Machine Learning Research}, 12:2825--2830.
+
+\bibitem[Saez, 2010]{saez2010bunching}
+Saez, E. (2010).
+\newblock Do taxpayers bunch at kink points?
+\newblock {\em American Economic Journal: Economic Policy}, 2(3):180--212.
+
+\bibitem[Wasserman, 2006]{wasserman2006all}
+Wasserman, L. (2006).
+\newblock {\em All of Nonparametric Statistics}.
+\newblock Springer Science \& Business Media, New York.
+
+\end{thebibliography}

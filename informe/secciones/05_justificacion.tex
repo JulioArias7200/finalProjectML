@@ -1,0 +1,41 @@
+\section{Justificación}
+\label{sec:justificacion}
+
+La pertinencia y relevancia del presente proyecto se sustenta en tres dimensiones fundamentales: técnica, económica-social y metodológica.
+
+\subsection{Justificación Técnica}
+Desde el punto de vista del modelado estadístico y la ciencia de datos, los datos microeconómicos empresariales presentan no-linealidades profundas, rendimientos marginales decrecientes e interdependencias complejas entre los insumos que invalidan los supuestos clásicos de la regresión lineal por Mínimos Cuadrados Ordinarios (homocedasticidad, normalidad de residuos y aditividad estricta). 
+
+\begin{enumerate}
+    \item \textbf{Superación de Limitaciones Lineales:} El uso de algoritmos basados en ensambles de árboles de decisión (\textit{Random Forest}) permite aproximar funciones de regresión no paramétricas complejas sin requerir supuestos a priori sobre la distribución subyacente. Los árboles capturan de forma intrínseca los efectos umbral (por ejemplo, el hecho de que un incremento en maquinaria no eleva la producción si la empresa carece de personal calificado suficiente o de suministro eléctrico estable).
+    \item \textbf{Corrección Rigurosa del Sesgo de Retransformación:} Al trabajar con variables monetarias con colas pesadas, la práctica habitual exige estimar el modelo en escala logarítmica: $\ln(y) = f(X) + \varepsilon$. Sin embargo, la retransformación ingenua $\hat{y} = \exp(\hat{y}_{\log})$ incurre en el \textit{sesgo de Jensen}, pues por la desigualdad de Jensen se cumple que:
+    \begin{equation}
+        \mathbb{E}[\exp(\varepsilon)] \ge \exp(\mathbb{E}[\varepsilon]) = 1
+        \label{eq:jensen}
+    \end{equation}
+    Ignorar esta propiedad conduce a una subestimación sistemática del valor esperado en moneda nacional. La implementación del estimador \textit{Duan Smearing} \cite{duan1983smearing} resuelve este problema mediante un factor multiplicativo empírico no paramétrico:
+    \begin{equation}
+        \hat{S} = \frac{1}{N} \sum_{i=1}^{N} \exp(e_i)
+        \label{eq:duan_factor}
+    \end{equation}
+    garantizando que las proyecciones en Bolivianos (Bs) sean consistentes e insesgadas.
+    \item \textbf{Blindaje contra Fuga de Datos (\textit{Anti-Leakage}):} En proyectos aplicados a encuestas oficiales, es común el error de incluir variables que son simultáneas o directamente derivadas del ingreso (como los desgloses de ingresos por ventas secundarias o indicadores agregados post-encuesta como el Valor Bruto de Producción). El presente proyecto implementa un protocolo estricto que excluye 19 variables contaminantes, asegurando que el modelo prediga con base exclusiva en insumos productivos genuinos.
+\end{enumerate}
+
+\subsection{Justificación Económica y Social}
+En el ámbito socioeconómico, la subdeclaración de ingresos por parte de contribuyentes de gran capacidad contributiva constituye una de las principales fuentes de inequidad regresiva en los países en desarrollo. Cuando las grandes y medianas empresas no aportan en proporción a su capacidad económica real:
+\begin{itemize}
+    \item Se traslada desproporcionadamente la carga tributaria sobre los sectores cautivos, en particular los trabajadores dependientes en planilla salarial y los pequeños comerciantes formales.
+    \item El Estado ve mermada su capacidad de financiamiento soberano para proyectos de infraestructura básica, salud pública, educación y programas de protección social.
+    \item Se generan distorsiones de competencia desleal, perjudicando a aquellas unidades productivas que cumplen fielmente con sus obligaciones contables e impositivas.
+\end{itemize}
+
+Por otra parte, para el Instituto Nacional de Estadística, disponer de un modelo predictivo validado permite contrastar la consistencia de los datos reportados en el módulo de producción de la EAIMCS antes de incorporarlos a las matrices de Insumo-Producto y Cuentas Nacionales, elevando la calidad técnica de las cifras oficiales del PIB boliviano.
+
+\subsection{Justificación Metodológica}
+La investigación se formula bajo el rigor de la \textbf{Metodología de Marco Lógico} (MML), vinculando cada componente técnico con indicadores objetivamente verificables de Cantidad, Calidad y Tiempo (CCT). Asimismo, se adopta un paradigma de reproducibilidad total:
+\begin{itemize}
+    \item Todo el flujo de ingestión, limpieza, modelado y diagnóstico se encuentra modularizado en scripts ejecutables de Python con parámetros fijados mediante semillas deterministas (\texttt{random\_state = 42}).
+    \item Se generan bitácoras estructuradas en formato JSON (\texttt{bitacora\_pre\-pro\-ce\-sa\-mien\-to.json}, \texttt{bitacora\_modelos.json} y \texttt{registry.json}) que garantizan la total trazabilidad e inmutabilidad de los experimentos.
+    \item Se implementa un panel interactivo moderno que no solo expone predicciones, sino que transparenta la metodología, el diccionario de variables y las métricas de calibración a cualquier evaluador o funcionario técnico.
+\end{itemize}

@@ -1,0 +1,159 @@
+\documentclass[12pt,letterpaper]{article}
+
+% =========================================================================
+% PAQUETES FUNDAMENTALES
+% =========================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[margin=2.5cm, top=2.8cm, bottom=2.8cm]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% =========================================================================
+% TIKZ PARA DIAGRAMAS VECTORIALES (ÁRBOLES DE PROBLEMAS Y OBJETIVOS)
+% =========================================================================
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shadows, trees}
+
+% =========================================================================
+% HIPERVÍNCULOS Y METADATOS PDF
+% =========================================================================
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!75!black,
+    citecolor=green!50!black,
+    urlcolor=cyan!70!black,
+    pdfauthor={Julio Nelson Arias Cruz, Serrano Mamani Raquel Araceli, Mario Fabricio Murillo Peñaranda},
+    pdftitle={Sistema de Contraste de Ingresos Operativos Declarados mediante Machine Learning},
+    pdfsubject={Machine Learning DAT-255 - UMSA},
+    pdfkeywords={Machine Learning, EAIMCS, INE Bolivia, Random Forest, Duan Smearing, Data Drift}
+}
+
+% =========================================================================
+% INTERLINEADO Y ESPACIADO DE PÁRRAFOS
+% =========================================================================
+\linespread{1.25}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+% =========================================================================
+% CUERPO DEL DOCUMENTO
+% =========================================================================
+\begin{document}
+
+% -------------------------------------------------------------------------
+% CARÁTULA OFICIAL
+% -------------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{0.2cm}
+    
+    {\fontsize{17pt}{22pt}\selectfont \textbf{UNIVERSIDAD MAYOR DE SAN ANDRÉS}}\\[0.25cm]
+    {\fontsize{14pt}{18pt}\selectfont \textbf{FACULTAD DE CIENCIAS PURAS Y NATURALES}}\\[0.2cm]
+    {\fontsize{13pt}{17pt}\selectfont \textbf{CARRERA DE INFORMÁTICA}}\\[0.2cm]
+    {\fontsize{12pt}{16pt}\selectfont \textbf{MACHINE LEARNING DAT-255}}\\[0.8cm]
+    
+    % LOGO DE LA UNIVERSIDAD (Imagen o Vector TikZ elegante como fallback)
+    \IfFileExists{imagenes/logo_umsa.png}{
+        \includegraphics[height=3.8cm,keepaspectratio]{imagenes/logo_umsa.png}
+    }{
+        \begin{tikzpicture}
+            \draw[line width=1.5pt, blue!70!black, fill=blue!5] (0,0) circle (1.8cm);
+            \draw[line width=0.8pt, blue!50!black] (0,0) circle (1.55cm);
+            \node at (0, 0.9) {\fontsize{7pt}{8pt}\selectfont \textbf{UNIVERSIDAD MAYOR}};
+            \node at (0, 0.65) {\fontsize{7pt}{8pt}\selectfont \textbf{DE SAN ANDRÉS}};
+            \draw[thick, gold!80!black, fill=yellow!25] (0, -0.05) ellipse (0.7cm and 0.5cm);
+            \node at (0, -0.05) {\fontsize{10pt}{12pt}\selectfont \textbf{UMSA}};
+            \node at (0, -0.8) {\fontsize{6.5pt}{7.5pt}\selectfont \textbf{INFORMÁTICA}};
+            \node at (0, -1.1) {\fontsize{6pt}{7pt}\selectfont \textit{Fundada en 1830}};
+        \end{tikzpicture}
+    }
+    \\[0.9cm]
+    
+    % TÍTULO DEL PROYECTO
+    \rule{\linewidth}{1.2pt}\\[0.4cm]
+    {\fontsize{15pt}{19pt}\selectfont \textbf{SISTEMA DE CONTRASTE DE INGRESOS OPERATIVOS DECLARADOS MEDIANTE MACHINE LEARNING}}\\[0.3cm]
+    {\fontsize{12pt}{16pt}\selectfont \textbf{Aplicación a Medianas y Grandes Empresas Bolivianas (EAIMCS - INE)}}\\[0.2cm]
+    \rule{\linewidth}{1.2pt}\\[1.0cm]
+    
+    % ESTUDIANTES, DOCENTE Y FECHA
+    \begin{minipage}{0.88\textwidth}
+        \fontsize{10.5pt}{15pt}\selectfont
+        \begin{tabular}{ll}
+            \textbf{ESTUDIANTES:} & Julio Nelson Arias Cruz \\
+                                  & Serrano Mamani Raquel Araceli \\
+                                  & Mario Fabricio Murillo Peñaranda \\[0.45cm]
+            \textbf{DOCENTE:}     & M. Sc. Menfy Morales Rios \\[0.35cm]
+            \textbf{FECHA:}       & 25 de Agosto de 2026 \\
+        \end{tabular}
+    \end{minipage}
+    
+    \vfill
+    
+    {\fontsize{11pt}{14pt}\selectfont \textbf{La Paz -- Bolivia}}\\[0.1cm]
+    {\fontsize{10pt}{12pt}\selectfont 2026}
+\end{titlepage}
+
+% -------------------------------------------------------------------------
+% ÍNDICES
+% -------------------------------------------------------------------------
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\listoffigures
+\vspace{1cm}
+\listoftables
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% -------------------------------------------------------------------------
+% SECCIONES MODULARES DEL INFORME
+% -------------------------------------------------------------------------
+\input{secciones/01_introduccion.tex}
+\newpage
+
+\input{secciones/02_antecedentes.tex}
+\newpage
+
+\input{secciones/03_problematica.tex}
+\newpage
+
+\input{secciones/04_objetivos.tex}
+\newpage
+
+\input{secciones/05_justificacion.tex}
+\newpage
+
+\input{secciones/06_metodologia.tex}
+\newpage
+
+\input{secciones/07_herramientas.tex}
+\newpage
+
+\input{secciones/08_conclusiones.tex}
+\newpage
+
+% -------------------------------------------------------------------------
+% BIBLIOGRAFÍA
+% -------------------------------------------------------------------------
+\bibliographystyle{apalike}
+\bibliography{referencias}
+\newpage
+
+% -------------------------------------------------------------------------
+% ANEXOS
+% -------------------------------------------------------------------------
+\input{secciones/anexos.tex}
+
+\end{document}

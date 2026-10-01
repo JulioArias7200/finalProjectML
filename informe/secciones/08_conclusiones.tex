@@ -1,0 +1,36 @@
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+El presente proyecto de investigación culmina con el diseño, desarrollo, calibración y validación empírica de un sistema integral de contraste de ingresos operativos basado en técnicas avanzadas de Aprendizaje Automático Supervisado (\textit{Machine Learning}), aplicado a los microdatos oficiales de la Encuesta a la Industria Manufacturera, Comercio y Servicios (EAIMCS 2017--2018) del Instituto Nacional de Estadística (INE) de Bolivia.
+
+A la luz de los objetivos planteados y de los resultados obtenidos, se desprenden las siguientes conclusiones principales:
+
+\begin{enumerate}
+    \item \textbf{Superación de Metas Cuantitativas de Desempeño:}
+    El modelo campeón seleccionado, fundamentado en un ensamble de \textit{Random Forest}, alcanzó un coeficiente de determinación en escala logarítmica de \textbf{$R^2 = 0.7868$} (y $R^2 = 0.7724 \pm 0.0187$ bajo validación cruzada estratificada de 5 particiones), superando ampliamente el umbral meta prefijado en el Marco Lógico ($R^2 \ge 0.60$). Asimismo, el error porcentual mediano obtenido sobre el conjunto de prueba independiente fue de \textbf{$\text{MedAPE} = 36.20\%$}, cumpliendo con holgura el límite máximo admisible ($\text{MedAPE} \le 40\%$).
+
+    \item \textbf{Validez de la Calibración de Retransformación e Incertidumbre:}
+    La aplicación del estimador no paramétrico de \textit{Duan Smearing} (con un factor multiplicativo $\hat{S} = 1.0401$) corrigió de forma efectiva el sesgo sistemático de subestimación originado por la desigualdad de Jensen al revertir la transformación logarítmica hacia la escala monetaria en Bolivianos ($R^2_{\text{Bs}} = 0.7529$). Por su parte, la construcción no paramétrica de intervalos de predicción al 90\% demostró una cobertura empírica real del \textbf{90.33\%} en el conjunto de prueba, ofreciendo a las autoridades una herramienta fidedigna que delimita cuantitativamente qué discrepancias son estadísticamente anómalas.
+
+    \item \textbf{Relevancia Jerárquica de los Factores de Producción:}
+    El análisis de importancia de variables confirmó la hipótesis económica central: los ingresos operativos de las empresas bolivianas están estrechamente condicionados por su estructura productiva tangible. La masa salarial total (\texttt{S01\_03\_C}, 42.8\% de importancia) y el valor histórico de los activos fijos instalados (\texttt{S07\_09\_E}, 21.4\%) constituyen los dos mejores predictores de la escala económica empresarial, seguidos por el consumo de materias primas y la dotación total de personal.
+
+    \item \textbf{Operatividad, Baja Latencia y Gobernanza MLOps:}
+    El servicio de inferencia desplegado a través de la API REST (\texttt{/api/predict}) registró tiempos medios de respuesta inferiores a 150 milisegundos por consulta, satisfaciendo el estándar de rendimiento en sub-segundo ($< 2$ segundos). La incorporación de pruebas estadísticas automatizadas de deriva de datos (Kolmogorov-Smirnov y Wasserstein con corrección de Bonferroni) y el registro inmutable en \texttt{registry.json} aseguran la gobernanza del ciclo de vida del modelo y alertan oportunamente ante shocks inflacionarios o cambios estructurales de mercado.
+\end{enumerate}
+
+\subsection{Limitaciones del Estudio}
+En concordancia con la honestidad académica demandada en la formulación de proyectos técnicos:
+\begin{itemize}
+    \item \textbf{Diseño Muestral de Corte Transversal:} Los datos de la EAIMCS 2017--2018 representan una fotografía estática de una gestión contable específica; no constituyen un panel de datos longitudinal que permita modelar la trayectoria temporal individual de cada empresa.
+    \item \textbf{Delimitación del Estrato Empresarial:} La encuesta se focalizó deliberadamente en empresas medianas y grandes del directorio formal; por tanto, los patrones productivos aprendidos por el modelo no deben ser extrapolados a micro o pequeñas empresas (MIPYMES), cuya estructura de costos y nivel de formalidad difiere sustancialmente.
+    \item \textbf{Resguardo del Secreto Estadístico:} Conforme al Decreto Ley N$^\circ$ 1405, los microdatos procesados se encuentran anonimizados. En consecuencia, el sistema desarrollado opera como un \textbf{insumo técnico de priorización preventiva}, y no como una prueba jurídica acusatoria o sancionatoria directa de evasión tributaria.
+\end{itemize}
+
+\subsection{Recomendaciones y Trabajo Futuro}
+Para maximizar el impacto público del sistema en fases posteriores, se recomienda:
+\begin{enumerate}
+    \item \textbf{Formalización de Acuerdos Interinstitucionales:} Promover convenios de interoperabilidad de datos entre el Instituto Nacional de Estadística (INE) y el Servicio de Impuestos Nacionales (SIN), permitiendo que los modelos de contraste se alimenten de información tributaria cruzada respetando las garantías legales de reserva fiscal y confidencialidad estadística.
+    \item \textbf{Integración con Facturación Electrónica en Línea (SIAT):} Adaptar el pipeline para procesar registros masivos en tiempo real provenientes del Sistema Integrado de la Administración Tributaria, posibilitando la detección temprana de discrepancias en el mismo ejercicio fiscal en que ocurren.
+    \item \textbf{Reentrenamiento Automatizado ante Nuevas Rondas:} Ejecutar el módulo de Data Drift tan pronto como el INE libere nuevas gestiones de la encuesta EAIMCS en el catálogo ANDA, recalibrando los factores de Duan y los hiperparámetros del ensamble para preservar la vigencia estadística del sistema a lo largo del tiempo.
+\end{enumerate}

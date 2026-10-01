@@ -1,0 +1,31 @@
+\section{Introducción}
+\label{sec:introduccion}
+
+En el ámbito de la macroeconomía aplicada y la administración pública moderna, la consolidación de estadísticas confiables de Cuentas Nacionales y el aseguramiento de la equidad tributaria representan pilares esenciales para el diseño de políticas públicas orientadas al desarrollo socioeconómico sostenible. En el Estado Plurinacional de Bolivia, el Instituto Nacional de Estadística (INE) ejecuta periódicamente censos y encuestas sectoriales con el fin de cuantificar el desempeño de las unidades económicas y calcular agregados macroeconómicos fundamentales, tales como el Producto Interno Bruto (PIB) por el enfoque de la producción y la formación bruta de capital fijo.
+
+Entre estas operaciones estadísticas, la \textit{Encuesta a la Industria Manufacturera, Comercio y Servicios} (EAIMCS), referenciada en el catálogo oficial ANDA bajo el código \texttt{BOL-INE-}\allowbreak\texttt{EAIMCS-}\allowbreak\texttt{2017-2018}, constituye una de las fuentes de información microeconómica más exhaustivas del país para el estrato de medianas y grandes empresas. A través de cuestionarios especializados, la EAIMCS recopila datos detallados sobre la dotación de mano de obra, remuneraciones salariales, consumo de materias primas, gastos energéticos, capacidad física instalada y valor histórico de los activos fijos.
+
+No obstante, tanto las autoridades estadísticas como las administraciones tributarias enfrentan un desafío metodológico recurrente: la \textbf{asimetría de información} inherente a los datos económicos autodeclarados. Tradicionalmente, la verificación de los ingresos operativos declarados por las empresas se ha sustentado en inspecciones manuales, muestreos aleatorios o reglas univariadas basadas en ratios financieros estáticos (tales como la rotación de inventarios o márgenes de utilidad promedio). Dichos métodos adolecen de severas limitaciones:
+\begin{enumerate}
+    \item Son incapaces de modelar la interacción simultánea y no lineal entre múltiples factores productivos complementarios.
+    \item No capturan los rendimientos marginales decrecientes de insumos críticos como la energía o los activos fijos.
+    \item Resultan altamente sensibles a la presencia de ruido y valores atípicos comunes en encuestas industriales.
+    \item No proveen una cota de incertidumbre estadística rigurosa (intervalos de confianza o de predicción) que evite falsos positivos en la fiscalización.
+\end{enumerate}
+
+El presente proyecto de investigación aborda esta problemática mediante la aplicación de técnicas avanzadas de \textbf{Aprendizaje Automático Supervisado} (\textit{Machine Learning}). El objetivo central es construir un mecanismo computacional automatizado e imparcial que estime el \textit{ingreso operativo esperado} de una unidad productiva en función de sus insumos reales observados, cuantificando la discrepancia entre lo autodeclarado y la capacidad económica estimada de la empresa.
+
+A través del contraste empírico de siete familias de algoritmos supervisados, la estabilización de varianza logarítmica, la corrección del sesgo de retransformación de Duan (\textit{Duan Smearing}) y la implementación de un panel interactivo con capacidades MLOps y detección de deriva de datos (\textit{Data Drift}), el sistema desarrollado ofrece una solución tecnológica reproducible, científicamente fundamentada y respetuosa del secreto estadístico establecido por el Decreto Ley N$^\circ$ 1405.
+
+\subsection{Estructura del Informe}
+El presente documento se encuentra estructurado en ocho secciones temáticas y anexos complementarios:
+\begin{itemize}
+    \item La \textbf{Sección \ref{sec:antecedentes}} examina los antecedentes operativos de la encuesta EAIMCS, las prácticas vigentes de control tributario en Bolivia y el estado del arte internacional.
+    \item La \textbf{Sección \ref{sec:problematica}} formaliza la problemática de investigación y presenta detalladamente el \textit{Árbol de Problemas}.
+    \item La \textbf{Sección \ref{sec:objetivos}} establece el objetivo general y los objetivos específicos del estudio, acompañados por el \textit{Árbol de Objetivos}.
+    \item La \textbf{Sección \ref{sec:justificacion}} sustenta la relevancia técnica, económica, social y metodológica de la investigación.
+    \item La \textbf{Sección \ref{sec:metodologia}} expone en profundidad la metodología analítica, el pipeline de preprocesamiento, la formulación matemática, la calibración de Duan y los resultados comparativos de los modelos evaluados.
+    \item La \textbf{Sección \ref{sec:herramientas}} detalla el stack tecnológico implementado, la arquitectura del software y las técnicas de gobernanza MLOps.
+    \item La \textbf{Sección \ref{sec:conclusiones}} sintetiza los principales hallazgos, aportes técnicos, limitaciones del estudio y líneas de trabajo futuro.
+    \item Finalmente, se presentan las \textbf{Referencias Bibliográficas} y los \textbf{Anexos} técnicos.
+\end{itemize}

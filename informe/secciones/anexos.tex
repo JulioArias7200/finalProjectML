@@ -1,0 +1,90 @@
+\appendix
+\section{Ficha Técnica de la Encuesta EAIMCS (INE Bolivia)}
+\label{anexo:ficha_tecnica}
+
+La Tabla \ref{tab:ficha_tecnica_eaimcs} resume las características metodológicas oficiales de la Encuesta a la Industria Manufacturera, Comercio y Servicios (EAIMCS 2017--2018), según los registros del catálogo oficial ANDA del Instituto Nacional de Estadística.
+
+\begin{table}[htbp]
+\centering
+\caption{Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018.}
+\label{tab:ficha_tecnica_eaimcs}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Parámetro Técnico} & \textbf{Especificación Oficial} \\
+\midrule
+Código Catálogo ANDA & \texttt{BOL-INE-EAIMCS-2017-2018} \\
+Entidad Ejecutora & Instituto Nacional de Estadística (INE), Estado Plurinacional de Bolivia \\
+Período de Referencia & Gestión Contable Anual 2017--2018 \\
+Población Objetivo & Empresas formales pertenecientes a los estratos Mediana y Gran Empresa \\
+Marco Muestral & Directorio Integrado de FUNDEMPRESA y Cuentas Nacionales ($N = 10,044$) \\
+Tamaño Muestral Efectivo & 3,153 unidades productivas informantes \\
+Diseño Muestral & No probabilístico, censal por cuotas en estratos medianos y grandes \\
+Cobertura Geográfica & Nacional, 9 departamentos de Bolivia \\
+Clasificador de Actividades & CAEB (Clasificación de Actividades Económicas de Bolivia, CIIU Rev. 4) \\
+Marco Legal de Reserva & Decreto Ley N$^\circ$ 1405 (1976): Secreto y Confidencialidad Estadística \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Matriz de Marco Lógico (MML) del Proyecto}
+\label{anexo:marco_logico}
+
+La Tabla \ref{tab:mml_resumen} presenta la síntesis formal de la Matriz de Marco Lógico que guió la ejecución del proyecto, detallando la lógica vertical, indicadores, medios de verificación y supuestos críticos.
+
+\begin{table}[htbp]
+\centering
+\caption{Matriz Resumida de Marco Lógico del Proyecto.}
+\label{tab:mml_resumen}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{3.4cm}}
+\toprule
+\textbf{Nivel Jerárquico} & \textbf{Resumen Narrativo} & \textbf{Indicadores Verificables} & \textbf{Supuestos Críticos} \\
+\midrule
+\textbf{Fin (Impacto a Largo Plazo)} & Contribuir a fortalecer la consistencia estadística de Cuentas Nacionales y la equidad/recaudación tributaria en Bolivia. & Reducción de la brecha promedio sectorial entre ingreso declarado y capacidad productiva estimada respecto a línea base. & Las instituciones (SIN / INE) adoptan e institucionalizan formalmente el uso de la herramienta. \\
+\addlinespace
+\textbf{Propósito (Resultado Directo)} & Contar con un mecanismo automatizado (ML) que contraste el ingreso declarado contra el esperado según estructura productiva. & 1. $\text{MedAPE} \le 40\%$ y $R^2 \ge 0.60$ en 5-Fold CV.\newline 2. Cobertura empírica del IC al 90\% entre 85\% y 95\%. & Futuras rondas de EAIMCS o facturación electrónica mantienen estructura de variables compatible. \\
+\addlinespace
+\textbf{Componente 1} & Modelo de estimación de ingreso esperado (RF + Duan Smearing). & Modelo calibrado ($\hat{S} = 1.0401$) y comparativa de al menos 7 modelos de regresión supervisada. & Muestra EAIMCS representativa de los estratos medianos y grandes por sector. \\
+\addlinespace
+\textbf{Componente 2} & Sistema de priorización basado en riesgo y simulación interactiva. & 1. 100\% de empresas clasificadas en riesgo bajo/medio/alto.\newline 2. Latencia del simulador $< 2$ s. & Personal técnico cuenta con capacitación para interpretar el score sin confundirlo con evasión probada. \\
+\addlinespace
+\textbf{Componente 3} & Pipeline de datos reproducible y respetuoso del secreto estadístico. & 1. Bitácora con filas/columnas antes/después por etapa.\newline 2. 0 casos de exposición de identidad. & El marco legal del Decreto Ley 1405 se mantiene inalterado. \\
+\addlinespace
+\textbf{Componente 4} & Monitoreo de vigencia del modelo (Data Drift). & Alerta automática ante pruebas KS y Wasserstein con corrección de Bonferroni. & Se dispone de cargas periódicas de datos para que el monitoreo tenga utilidad práctica. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Diccionario de Variables Productivas Empleadas}
+\label{anexo:diccionario_variables}
+
+La Tabla \ref{tab:variables_modelo} especifica los predictores y la variable objetivo utilizados en el entrenamiento del modelo de regresión supervisada.
+
+\begin{table}[htbp]
+\centering
+\caption{Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo.}
+\label{tab:variables_modelo}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X l}
+\toprule
+\textbf{Variable} & \textbf{Sección INE} & \textbf{Descripción Técnica y Económica} & \textbf{Tipo de Dato} \\
+\midrule
+\texttt{target} & Sección 5 (\texttt{S00\_01\_A}) & Ingreso operativo anual total declarado (Bolivianos) & Numérico (Target) \\
+\texttt{S01\_05\_A} & Sección 1 & Personal ocupado permanente y eventual total & Numérico \\
+\texttt{S01\_03\_C} & Sección 1 & Remuneraciones y masa salarial total anual pagada (Bs) & Numérico \\
+\texttt{S02\_09} & Sección 2 & Gasto anual total devengado en energía eléctrica (Bs) & Numérico \\
+\texttt{S07\_09\_E} & Sección 7 & Valor histórico final de los activos fijos de capital (Bs) & Numérico \\
+\texttt{S06\_06\_B} & Sección 6 & Valor de los inventarios finales de productos y materias (Bs) & Numérico \\
+\texttt{S12\_01\_B} & Sección 12 & Capacidad física de almacenamiento construida ($m^2$) & Numérico \\
+\texttt{S12\_02\_B} & Sección 12 & Capacidad física de almacenamiento total de predios ($m^2$) & Numérico \\
+\texttt{n\_insumos} & Sección 10 & Cantidad de variedades distintas de materias primas & Numérico \\
+\texttt{total\_valor\_co} & Sección 10 & Valor monetario total de compras de materias primas (Bs) & Numérico \\
+\texttt{total\_valor\_uti}& Sección 10 & Valor monetario total consumido en producción fabril (Bs)& Numérico \\
+\texttt{C2\_01} & Carátula & Departamento de localización geográfica (9 categorías) & Categórico \\
+\texttt{macrosector} & Carátula & Sector de actividad económica normalizado (14 macrosectores)& Categórico \\
+\bottomrule
+\end{tabularx}
+\end{table}
