@@ -45,7 +45,7 @@ donde $\mathbf{x}_i \in \mathbb{R}^{p}$ denota el vector de insumos estandarizad
 \subsubsection{Corrección del Sesgo de Retransformación (Duan Smearing)}
 Para obtener la estimación del ingreso esperado en la escala original de Bolivianos (Bs), no es válido aplicar la función exponencial directamente, debido al sesgo derivado de la desigualdad de Jensen: $\mathbb{E}[\exp(\varepsilon_i)] \ge \exp(\mathbb{E}[\varepsilon_i]) = 1$. 
 
-Bajo la metodología no paramétrica propuesta por Naihua Duan \cite{duan1983smearing}, el factor multiplicativo de corrección (\textit{Smearing Factor}) se calcula sobre el conjunto de entrenamiento como:
+Bajo la metodología no paramétrica del estimador de Smearing \citep{duan1983smearing}, el factor multiplicativo de corrección (\textit{Smearing Factor}) se calcula sobre el conjunto de entrenamiento como:
 \begin{equation}
     \hat{S} = \frac{1}{N_{\text{train}}} \sum_{i=1}^{N_{\text{train}}} \exp\left( y_{\log, i} - \hat{f}(\mathbf{x}_i) \right)
     \label{eq:smearing_calc}
@@ -81,7 +81,7 @@ Se entrenaron y evaluaron exhaustivamente \textbf{siete familias de algoritmos} 
 
 \begin{table}[htbp]
 \centering
-\caption{Comparativa Empírica de Modelos de Regresión Evaluados (5-Fold CV y Test Set).}
+\caption{Comparativa Empírica de Modelos de Regresión Evaluados (5-Fold CV y Test Set)}
 \label{tab:comparacion_modelos}
 \small
 \resizebox{\textwidth}{!}{%
@@ -99,6 +99,9 @@ TweedieRegressor & 0.4142 & 0.4517 & 0.3891 & 0.9138 & 68.32\% & Descartado (fun
 \bottomrule
 \end{tabular}%
 }
+\vspace{2mm}
+\raggedright\footnotesize
+\textit{Nota.} $R^2_{\text{CV}}$ = Coeficiente de determinación promedio en 5 pliegues de validación cruzada; $R^2_{\text{Test}}$ (log) = Coeficiente de determinación en escala $\ln(1+y)$; $R^2_{\text{Test}}$ (Bs) = Coeficiente en escala monetaria tras calibración con factor de Duan ($\hat{S} = 1.0401$); RMSE = Raíz del error cuadrático medio; MedAPE = Error porcentual absoluto mediano; MCO = Mínimos Cuadrados Ordinarios; L1/L2 = Regularización Lasso y Ridge. Los siete modelos corresponden al benchmark experimental preliminar del proyecto; en la arquitectura final de producción se conservan entrenados los tres modelos principales (Ridge, Random Forest y HistGradientBoosting).
 \end{table}
 
 \subsubsection{Justificación de la Selección del Modelo Campeón}

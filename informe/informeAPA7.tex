@@ -5,7 +5,7 @@
 % =========================================================================
 \usepackage[utf8]{inputenc}
 \usepackage[spanish,es-tabla]{babel}
-\usepackage[margin=2.5cm, top=2.8cm, bottom=2.8cm]{geometry}
+\usepackage[margin=2.54cm]{geometry}
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -14,8 +14,34 @@
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{microtype}
+\usepackage{setspace}
 \usepackage{caption}
 \usepackage{subcaption}
+
+% Delimitadores de citas parentéticas según formato APA 7: (Autor, Año)
+\makeatletter
+\def\@cite#1#2{({#1\if@tempswa , #2\fi})}
+\makeatother
+\providecommand{\citep}[1]{\cite{#1}}
+\providecommand{\citet}[1]{\cite{#1}}
+
+% Configuración de Títulos de Tablas y Figuras según APA 7.ª Edición
+\captionsetup[table]{
+    position=above,
+    labelsep=newline,
+    justification=raggedright,
+    singlelinecheck=false,
+    labelfont=bf,
+    textfont=it
+}
+\captionsetup[figure]{
+    position=above,
+    labelsep=newline,
+    justification=raggedright,
+    singlelinecheck=false,
+    labelfont=bf,
+    textfont=it
+}
 
 % =========================================================================
 % TIKZ PARA DIAGRAMAS VECTORIALES (ÁRBOLES DE PROBLEMAS Y OBJETIVOS)
@@ -39,11 +65,11 @@
 }
 
 % =========================================================================
-% INTERLINEADO Y ESPACIADO DE PÁRRAFOS
+% INTERLINEADO Y ESPACIADO DE PÁRRAFOS (NORMAS APA 7 ESTRICTO)
 % =========================================================================
-\linespread{1.25}
-\setlength{\parskip}{0.5em}
-\setlength{\parindent}{0pt}
+\doublespacing % Interlineado doble estricto reglamentario según norma oficial APA 7.ª Edición
+\setlength{\parindent}{1.27cm} % Sangría de primera línea reglamentaria de 0.5 pulgadas
+\setlength{\parskip}{0pt}      % Sin separación adicional entre párrafos según estándar APA 7
 
 % =========================================================================
 % CUERPO DEL DOCUMENTO

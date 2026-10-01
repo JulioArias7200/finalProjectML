@@ -2,7 +2,7 @@
 \label{sec:antecedentes}
 
 \subsection{Marco Contextual e Institucional de la EAIMCS}
-El Instituto Nacional de Estadística (INE) de Bolivia es la entidad técnica rectora encargada de normar, recopilar, procesar y difundir las estadísticas oficiales del país, según los lineamientos establecidos por el Decreto Ley N$^\circ$ 1405 de 1976 \cite{ley1405}. Dentro de sus operaciones estadísticas estructurales, la \textit{Encuesta a la Industria Manufacturera, Comercio y Servicios} (EAIMCS) correspondiente a la gestión contable 2017--2018 constituye el instrumento central para la actualización de las Cuentas Nacionales Anuales \cite{ine2019eaimcs}.
+El Instituto Nacional de Estadística (INE) de Bolivia es la entidad técnica rectora encargada de normar, recopilar, procesar y difundir las estadísticas oficiales del país, según los lineamientos establecidos por el Decreto Ley N$^\circ$ 1405 de 1976 \citep{ley1405}. Dentro de sus operaciones estadísticas estructurales, la \textit{Encuesta a la Industria Manufacturera, Comercio y Servicios} (EAIMCS) correspondiente a la gestión contable 2017--2018 constituye el instrumento central para la actualización de las Cuentas Nacionales Anuales \citep{ine2019eaimcs}.
 
 El marco muestral de la EAIMCS 2017--2018 se configuró a partir de un directorio exhaustivo de 10,044 unidades económicas formalmente registradas en la Fundación para el Desarrollo Empresarial (FUNDEMPRESA) y en el Directorio Integrado del Sistema de Cuentas Nacionales. La cobertura del estudio abarcó los nueve departamentos del territorio nacional (La Paz, Santa Cruz, Cochabamba, Tarija, Oruro, Chuquisaca, Potosí, Beni y Pando). 
 
@@ -24,7 +24,7 @@ En el ámbito de la recaudación tributaria nacional, gestionada por el Servicio
 Estos esquemas presentan debilidades estructurales: son incapaces de considerar de manera simultánea la interacción multivariada de factores de producción (tales como la dotación de capital físico, gastos de consumo eléctrico, variedad de materias primas y masa salarial). En consecuencia, las empresas que presentan estructuras de costos complejas o modelos de negocio atípicos pueden ser falsamente catalogadas como riesgosas, mientras que desvíos sutiles pero sistemáticos de subdeclaración en empresas de gran volumen suelen pasar inadvertidos.
 
 \subsection{Estado del Arte en Modelado Económico y Machine Learning}
-Desde una perspectiva teórica, la modelación de la relación entre insumos productivos e ingresos tiene sus raíces en la clásica función de producción de Cobb-Douglas \cite{cobb1928theory}:
+Desde una perspectiva teórica, la modelación de la relación entre insumos productivos e ingresos tiene sus raíces en la clásica función de producción de Cobb-Douglas \citep{cobb1928theory}:
 \begin{equation}
     Y = A \cdot L^\alpha \cdot K^\beta \cdot M^\gamma
     \label{eq:cobb_douglas}
@@ -35,11 +35,11 @@ donde $Y$ representa la producción total (o ingresos brutos), $L$ el trabajo (f
     \label{eq:cobb_douglas_log}
 \end{equation}
 
-Si bien las regresiones lineales econométricas clásicas bajo Mínimos Cuadrados Ordinarios (MCO) han constituido el estándar histórico, la literatura económica contemporánea ha demostrado que los métodos de Aprendizaje Automático No Paramétrico superan sustancialmente a las formulaciones lineales \cite{hastie2009elements}. Algoritmos basados en ensambles de árboles de decisión, tales como \textit{Random Forests} \cite{breiman2001random} y \textit{Gradient Boosting} \cite{chen2016xgboost}, son capaces de:
+Si bien las regresiones lineales econométricas clásicas bajo Mínimos Cuadrados Ordinarios (MCO) han constituido el estándar histórico, la literatura contemporánea ha demostrado que los métodos de Aprendizaje Automático No Paramétrico superan sustancialmente a las formulaciones lineales \citep{hastie2009elements}. Algoritmos basados en ensambles de árboles de decisión, tales como \textit{Random Forests} \citep{breiman2001random} y \textit{Gradient Boosting} \citep{chen2016xgboost}, son capaces de:
 \begin{enumerate}
     \item Capturar relaciones funcionales no lineales altamente complejas y umbrales de rendimientos decrecientes sin necesidad de especificar a priori formas funcionales rígidas.
     \item Incorporar de manera natural interacciones de orden superior entre factores heterogéneos (por ejemplo, cómo el impacto de la maquinaria instalada depende críticamente de la calificación de la mano de obra contratada).
     \item Tolerar la presencia de multicolinealidad severa entre insumos complementarios (como energía eléctrica y masa salarial) sin que los coeficientes pierdan estabilidad numérica.
 \end{enumerate}
 
-Asimismo, en el ámbito de la economía pública empírica, la investigación sobre aglomeración de declaraciones fiscales (\textit{bunching}) desarrollada por Saez \cite{saez2010bunching} ha demostrado que los contribuyentes tienden a manipular sus ingresos autodeclarados para situarse justo por debajo de umbrales regulatorios o impositivos. La disponibilidad de un modelo predictivo robusto permite calcular el valor esperado contrafactual y detectar cuantitativamente anomalías residuales en toda la distribución de contribuyentes.
+Asimismo, en el ámbito de la economía pública empírica, la investigación sobre aglomeración de declaraciones fiscales (\textit{bunching}) desarrollada por Emmanuel Saez \citep{saez2010bunching} ha demostrado que los contribuyentes tienden a manipular sus ingresos autodeclarados para situarse justo por debajo de umbrales regulatorios o impositivos. La disponibilidad de un modelo predictivo robusto permite calcular el valor esperado contrafactual y detectar cuantitativamente anomalías residuales en toda la distribución de contribuyentes.

@@ -13,7 +13,7 @@ Desde el punto de vista del modelado estadístico y la ciencia de datos, los dat
         \mathbb{E}[\exp(\varepsilon)] \ge \exp(\mathbb{E}[\varepsilon]) = 1
         \label{eq:jensen}
     \end{equation}
-    Ignorar esta propiedad conduce a una subestimación sistemática del valor esperado en moneda nacional. La implementación del estimador \textit{Duan Smearing} \cite{duan1983smearing} resuelve este problema mediante un factor multiplicativo empírico no paramétrico:
+    Ignorar esta propiedad conduce a una subestimación sistemática del valor esperado en moneda nacional. La implementación del estimador \textit{Duan Smearing} \citep{duan1983smearing} resuelve este problema mediante un factor multiplicativo empírico no paramétrico:
     \begin{equation}
         \hat{S} = \frac{1}{N} \sum_{i=1}^{N} \exp(e_i)
         \label{eq:duan_factor}

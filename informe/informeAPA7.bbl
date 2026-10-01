@@ -13,13 +13,14 @@ Breiman, L. (2001).
 
 \bibitem[Chen and Guestrin, 2016]{chen2016xgboost}
 Chen, T. and Guestrin, C. (2016).
-\newblock Xgboost: A scalable tree boosting system.
+\newblock {XGBoost}: A scalable tree boosting system.
 \newblock In {\em Proceedings of the 22nd ACM SIGKDD International Conference
   on Knowledge Discovery and Data Mining}, pages 785--794.
 
 \bibitem[Cobb and Douglas, 1928]{cobb1928theory}
 Cobb, C.~W. and Douglas, P.~H. (1928).
-\newblock {\em A Theory of Production}, volume~18.
+\newblock A theory of production.
+\newblock {\em The American Economic Review}, 18(1):139--165.
 
 \bibitem[Duan, 1983]{duan1983smearing}
 Duan, N. (1983).
@@ -31,12 +32,13 @@ Duan, N. (1983).
 {Gobierno de Bolivia} (1976).
 \newblock Decreto ley n$^\circ$ 1405: Ley del sistema nacional de
   informaci{\'o}n estad{\'\i}stica y secreto estad{\'\i}stico.
+\newblock Gaceta Oficial de Bolivia.
 
 \bibitem[Hastie et~al., 2009]{hastie2009elements}
 Hastie, T., Tibshirani, R., and Friedman, J. (2009).
 \newblock {\em The Elements of Statistical Learning: Data Mining, Inference,
   and Prediction}.
-\newblock Springer Science \& Business Media, New York, 2 edition.
+\newblock Springer, New York, NY, 2 edition.
 
 \bibitem[{Instituto Nacional de Estad{\'\i}stica (INE)}, 2019]{ine2019eaimcs}
 {Instituto Nacional de Estad{\'\i}stica (INE)} (2019).
@@ -64,6 +66,6 @@ Saez, E. (2010).
 \bibitem[Wasserman, 2006]{wasserman2006all}
 Wasserman, L. (2006).
 \newblock {\em All of Nonparametric Statistics}.
-\newblock Springer Science \& Business Media, New York.
+\newblock Springer, New York, NY.
 
 \end{thebibliography}

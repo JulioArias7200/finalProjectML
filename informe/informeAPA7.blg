@@ -1,51 +1,48 @@
-This is BibTeX, Version 0.99e
+This is BibTeX, Version 0.99d
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: informeAPA7.aux
 Reallocating 'name_of_file' (item size: 1) to 8 items.
 The style file: apalike.bst
 Reallocating 'name_of_file' (item size: 1) to 12 items.
 Database file #1: referencias.bib
-Warning--can't use both volume and number fields in cobb1928theory
-Warning--empty publisher in cobb1928theory
 You've used 12 entries,
             1935 wiz_defined-function locations,
-            548 strings with 5587 characters,
-and the built_in function-call counts, 4438 in all, are:
-= -- 438
+            548 strings with 5588 characters,
+and the built_in function-call counts, 4523 in all, are:
+= -- 454
 > -- 158
-< -- 12
+< -- 11
 + -- 58
 - -- 52
-* -- 362
-:= -- 782
-add.period$ -- 34
+* -- 367
+:= -- 796
+add.period$ -- 36
 call.type$ -- 12
-change.case$ -- 84
+change.case$ -- 85
 chr.to.int$ -- 12
-cite$ -- 14
+cite$ -- 12
 duplicate$ -- 174
-empty$ -- 317
+empty$ -- 324
 format.name$ -- 68
-if$ -- 859
+if$ -- 878
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 13
-newline$ -- 61
+missing$ -- 12
+newline$ -- 63
 num.names$ -- 36
-pop$ -- 69
+pop$ -- 64
 preamble$ -- 1
 purify$ -- 85
 quote$ -- 0
 skip$ -- 137
 stack$ -- 0
-substring$ -- 314
-swap$ -- 21
-text.length$ -- 2
+substring$ -- 339
+swap$ -- 19
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 66
-warning$ -- 2
-while$ -- 39
+type$ -- 68
+warning$ -- 0
+while$ -- 41
 width$ -- 0
-write$ -- 155
-(There were 2 warnings)
+write$ -- 159

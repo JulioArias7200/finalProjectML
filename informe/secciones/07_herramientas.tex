@@ -6,7 +6,7 @@ El desarrollo del sistema combinó un conjunto riguroso de tecnologías de códi
 \subsection{Ecosistema Científico y de Modelado (Python)}
 El núcleo algorítmico y de procesamiento de datos fue desarrollado en el lenguaje de programación \textbf{Python 3.10+}, utilizando sus principales librerías especializadas:
 \begin{itemize}
-    \item \textbf{Scikit-Learn (v1.4+) \cite{pedregosa2011scikit}:} Utilizada para la construcción de pipelines unificados mediante \texttt{Pipeline} y \texttt{ColumnTransformer}, garantizando que el escalado de características (\texttt{StandardScaler}) y la codificación de variables categóricas (\texttt{OneHotEncoder}) se ajusten exclusivamente sobre los datos de entrenamiento para prevenir la contaminación de datos (\textit{data leakage}). Asimismo, proveyó las implementaciones optimizadas de \texttt{RandomForestRegressor}, \texttt{HistGradientBoostingRegressor}, \texttt{Ridge} y la rutina de validación \texttt{StratifiedKFold}.
+    \item \textbf{Scikit-Learn (v1.4+) \citep{pedregosa2011scikit}:} Utilizada para la construcción de pipelines unificados mediante \texttt{Pipeline} y \texttt{ColumnTransformer}, garantizando que el escalado de características (\texttt{StandardScaler}) y la codificación de variables categóricas (\texttt{OneHotEncoder}) se ajusten exclusivamente sobre los datos de entrenamiento para prevenir la contaminación de datos (\textit{data leakage}). Asimismo, proveyó las implementaciones optimizadas de \texttt{RandomForestRegressor}, \texttt{HistGradientBoostingRegressor}, \texttt{Ridge} y la rutina de validación \texttt{StratifiedKFold}.
     \item \textbf{Pandas y NumPy:} Empleadas para el análisis vectorial de datos, agregación relacional por identificador empresarial (\texttt{groupby('ID')}), limpieza condicional de valores centinela y ejecución de transformaciones monótonas $\ln(1+x)$.
     \item \textbf{SciPy (Módulo de Estadística):} Empleada para el cómputo de distribuciones empíricas acumuladas, la prueba de normalidad de residuos, el cálculo de cuantiles no paramétricos y la evaluación de deriva estadística.
     \item \textbf{Joblib:} Utilizada para la serialización y persistencia inmutable del pipeline campeón entrenado (\texttt{best\_model.joblib}), permitiendo su carga inmediata en memoria en entornos de producción con tiempos de arranque inferiores a un segundo.
@@ -31,7 +31,7 @@ La capa de presentación fue construida siguiendo el paradigma de \textit{Single
 Dado que las condiciones macroeconómicas (inflación, variaciones de precios de insumos importados o shocks de demanda) pueden degradar la validez de un modelo entrenado con datos de 2017--2018, se implementó un sistema automatizado de detección de deriva estadística (\textit{Data Drift}) sustentado en dos pruebas complementarias:
 
 \subsubsection{Test de Dos Muestras de Kolmogorov-Smirnov (KS)}
-Evalúa la hipótesis nula ($H_0$) de que una muestra entrante de datos $F_{\text{nueva}}(x)$ proviene de la misma distribución continua que la base de referencia histórica $F_{\text{ref}}(x)$ \cite{massey1951kolmogorov}:
+Evalúa la hipótesis nula ($H_0$) de que una muestra entrante de datos $F_{\text{nueva}}(x)$ proviene de la misma distribución continua que la base de referencia histórica $F_{\text{ref}}(x)$ \citep{massey1951kolmogorov}:
 \begin{equation}
     D_{KS} = \sup_{x} \left| F_{\text{ref}}(x) - F_{\text{nueva}}(x) \right|
     \label{eq:ks_stat}
@@ -39,7 +39,7 @@ Evalúa la hipótesis nula ($H_0$) de que una muestra entrante de datos $F_{\tex
 Si el p-valor asociado al estadístico $D_{KS}$ es inferior al nivel de significancia ajustado ($\alpha = 0.05$), se rechaza $H_0$, emitiendo una alerta automática de descalibración distributiva.
 
 \subsubsection{Distancia de Wasserstein de Primer Orden (\textit{Earth Mover's Distance})}
-A diferencia del test KS (que solo mide la máxima discrepancia vertical), la distancia de Wasserstein de primer orden $W_1$ cuantifica el costo o trabajo mínimo necesario para transformar una distribución de probabilidad en otra \cite{wasserman2006all}:
+A diferencia del test KS (que solo mide la máxima discrepancia vertical), la distancia de Wasserstein de primer orden $W_1$ cuantifica el costo o trabajo mínimo necesario para transformar una distribución de probabilidad en otra \citep{wasserman2006all}:
 \begin{equation}
     W_1(u, v) = \int_{-\infty}^{+\infty} |U(x) - V(x)| \, dx
     \label{eq:wasserstein}
@@ -47,7 +47,7 @@ A diferencia del test KS (que solo mide la máxima discrepancia vertical), la di
 donde $U(x)$ y $V(x)$ son las funciones de distribución acumulada de las muestras de referencia y de monitoreo, respectivamente. Esta métrica es insensible a fluctuaciones locales menores y provee una magnitud física del desplazamiento promedio en la escala de cada variable productiva.
 
 \subsubsection{Corrección de Bonferroni para Pruebas Múltiples}
-Al evaluar simultáneamente $k = 11$ predictores continuos para detectar deriva, la probabilidad de cometer al menos un error de Tipo I (falso positivo) se incrementa según $1 - (1 - \alpha)^k$. Para controlar la tasa de error por familia (FWER), se implementa la corrección clásica de Bonferroni \cite{bonferroni1936teoria}:
+Al evaluar simultáneamente $k = 11$ predictores continuos para detectar deriva, la probabilidad de cometer al menos un error de Tipo I (falso positivo) se incrementa según $1 - (1 - \alpha)^k$. Para controlar la tasa de error por familia (FWER), se implementa la corrección clásica de Bonferroni \citep{bonferroni1936teoria}:
 \begin{equation}
     \alpha_{\text{ajustado}} = \frac{\alpha}{k} = \frac{0.05}{11} \approx 0.004545
     \label{eq:bonferroni}

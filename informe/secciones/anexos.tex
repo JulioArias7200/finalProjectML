@@ -6,7 +6,7 @@ La Tabla \ref{tab:ficha_tecnica_eaimcs} resume las características metodológic
 
 \begin{table}[htbp]
 \centering
-\caption{Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018.}
+\caption{Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018}
 \label{tab:ficha_tecnica_eaimcs}
 \footnotesize
 \begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}X}
@@ -25,6 +25,9 @@ Clasificador de Actividades & CAEB (Clasificación de Actividades Económicas de
 Marco Legal de Reserva & Decreto Ley N$^\circ$ 1405 (1976): Secreto y Confidencialidad Estadística \\
 \bottomrule
 \end{tabularx}
+\vspace{2mm}
+\raggedright\footnotesize
+\textit{Nota.} Fuente: Instituto Nacional de Estadística (INE), Catálogo ANDA BOL-INE-EAIMCS-2017-2018. Los microdatos corresponden al operativo censal por cuotas en estratos de medianas y grandes empresas bajo resguardo de confidencialidad del Decreto Ley N$^\circ$ 1405.
 \end{table}
 
 \section{Matriz de Marco Lógico (MML) del Proyecto}
@@ -34,7 +37,7 @@ La Tabla \ref{tab:mml_resumen} presenta la síntesis formal de la Matriz de Marc
 
 \begin{table}[htbp]
 \centering
-\caption{Matriz Resumida de Marco Lógico del Proyecto.}
+\caption{Matriz Resumida de Marco Lógico del Proyecto}
 \label{tab:mml_resumen}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -55,6 +58,9 @@ La Tabla \ref{tab:mml_resumen} presenta la síntesis formal de la Matriz de Marc
 \textbf{Componente 4} & Monitoreo de vigencia del modelo (Data Drift). & Alerta automática ante pruebas KS y Wasserstein con corrección de Bonferroni. & Se dispone de cargas periódicas de datos para que el monitoreo tenga utilidad práctica. \\
 \bottomrule
 \end{tabularx}
+\vspace{2mm}
+\raggedright\footnotesize
+\textit{Nota.} Estructura metodológica basada en los estándares de evaluación de proyectos del Banco Interamericano de Desarrollo (BID), articulando la lógica vertical con indicadores verificables de desempeño cuantitativo.
 \end{table}
 
 \section{Diccionario de Variables Productivas Empleadas}
@@ -64,7 +70,7 @@ La Tabla \ref{tab:variables_modelo} especifica los predictores y la variable obj
 
 \begin{table}[htbp]
 \centering
-\caption{Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo.}
+\caption{Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo}
 \label{tab:variables_modelo}
 \footnotesize
 \setlength{\tabcolsep}{4.5pt}
@@ -87,4 +93,7 @@ La Tabla \ref{tab:variables_modelo} especifica los predictores y la variable obj
 \texttt{macrosector} & Carátula & Sector de actividad económica normalizado (14 macrosectores)& Categórico \\
 \bottomrule
 \end{tabularx}
+\vspace{2mm}
+\raggedright\footnotesize
+\textit{Nota.} Todas las variables monetarias y de escala física continuas son transformadas mediante $\ln(1+x)$ en el pipeline de ingeniería de características para corregir la asimetría distributiva. Las capacidades de almacenamiento ($S12\_01\_B$ y $S12\_02\_B$) forman parte del catálogo original de variables evaluadas, habiendo sido excluidas del entrenamiento final por alta heterogeneidad en las unidades de reporte según la Decisión D07.
 \end{table}
