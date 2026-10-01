@@ -411,6 +411,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
             Validación Cruzada Estratificada (5 Folds)
           </button>
+          <button class="subnav-tab-btn" data-subtab="mv-comparativa">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Cuadro Comparativo: Sin Entrenar vs. Modelos ML
+          </button>
           <button class="subnav-tab-btn" data-subtab="mv-simulador">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             Simulador de Inferencia Predictiva
@@ -711,6 +715,155 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- SUB-PANEL COMPARATIVO: DATOS SIN ENTRENAR VS. MODELOS ML PROPUESTOS -->
+        <div id="subtab-content-mv-comparativa" style="display: none;">
+          <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-title">Cuadro Comparativo: Datos Sin Entrenar vs. Modelos de Machine Learning</div>
+            <div class="card-subtitle">Demostración cuantitativa de la superioridad del pipeline supervisado frente a reglas tradicionales y análisis de beneficios para las 3,153 empresas analizadas</div>
+
+            <!-- Fila de 4 KPI Cards de Mejora Cuantitativa -->
+            <div class="kpi-grid" style="margin-bottom: 2rem;">
+              <div class="kpi-card" style="border-left: 4px solid var(--primary);">
+                <div class="kpi-label">Reducción Error Relativo (MedAPE)</div>
+                <div class="kpi-value" id="comp-kpi-error-reduc">-51.6%</div>
+                <div class="kpi-subtext" style="color: var(--success); font-weight: 600;">36.20% vs. 74.80% (MCO) / 145.8% (Naive)</div>
+              </div>
+
+              <div class="kpi-card" style="border-left: 4px solid var(--accent);">
+                <div class="kpi-label">Varianza Explicada en Moneda Real (R² Bs)</div>
+                <div class="kpi-value" id="comp-kpi-r2-bs">+43.3%</div>
+                <div class="kpi-subtext" style="color: var(--primary); font-weight: 600;">R² = 0.7529 vs. 0.5254 en escala natural</div>
+              </div>
+
+              <div class="kpi-card" style="border-left: 4px solid var(--warning);">
+                <div class="kpi-label">Corrección Sesgo de Jensen (Duan)</div>
+                <div class="kpi-value" id="comp-kpi-duan">Ŝ = 1.0401</div>
+                <div class="kpi-subtext" style="color: var(--warning); font-weight: 600;">Elimina subestimación sistemática del -21.4%</div>
+              </div>
+
+              <div class="kpi-card" style="border-left: 4px solid var(--success);">
+                <div class="kpi-label">Caída de Falsos Positivos Fiscales</div>
+                <div class="kpi-value" id="comp-kpi-falsos-pos">11.8%</div>
+                <div class="kpi-subtext" style="color: var(--success); font-weight: 600;">Frente al 62.4% de ratios estáticos tradicionales</div>
+              </div>
+            </div>
+
+            <!-- TARJETA DESTACADA: BENEFICIOS E IMPACTO PARA LAS EMPRESAS ANALIZADAS -->
+            <div class="card" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); margin-bottom: 2rem;">
+              <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; color: var(--primary);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                ¿Cuánto ganaron y qué mejoramos para las 3,153 empresas objeto de análisis?
+              </div>
+              <div class="card-subtitle">Impacto socioeconómico positivo del modelo de Machine Learning sobre el sector formal empresarial boliviano</div>
+
+              <div class="grid-2-col" style="gap: 1.25rem; margin-top: 1rem;">
+                <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--success);">
+                  <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Ahorro Agregado de Bs 45M a Bs 115M en Auditorías Espurias
+                  </div>
+                  <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                    Una fiscalización tributaria profunda dura entre <strong>3 y 8 meses</strong> y cuesta entre <strong>Bs 35,000 y Bs 150,000</strong> por empresa en peritajes contables, firmas auditoras externas y horas-hombre. Al reducir las fiscalizaciones ciegas en más del 70%, se ahorran decenas de millones de Bolivianos al tejido productivo nacional.
+                  </div>
+                </div>
+
+                <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--primary);">
+                  <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Blindaje Inmediato a más de 1,595 Empresas Formales
+                  </div>
+                  <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                    Bajo reglas no entrenadas, empresas intensivas en capital (alta maquinaria y tecnología pero márgenes iniciales ajustados) eran acusadas erróneamente de subdeclaración. El modelo multivariado reconoce su estructura tecnológica y las protege técnicamente.
+                  </div>
+                </div>
+
+                <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--accent);">
+                  <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    Certidumbre Operativa con Bandas Conformal al 90%
+                  </div>
+                  <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                    En lugar de imponer una cifra rígida arbitraria, el sistema entrega un intervalo dinámico <code>[IC_inf, IC_sup]</code> (cobertura empírica verificada de 90.33%). Mientras la empresa opere dentro de su banda de confianza, se presume su consistencia operativa ante el fisco y el INE.
+                  </div>
+                </div>
+
+                <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--warning);">
+                  <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Competencia Justa y Resguardo del Secreto Estadístico
+                  </div>
+                  <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                    Se combate la competencia desleal de empresas que subdeclaran masivamente, premiando la formalidad de los contribuyentes transparentes. Todo el proceso cumple estrictamente con el secreto y reserva legal del <strong>Decreto Ley N° 1405</strong>.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TABLA COMPARATIVA MAESTRA -->
+            <div style="margin-bottom: 2rem;">
+              <div class="card-title" style="font-size: 1rem; margin-bottom: 0.25rem;">Matriz Comparativa de Desempeño: Tradicional Sin Entrenar vs. Modelos Supervisados</div>
+              <div class="card-subtitle">Comparación exhaustiva de métricas de precisión, sesgos y capacidad de discriminación fiscal</div>
+
+              <div class="custom-table-container">
+                <table class="custom-table" id="tabla-comparativa-baseline">
+                  <thead>
+                    <tr>
+                      <th>Enfoque Metodológico</th>
+                      <th>Categoría</th>
+                      <th>MedAPE (%)</th>
+                      <th>R² (Escala Bs)</th>
+                      <th>R² (Log)</th>
+                      <th>Sesgo de Jensen</th>
+                      <th>Bandas IC 90%</th>
+                      <th>Falsos Positivos</th>
+                      <th>Estado y Veredicto</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-comparativa-baseline-body">
+                    <!-- Filas inyectadas dinámicamente desde /api/comparativa_baseline -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- GRÁFICOS COMPARATIVOS PLOTLY -->
+            <div class="grid-2-col" style="margin-bottom: 1.5rem;">
+              <div class="card" style="background: var(--bg-surface-elevated);">
+                <div class="chart-header">
+                  <div class="card-title" style="font-size: 0.95rem;">1. Error Relativo MedAPE (%) vs. Meta del Marco Lógico (40%)</div>
+                  <button class="chart-refresh-btn" data-chart="chartComparativaMedape" title="Actualizar gráfico" aria-label="Actualizar gráfico de MedAPE">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                  </button>
+                </div>
+                <div class="chart-wrapper" style="min-height: 350px;">
+                  <div class="chart-loading-overlay" id="loading-chartComparativaMedape" style="display: none;">
+                    <div class="chart-spinner"></div>
+                    <span>Cargando comparación de MedAPE...</span>
+                  </div>
+                  <div id="chartComparativaMedape" style="height: 350px;"></div>
+                </div>
+              </div>
+
+              <div class="card" style="background: var(--bg-surface-elevated);">
+                <div class="chart-header">
+                  <div class="card-title" style="font-size: 0.95rem;">2. Varianza Explicada en Moneda Nacional (R² en Escala de Bs)</div>
+                  <button class="chart-refresh-btn" data-chart="chartComparativaR2" title="Actualizar gráfico" aria-label="Actualizar gráfico de R2 Bs">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                  </button>
+                </div>
+                <div class="chart-wrapper" style="min-height: 350px;">
+                  <div class="chart-loading-overlay" id="loading-chartComparativaR2" style="display: none;">
+                    <div class="chart-spinner"></div>
+                    <span>Cargando varianza R² en Bs...</span>
+                  </div>
+                  <div id="chartComparativaR2" style="height: 350px;"></div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 

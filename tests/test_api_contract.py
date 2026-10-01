@@ -205,6 +205,19 @@ class ApiContractTests(unittest.TestCase):
         self.assertGreaterEqual(len(data["hitos_analisis"]), 7)
         self.assertGreaterEqual(len(data["matriz_control_calidad"]), 5)
 
+    def test_comparativa_baseline_contract(self):
+        resp = self.client.get("/api/comparativa_baseline")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertIn("meta", data)
+        self.assertIn("kpis_mejora", data)
+        self.assertIn("beneficios_empresas", data)
+        self.assertIn("tabla_comparativa", data)
+        self.assertIn("graficos_datos", data)
+        self.assertGreaterEqual(len(data["tabla_comparativa"]), 6)
+        self.assertEqual(data["beneficios_empresas"]["universo_empresas"], 3153)
+        self.assertTrue(data["kpis_mejora"]["reduccion_medape_vs_mco_pct"] > 50)
+
 
 if __name__ == "__main__":
     unittest.main()

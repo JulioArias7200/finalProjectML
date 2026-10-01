@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     monitoringData: null,
     heatmapData: null,
     cvResults: null,
+    comparativaBaselineData: null,
     plotlyLayoutBase: {},
     colors: {
       primary: '#0B3D62',
@@ -230,6 +231,16 @@ document.addEventListener('DOMContentLoaded', () => {
       endpoint: '/api/cross_validation',
       stateProp: 'cvResults',
       render: () => renderCvVsTestChart()
+    },
+    chartComparativaMedape: {
+      endpoint: '/api/comparativa_baseline',
+      stateProp: 'comparativaBaselineData',
+      render: () => renderComparativaMedapeChart()
+    },
+    chartComparativaR2: {
+      endpoint: '/api/comparativa_baseline',
+      stateProp: 'comparativaBaselineData',
+      render: () => renderComparativaR2Chart()
     },
     chartTrafficVolume: {
       endpoint: '/api/mlops/monitoring',
@@ -466,6 +477,10 @@ document.addEventListener('DOMContentLoaded', () => {
           reloadChart('chartCvBoxplot', false),
           reloadChart('chartCvVsTest', false)
         ]);
+      }
+      // Si se abre Cuadro Comparativo Sin Entrenar vs Modelos ML
+      if (subtabTarget === 'mv-comparativa') {
+        loadComparativaBaseline();
       }
       // Si se abre EDA, cargar de forma diferida (lazy) los 5 gráficos de análisis exploratorio
       if (subtabTarget === 'gob-eda') {
@@ -1293,6 +1308,215 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error('Error al renderizar gráficos de validación cruzada:', err);
     }
+  }
+
+  // ==========================================================================
+  // CUADRO COMPARATIVO: DATOS SIN ENTRENAR VS MODELOS ML
+  // ==========================================================================
+  async function loadComparativaBaseline() {
+    try {
+      const res = await fetch('/api/comparativa_baseline');
+      const data = await res.json();
+      state.comparativaBaselineData = data;
+
+      // Actualizar KPIs si existen
+      if (data.kpis_mejora) {
+        const kpiError = document.getElementById('comp-kpi-error-reduc');
+        const kpiR2 = document.getElementById('comp-kpi-r2-bs');
+        const kpiDuan = document.getElementById('comp-kpi-duan');
+        const kpiFalsos = document.getElementById('comp-kpi-falsos-pos');
+
+        if (kpiError) kpiError.textContent = `-${data.kpis_mejora.reduccion_medape_vs_mco_pct}%`;
+        if (kpiR2) kpiR2.textContent = `+${data.kpis_mejora.ganancia_varianza_r2_bs_pct}%`;
+        if (kpiDuan) kpiDuan.textContent = `Ŝ = ${data.kpis_mejora.factor_duan_smearing}`;
+        if (kpiFalsos) kpiFalsos.textContent = `${data.kpis_mejora.tasa_falsos_positivos_actual_pct}%`;
+      }
+
+      // Renderizar tabla
+      const tbody = document.getElementById('tabla-comparativa-baseline-body');
+      if (tbody && data.tabla_comparativa) {
+        tbody.innerHTML = data.tabla_comparativa.map(row => {
+          let badgeClass = 'badge-secondary';
+          if (row.estado_badge === 'primary') badgeClass = 'badge-primary';
+          else if (row.estado_badge === 'success') badgeClass = 'badge-success';
+          else if (row.estado_badge === 'warning') badgeClass = 'badge-warning';
+          else if (row.estado_badge === 'danger') badgeClass = 'badge-danger';
+
+          const isChampion = row.estado_badge === 'primary';
+          const rowStyle = isChampion ? 'background: rgba(11, 61, 98, 0.08); font-weight: 500;' : '';
+
+          return `
+            <tr style="${rowStyle}">
+              <td>
+                <div style="font-weight: 600; color: var(--text-primary);">${row.enfoque}</div>
+                <div style="font-size: 0.78rem; color: var(--text-secondary);">${row.descripcion}</div>
+              </td>
+              <td><span class="badge ${badgeClass}" style="font-size: 0.72rem;">${row.categoria}</span></td>
+              <td style="font-weight: 600; color: ${row.medape_pct <= 40 ? 'var(--success)' : 'var(--danger)'};">
+                ${row.medape_pct.toFixed(2)}%
+              </td>
+              <td style="font-weight: 600;">${row.r2_bs.toFixed(4)}</td>
+              <td>${row.r2_log !== undefined ? row.r2_log.toFixed(4) : '--'}</td>
+              <td><small>${row.sesgo_jensen}</small></td>
+              <td><small>${row.cobertura_ic90}</small></td>
+              <td style="color: ${parseFloat(row.tasa_falsos_positivos) <= 20 ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">
+                ${row.tasa_falsos_positivos}
+              </td>
+              <td>
+                <span class="badge ${badgeClass}">${row.estado_texto}</span>
+                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 3px;">${row.impacto_empresa}</div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Renderizar gráficos Plotly
+      renderComparativaMedapeChart();
+      renderComparativaR2Chart();
+    } catch (e) {
+      console.error('Error al cargar comparativa baseline vs modelos:', e);
+    }
+  }
+
+  function renderComparativaMedapeChart() {
+    const el = document.getElementById('chartComparativaMedape');
+    if (!el || !state.comparativaBaselineData) return;
+
+    const data = state.comparativaBaselineData.graficos_datos;
+    const baseTheme = getPlotlyThemeLayout();
+
+    const colors = data.medape_vals.map(v => {
+      if (v <= 40) return '#10B981'; // Verde meta cumplida
+      if (v <= 75) return '#F59E0B'; // Naranja intermedio
+      return '#EF4444'; // Rojo inaceptable
+    });
+
+    const traceBars = {
+      x: data.modelos,
+      y: data.medape_vals,
+      type: 'bar',
+      marker: {
+        color: colors,
+        line: { width: 1.5, color: colors }
+      },
+      text: data.medape_vals.map(v => `${v.toFixed(1)}%`),
+      textposition: 'outside',
+      cliponaxis: false,
+      hoverinfo: 'x+y'
+    };
+
+    const layout = {
+      ...baseTheme,
+      margin: { t: 40, r: 25, b: 85, l: 55 },
+      xaxis: {
+        ...baseTheme.xaxis,
+        tickangle: -20,
+        tickfont: { size: 10 }
+      },
+      yaxis: {
+        ...baseTheme.yaxis,
+        title: 'MedAPE (%)',
+        range: [0, 165]
+      },
+      shapes: [
+        {
+          type: 'line',
+          x0: -0.5,
+          x1: 5.5,
+          y0: 40,
+          y1: 40,
+          line: {
+            color: '#EF4444',
+            width: 2.5,
+            dash: 'dash'
+          }
+        }
+      ],
+      annotations: [
+        {
+          x: 4.8,
+          y: 43,
+          xref: 'x',
+          yref: 'y',
+          text: 'Meta Máx. MML: 40%',
+          showarrow: false,
+          font: { color: '#EF4444', size: 11, weight: 'bold' }
+        }
+      ]
+    };
+
+    Plotly.react('chartComparativaMedape', [traceBars], layout, { responsive: true, displayModeBar: false });
+  }
+
+  function renderComparativaR2Chart() {
+    const el = document.getElementById('chartComparativaR2');
+    if (!el || !state.comparativaBaselineData) return;
+
+    const data = state.comparativaBaselineData.graficos_datos;
+    const baseTheme = getPlotlyThemeLayout();
+
+    const colors = data.r2_bs_vals.map(v => {
+      if (v >= 0.70) return '#0B3D62'; // Primario campeón
+      if (v >= 0.50) return '#3B82F6'; // Azul medio
+      return '#94A3B8'; // Gris sin modelo
+    });
+
+    const traceBars = {
+      x: data.modelos,
+      y: data.r2_bs_vals,
+      type: 'bar',
+      marker: {
+        color: colors,
+        line: { width: 1.5, color: colors }
+      },
+      text: data.r2_bs_vals.map(v => v.toFixed(3)),
+      textposition: 'outside',
+      cliponaxis: false,
+      hoverinfo: 'x+y'
+    };
+
+    const layout = {
+      ...baseTheme,
+      margin: { t: 40, r: 25, b: 85, l: 55 },
+      xaxis: {
+        ...baseTheme.xaxis,
+        tickangle: -20,
+        tickfont: { size: 10 }
+      },
+      yaxis: {
+        ...baseTheme.yaxis,
+        title: 'R² en Escala Monetaria (Bs)',
+        range: [0, 0.9]
+      },
+      shapes: [
+        {
+          type: 'line',
+          x0: -0.5,
+          x1: 5.5,
+          y0: 0.60,
+          y1: 0.60,
+          line: {
+            color: '#10B981',
+            width: 2.5,
+            dash: 'dot'
+          }
+        }
+      ],
+      annotations: [
+        {
+          x: 4.8,
+          y: 0.63,
+          xref: 'x',
+          yref: 'y',
+          text: 'Meta Mín. MML: 0.60',
+          showarrow: false,
+          font: { color: '#10B981', size: 11, weight: 'bold' }
+        }
+      ]
+    };
+
+    Plotly.react('chartComparativaR2', [traceBars], layout, { responsive: true, displayModeBar: false });
   }
 
   // Simulador Predictivo Interactivo
