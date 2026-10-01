@@ -38,7 +38,7 @@ Objetivos específicos relevantes para nuestro proyecto:
 - **Distribución del marco por departamento:** La Paz (2.669) y Santa Cruz (3.846) concentran la mayoría de empresas; Pando (109) y Beni (193) las de menor cantidad.
 
 ### Tasa de respuesta (importante para el análisis de sesgo del dataset)
-- **Módulo Anual:** tasa de no respuesta ≈ 55% en número de empresas, pero solo ≈ 5% en términos de ingresos operativos agregados (las empresas que no respondieron son en su mayoría de menor tamaño relativo). Esto implica que el dataset representa muy bien el ingreso operativo agregado del universo, aunque con menos observaciones (empresas) de las que existen en el directorio.
+- **Módulo Anual:** la [ficha del INE](https://anda.ine.gob.bo/index.php/catalog/252) informa no respuesta estimada de 55% en número de empresas y describe alta cobertura de ingresos del directorio. Su redacción sobre el porcentaje monetario es ambigua; no se reproduce aquí como estimación verificada del extracto local. Las 3.153 filas disponibles no son por sí solas una tasa de respuesta ni demuestran representatividad poblacional.
 - **Módulo Trimestral:** de las mismas 10.044 empresas, respondieron 1.808 (26%). Por sector: industria manufacturera 14%, comercio 27%, servicios 28%.
 - **Implicación práctica:** el `MODULO_ANUAL_Secc_1-7_y_12` (que usaremos) tiene mejor cobertura que los módulos trimestrales; es la base más sólida para un modelo de regresión de ingresos anuales.
 
@@ -55,7 +55,7 @@ El INE aplicó reglas de consistencia e imputación que afectan directamente los
 
 - **Identidad contable de la Sección 3 (materiales/insumos):**
   `Utilización = Compras + Inventario inicial − Inventario final`
-  Si no se cumplía o había dato faltante, el campo se marcó con el código **99999** para imputación posterior. **Recomendación:** al leer `M_ANUAL_Sec_10_MATERIAS_PRIMAS`, tratar el valor 99999 (y valores atípicamente altos similares) como *missing*, no como dato real.
+  La documentación metodológica menciona el código **99999** en reglas concretas de imputación. Antes de recodificarlo se debe comprobar variable, unidad y regla de origen. Un monto alto similar no es por sí solo un valor perdido; en las columnas de materiales examinadas en este repositorio no se encontraron coincidencias exactas con 99999.
 - **Ajuste de la Sección 5 (Ingresos Operativos):** el ingreso operativo de la BEV se usó como "techo" de validación; el nuevo total no podía variar en más de ±20% respecto al de la BEV. Si el detalle sumaba menos que el total declarado, se creó una categoría "otro" para cuadrar. Esto significa que la variable objetivo (ingresos operativos) ya pasó por un proceso de validación cruzada con una fuente administrativa externa, lo cual **aumenta su confiabilidad para usarla como variable dependiente**.
 - **Detección de outliers:** se usó rango intercuartílico (IQR) sobre razones macroeconómicas (CI/VBP, R/VBP, Costo de ventas/Ingreso por ventas, etc.), con revisión manual e imputación de los que persistían como atípicos.
 - **Codificación:** las variables abiertas (descripciones de materia prima, productos, servicios) fueron codificadas con la Clasificación Central de Productos (CCP) mediante codificación asistida; 110.895 registros codificados en total.
@@ -105,9 +105,9 @@ Con esto, el dataset cubre **todas las categorías de variables predictoras** pl
 1. **Tamaño de muestra reducido y sesgado a empresas grandes/medianas** (no aplica a mipymes ni microempresas).
 2. **No hay factor de expansión** → no se pueden generar estimaciones poblacionales oficiales, solo modelos descriptivos/predictivos sobre las empresas encuestadas.
 3. **Corte transversal (2017/2018)**: no hay serie temporal por empresa, por lo que el proyecto de regresión debe entenderse como predicción "cross-section" (a partir de las características de la empresa en un año dado), no una serie de tiempo.
-4. **Valores centinela (99999)** en variables ajustadas de la Sección 3 y potencialmente en Sección 10: deben tratarse como missing.
+4. **Valores centinela (99999):** comprobar su significado por campo y registrar apariciones antes de recodificar; no sustituir importes altos por ausentes mediante una regla general.
 5. **Confidencialidad:** los microdatos publicados están anonimizados (Decreto Ley 1405); no contienen razón social, NIT ni datos identificatorios directos.
-6. **Condiciones de uso/citación:** los datos son de uso público con fines estadísticos, pero se debe citar al INE como fuente y no se pueden usar con fines tributarios, judiciales o administrativos. Los resultados del análisis no comprometen al INE y son responsabilidad exclusiva del usuario.
+6. **Condiciones de uso/citación:** verificar la condición específica de acceso de estos microdatos antes de exponer registros individuales. La [política de difusión del INE](https://anda.ine.gob.bo/index.php/politicas-difusion) exige citar fuente, enlace y fecha de acceso; atribuye al usuario la responsabilidad de sus cálculos. Esta documentación no establece por sí sola una prohibición legal específica de uso tributario, judicial o administrativo.
 
 ## 10. Referencias
 - Descripción del estudio: https://anda.ine.gob.bo/index.php/catalog/252/study-description

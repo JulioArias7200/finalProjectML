@@ -167,7 +167,7 @@
           <div class="kpi-card accent-emerald">
             <span class="kpi-label">Total Empresas Encuestadas</span>
             <div class="kpi-value" id="kpiTotalEmpresas">3,153</div>
-            <div class="kpi-subtext">Directorio FUNDEMPRESA + Cuentas Nacionales</div>
+            <div class="kpi-subtext">Registros del extracto local EAIMCS (marco oficial: 10,044 empresas; sin factor de expansión)</div>
           </div>
           <div class="kpi-card accent-indigo">
             <span class="kpi-label">Ingreso Operativo Mediano</span>
@@ -283,22 +283,22 @@
 
         <!-- VISTA A: TABLA DE EMPRESAS POR SCORE DE RIESGO -->
         <div id="subtab-content-riesgo-tabla">
-          <!-- Resumen de Riesgo en Tarjetas -->
+          <!-- Resumen de Riesgo en Tarjetas (señal descriptiva; fórmula visible según contrato 02) -->
           <div class="kpi-grid" style="margin-bottom: 1.5rem;">
             <div class="kpi-card" style="border-left: 4px solid var(--color-alerta-alta);">
               <span class="kpi-label">Empresas en Riesgo Alto</span>
               <div class="kpi-value" id="kpiRiesgoAlto" style="color: var(--color-alerta-alta);">--</div>
-              <div class="kpi-subtext">Ingreso declarado &gt; 40% menor al esperado</div>
+              <div class="kpi-subtext">Señal descriptiva: ingreso declarado &gt;40% menor al esperado o z &lt; −1,4; no constituye acusación</div>
             </div>
             <div class="kpi-card" style="border-left: 4px solid var(--color-alerta-media);">
               <span class="kpi-label">Empresas en Riesgo Medio</span>
               <div class="kpi-value" id="kpiRiesgoMedio" style="color: var(--color-alerta-media);">--</div>
-              <div class="kpi-subtext">Discrepancia moderada (18% - 40% inferior)</div>
+              <div class="kpi-subtext">Señal descriptiva: discrepancia moderada (18%–40% inferior o z &lt; −0,6)</div>
             </div>
             <div class="kpi-card" style="border-left: 4px solid var(--color-alerta-baja);">
               <span class="kpi-label">Empresas en Riesgo Bajo</span>
               <div class="kpi-value" id="kpiRiesgoBajo" style="color: var(--color-alerta-baja);">--</div>
-              <div class="kpi-subtext">Ingreso concordante o superior a la capacidad</div>
+              <div class="kpi-subtext">Ingreso concordante o superior a la estructura productiva estimada</div>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">Universo Evaluado</span>
@@ -431,32 +431,35 @@
             </div>
           </div>
 
-          <!-- Highlight: Cobertura Empírica del Intervalo de Confianza al 90% -->
+          <!-- Highlight: Cobertura Empírica del Intervalo CONFORMAL calibrado (D02) -->
           <div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--color-secundario);">
             <div class="grid-2-col" style="align-items: center;">
               <div class="metric-highlight-card">
                 <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
-                  Cobertura Empírica del IC al 90% (Test Set)
+                  Cobertura empírica del intervalo conformal nominal 90% (prueba, N=631)
                 </span>
-                <div class="metric-highlight-num" id="coverageEmpiricalNum">90.3%</div>
-                <span style="font-size: 0.85rem; color: var(--color-alerta-baja); font-weight: 600; margin-top: 0.25rem;">
-                  ✓ Perfectamente calibrado contra el 90.0% teórico
+                <div class="metric-highlight-num" id="coverageEmpiricalNum">—</div>
+                <span style="font-size: 0.85rem; color: var(--color-alerta-baja); font-weight: 600; margin-top: 0.25rem;" id="coverageEmpiricalNota">
+                  Tolerancia predefinida [85%, 95%]; calibrado con conjunto de calibración separado (decisión D02)
                 </span>
                 <div class="progress-bar-wrap" style="margin-top: 1rem; max-width: 260px;">
-                  <div class="progress-bar-fill" id="coverageEmpiricalBar" style="width: 90.3%; background: var(--color-alerta-baja);"></div>
+                  <div class="progress-bar-fill" id="coverageEmpiricalBar" style="width: 0%; background: var(--color-alerta-baja);"></div>
                 </div>
               </div>
 
               <div>
                 <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
-                  Calibración Estocástica de Incertidumbre
+                  Intervalo predictivo por conformal prediction (D02)
                 </h3>
                 <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-                  El intervalo de confianza al 90% predicho para cada empresa (calculado como <code>pred_log ± 1.645 * RMSE_log</code> 
-                  con retransformación de Duan) cubre de manera empírica al <strong>90.33%</strong> de las 631 empresas independientes del set de prueba.
+                  El intervalo se calibra con <em>split conformal</em> en escala log1p: la no conformidad <code>|y − ŷ|</code> se mide sobre un
+                  conjunto de calibración separado (631 empresas, excluido del ajuste) y el cuantil conforme <code>q̂</code> define
+                  <code>ŷ ± q̂</code>, retransformado a Bs con Duan. La etiqueta "90%" solo se usa si la cobertura empírica en prueba queda
+                  dentro de la tolerancia [85%, 95%] fijada antes de mirar la prueba.
                 </p>
                 <div class="chart-rationale-box">
-                  <strong>Garantía de Auditoría:</strong> Esta calibración demuestra que el modelo no sobreestima su certeza ni produce intervalos espuriamente angostos, permitiendo acotar el rango de tolerancia fiscal de forma confiable.
+                  <strong>Garantía de auditoría:</strong> la referencia <code>±1.645 × RMSE(log)</code> no se presenta como intervalo 90%:
+                  viaja rotulada como referencia nominal y la cobertura por quintiles y sectores se publica con N en <code>/api/models</code>.
                 </div>
               </div>
             </div>
@@ -789,12 +792,6 @@
                     <input type="number" class="form-control" id="predNInsumos" value="4" min="0" max="100">
                     <span class="form-hint">Variedad de materias primas declaradas</span>
                   </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="predCapacidadMP">Capacidad Almacén MP</label>
-                    <input type="number" class="form-control" id="predCapacidadMP" value="0" min="0">
-                    <span class="form-hint">Capacidad máxima almacenamiento materia prima</span>
-                  </div>
                 </div>
 
                 <button type="submit" class="btn-predict">
@@ -850,22 +847,22 @@
           <div class="kpi-grid" style="margin-bottom: 1.5rem;">
             <div class="kpi-card accent-indigo">
               <span class="kpi-label">Volumen Consultas /predict</span>
-              <div class="kpi-value" id="kpiMonitoringTotalReqs">845</div>
+              <div class="kpi-value" id="kpiMonitoringTotalReqs">Cargando...</div>
               <div class="kpi-subtext">Monitoreo continuo en ventana horaria</div>
             </div>
             <div class="kpi-card accent-emerald">
               <span class="kpi-label">Latencia Mediana Inferencia</span>
-              <div class="kpi-value" id="kpiMonitoringLatency">13.8 ms</div>
+              <div class="kpi-value" id="kpiMonitoringLatency">—</div>
               <div class="kpi-subtext">Tiempo de respuesta en sub-segundo</div>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">Último Reentrenamiento</span>
-              <div class="kpi-value" id="kpiMonitoringLastDate" style="font-size: 1.25rem;">2026-09-27</div>
-              <div class="kpi-subtext" id="kpiMonitoringActiveVer">Versión v1.20260927</div>
+              <div class="kpi-value" id="kpiMonitoringLastDate" style="font-size: 1.25rem;">—</div>
+              <div class="kpi-subtext" id="kpiMonitoringActiveVer">Versión —</div>
             </div>
             <div class="kpi-card accent-amber">
               <span class="kpi-label">Próximo Reentrenamiento</span>
-              <div class="kpi-value" id="kpiMonitoringNextDate" style="font-size: 1.15rem;">2026-12-26</div>
+              <div class="kpi-value" id="kpiMonitoringNextDate" style="font-size: 1.15rem;">—</div>
               <div class="kpi-subtext">Ciclo periódico cada 90 días</div>
             </div>
           </div>
@@ -933,15 +930,15 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
                   <span>Algoritmo Serializado</span>
-                  <strong id="mlopsModelType">RandomForestRegressor</strong>
+                  <strong id="mlopsModelType">Cargando...</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
                   <span>Factor de Retransformación Duan</span>
-                  <strong class="font-mono" id="mlopsSmearingFactor">1.0401</strong>
+                  <strong class="font-mono" id="mlopsSmearingFactor">—</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
                   <span>Fecha de Reentrenamiento</span>
-                  <span id="mlopsLastUpdated">2026-09-27</span>
+                  <span id="mlopsLastUpdated">—</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                   <span>Integración MLflow Tracking</span>
@@ -1292,7 +1289,7 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
                   <span>Universo Analizado</span>
-                  <strong>Empresas Medianas y Grandes (10,044 empresas)</strong>
+                  <strong>Marco oficial: Empresas Medianas y Grandes (10,044 empresas); extracto disponible: 3,153</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
                   <span>Cobertura Territorial</span>

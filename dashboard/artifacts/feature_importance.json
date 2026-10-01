@@ -1,62 +1,62 @@
 [
   {
-    "feature": "log_S01_03_C",
-    "importance": 0.38030680894372404
+    "feature": "log_S01_14",
+    "importance": 0.32210748346825996
   },
   {
-    "feature": "log_S01_14",
-    "importance": 0.17691006594969014
+    "feature": "log_S01_03_C",
+    "importance": 0.24698663374262647
   },
   {
     "feature": "log_S06_06_B",
-    "importance": 0.11708437770524023
+    "importance": 0.09666919186876108
   },
   {
     "feature": "log_total_valor_uti",
-    "importance": 0.060669173787389986
-  },
-  {
-    "feature": "log_S07_09_E",
-    "importance": 0.056391233969282945
+    "importance": 0.06241377173407108
   },
   {
     "feature": "log_S02_09",
-    "importance": 0.0553126070758171
+    "importance": 0.06036846500475327
   },
   {
     "feature": "sector_macro_Comercio Mayorista y Minorista",
-    "importance": 0.04888464564043506
+    "importance": 0.05780232408443494
+  },
+  {
+    "feature": "log_S07_09_E",
+    "importance": 0.05607872409619091
   },
   {
     "feature": "log_total_valor_co",
-    "importance": 0.03707522207030612
+    "importance": 0.03515580814256945
   },
   {
     "feature": "log_S01_05_A",
-    "importance": 0.03586974709613604
-  },
-  {
-    "feature": "log_S12_01_B",
-    "importance": 0.0034958655976528048
+    "importance": 0.03224270676803931
   },
   {
     "feature": "depto_LA PAZ",
-    "importance": 0.003298059851894427
+    "importance": 0.004294251184896187
   },
   {
     "feature": "log_n_insumos",
-    "importance": 0.002940083102715558
-  },
-  {
-    "feature": "depto_SANTA CRUZ",
-    "importance": 0.0028857787503973795
-  },
-  {
-    "feature": "log_S12_02_B",
-    "importance": 0.0028079188821807377
+    "importance": 0.003974590459585663
   },
   {
     "feature": "depto_COCHABAMBA",
-    "importance": 0.0021067617726027795
+    "importance": 0.0035223389002127952
+  },
+  {
+    "feature": "depto_SANTA CRUZ",
+    "importance": 0.0027134923862379406
+  },
+  {
+    "feature": "sector_macro_Actividades Inmobiliarias",
+    "importance": 0.0018012863786527715
+  },
+  {
+    "feature": "sector_macro_Transporte y Almacenamiento",
+    "importance": 0.0017298713549418695
   }
 ]

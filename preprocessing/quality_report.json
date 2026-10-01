@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-09-28T22:33:47.067718",
+  "run_id": "PRE-20260928-d004f6ddd436",
+  "source_sha256": {
+    "MOD_ANUAL_S01-07_12_general_i.csv": "e711b839d1e83e62b7e81ec64d0f64ea7a2d0eb06974662e99c5bfdc204927f7",
+    "MOD_ANUAL_S10_materiales_i.csv": "b41ad4ed15c427cb20c25a76732ff43f47834158b7eadf6c58a5141b80e18b4a"
+  },
+  "general_rows": 3153,
+  "general_unique_ids": 3153,
+  "materials_rows": 6427,
+  "materials_source_rows": 6428,
+  "materials_blank_rows_excluded": 1,
+  "materials_unique_ids": 1614,
+  "orphan_material_rows": 0,
+  "target_exact_matches": 3093,
+  "target_rounding_differences": 60,
+  "target_max_difference_bs": 1.0,
+  "target_excluded_rows": 0,
+  "observed_sectors": 13,
+  "reported_special_code_99999_count": 0,
+  "monetary_missing_after_join": {
+    "total_valor_co": 1540,
+    "total_valor_uti": 1539
+  },
+  "capacity_policy": "S12_B excluidas de predictores hasta normalizar por S12_C; valores originales conservados para auditoría"
+}

@@ -1,31 +1,32 @@
 {
-  "timestamp": "2026-09-27T09:25:31.466478",
+  "timestamp": "2026-09-28T22:33:47.067709",
+  "run_id": "PRE-20260928-d004f6ddd436",
   "dataset_nombre": "EAIMCS 2017-2018 (INE Bolivia)",
   "total_etapas": 5,
   "filas_iniciales": 3153,
   "filas_finales": 3153,
   "columnas_iniciales": 167,
-  "columnas_finales": 185,
+  "columnas_finales": 184,
   "etapas": [
     {
-      "etapa": "Tratamiento de centinelas 99999",
+      "etapa": "Validación de valores monetarios",
       "orden": 1,
-      "filas_antes": 6428,
+      "filas_antes": 6427,
       "columnas_antes": 8,
-      "filas_despues": 6428,
+      "filas_despues": 6427,
       "columnas_despues": 10,
-      "valores_afectados": 0,
-      "descripcion_regla": "Sustitución de centinelas 99999.0 (código del INE para registros con imputación pendiente o inconsistencia contable) por NaN y acotamiento de valores monetarios anómalos a cero (clip(lower=0))."
+      "valores_afectados": 1,
+      "descripcion_regla": "Importes negativos pasan a ausente. El valor exacto 99999 se cuenta, pero no se recodifica sin regla específica por variable. No se recortan importes altos."
     },
     {
       "etapa": "Agregación de la Sección 10",
       "orden": 2,
-      "filas_antes": 6428,
+      "filas_antes": 6427,
       "columnas_antes": 10,
       "filas_despues": 1614,
       "columnas_despues": 4,
-      "valores_afectados": 6428,
-      "descripcion_regla": "Transformación de estructura larga (6428 registros de materias primas) a nivel empresarial por 'ID' único (1614 empresas), calculando variedad (n_insumos), compras totales (total_valor_co) y consumo fabril (total_valor_uti)."
+      "valores_afectados": 6427,
+      "descripcion_regla": "Transformación de estructura larga (6427 registros de materias primas) a nivel empresarial por 'ID' único (1614 empresas), calculando variedad (n_insumos), compras totales (total_valor_co) y consumo fabril (total_valor_uti)."
     },
     {
       "etapa": "Normalización categórica CAEB",
@@ -33,29 +34,55 @@
       "filas_antes": 3153,
       "columnas_antes": 167,
       "filas_despues": 3153,
-      "columnas_despues": 172,
+      "columnas_despues": 173,
       "valores_afectados": 4692,
-      "descripcion_regla": "Cruce relacional Left Join con Sección 10; mapeo sistemático de 445 códigos CAEB (CIIU Rev. 4) a macrosectores homogéneos; normalización de 9 departamentos e imputación de ceros en insumos para empresas sin manufactura."
+      "descripcion_regla": "Cruce Left Join validado uno a uno; sectores derivados de los códigos CAEB. n_insumos=0 significa sin filas de materiales; importes sin declaración permanecen ausentes."
     },
     {
       "etapa": "Políticas anti-leakage",
       "orden": 4,
       "filas_antes": 3153,
-      "columnas_antes": 172,
+      "columnas_antes": 173,
       "filas_despues": 3153,
-      "columnas_despues": 173,
+      "columnas_despues": 174,
       "valores_afectados": 19,
-      "descripcion_regla": "Blindaje metodológico del modelo excluyendo 19 variables macroeconómicas post-encuesta (VBP, VA, CI, VIPP) y componentes de ingresos de Sección 5 (S05_01 a S05_04) que causarían fuga de datos (data leakage)."
+      "descripcion_regla": "Objetivo S00_01_A conciliado con S05_04; 19 columnas relacionadas con ingreso marcadas como excluidas del modelo. La selección se aplica en entrenamiento."
     },
     {
       "etapa": "Transformación logarítmica",
       "orden": 5,
       "filas_antes": 3153,
-      "columnas_antes": 173,
+      "columnas_antes": 174,
       "filas_despues": 3153,
-      "columnas_despues": 185,
-      "valores_afectados": 37836,
-      "descripcion_regla": "Aplicación de transformación no lineal log(1 + x) a 11 predictores numéricos de estructura productiva y a la variable objetivo, estabilizando la varianza y reduciendo la severa asimetría de cola pesada (Pareto)."
+      "columnas_despues": 184,
+      "valores_afectados": 31530,
+      "descripcion_regla": "log1p para 9 predictores no negativos y objetivo; valores ausentes preservados para imputación dentro del pipeline de entrenamiento."
     }
-  ]
+  ],
+  "quality_report": {
+    "generated_at": "2026-09-28T22:33:47.067718",
+    "run_id": "PRE-20260928-d004f6ddd436",
+    "source_sha256": {
+      "MOD_ANUAL_S01-07_12_general_i.csv": "e711b839d1e83e62b7e81ec64d0f64ea7a2d0eb06974662e99c5bfdc204927f7",
+      "MOD_ANUAL_S10_materiales_i.csv": "b41ad4ed15c427cb20c25a76732ff43f47834158b7eadf6c58a5141b80e18b4a"
+    },
+    "general_rows": 3153,
+    "general_unique_ids": 3153,
+    "materials_rows": 6427,
+    "materials_source_rows": 6428,
+    "materials_blank_rows_excluded": 1,
+    "materials_unique_ids": 1614,
+    "orphan_material_rows": 0,
+    "target_exact_matches": 3093,
+    "target_rounding_differences": 60,
+    "target_max_difference_bs": 1.0,
+    "target_excluded_rows": 0,
+    "observed_sectors": 13,
+    "reported_special_code_99999_count": 0,
+    "monetary_missing_after_join": {
+      "total_valor_co": 1540,
+      "total_valor_uti": 1539
+    },
+    "capacity_policy": "S12_B excluidas de predictores hasta normalizar por S12_C; valores originales conservados para auditoría"
+  }
 }

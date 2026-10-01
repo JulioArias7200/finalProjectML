@@ -70,10 +70,19 @@ class DriftDetector:
         simulate_drift_feature: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Ejecuta el test de Kolmogorov-Smirnov y distancia de Wasserstein sobre variables productivas clave.
-        Aplica corrección por multiplicidad de pruebas (Bonferroni) sobre las 5 dimensiones.
+        Test de KS y Wasserstein sobre variables productivas clave con corrección de Bonferroni.
+        MODO SIMULADO rotulado: si no se entrega sample_df, la muestra 'base' se reconstruye
+        desde percentiles y la 'de producción' es una perturbación de esa misma base; el resultado
+        es una demostración del mecanismo, no una medición real (la medición real con ventana y N
+        corresponde a T17 cuando exista telemetría persistida).
         """
-        results: Dict[str, Any] = {}
+        results: Dict[str, Any] = {
+            "__modo__": "real" if isinstance(sample_df, pd.DataFrame) else "simulado",
+            "__nota__": (
+                "Medición sobre muestra entregada; ventana y N por variable." if isinstance(sample_df, pd.DataFrame)
+                else "Demostración del mecanismo con muestras reconstruidas desde percentiles de referencia; no es telemetría real."
+            ),
+        }
         features_to_monitor = [
             ("S01_05_A", "Personal Ocupado"),
             ("S01_03_C", "Sueldos y Salarios"),
@@ -122,6 +131,8 @@ class DriftDetector:
 
             results[feat_key] = {
                 "label": feat_label,
+                "n_base": int(len(base_sample)),
+                "n_produccion": int(len(prod_sample)),
                 "ks_stat": round(ks_stat, 4),
                 "p_value": round(p_val, 4),
                 "wasserstein_dist": round(w_dist, 2),

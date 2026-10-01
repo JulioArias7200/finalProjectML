@@ -8,10 +8,12 @@ Este directorio contiene el pipeline de entrenamiento, evaluación comparativa, 
 
 ```text
 models/
-├── README.md                 -> Esta guía técnica de arquitectura y modelos
-├── train.py                  -> Script de entrenamiento, validación cruzada (5-Fold CV) y exportación MLOps
-├── drift.py                  -> Detector de Data Drift (Prueba de Kolmogorov-Smirnov y distancia de Wasserstein)
-└── reference_stats.json      -> Distribuciones empíricas base (percentiles y proporciones de ceros)
+├── README.md                       -> Esta guía técnica de arquitectura y modelos
+├── protocolo_entrenamiento.md      -> Protocolo G2 predefinido (partición, metas D06, conformal D02)
+├── train.py                        -> Entrenamiento, CV, calibración conformal y exportación MLOps
+├── drift.py                        -> Detector de Data Drift (KS y Wasserstein)
+├── bitacora_modelos.json           -> Bitácora comparativa con run_id de la ejecución activa
+└── reference_stats.json            -> Distribuciones empíricas base (percentiles y proporciones de ceros)
 ```
 
 ---
@@ -63,27 +65,29 @@ data/processed/dataset_procesado.csv
   *(Factor de Duan para Random Forest: $s \approx 1.0401$)*.
 
 ### B. Predictores Utilizados
-1. **11 Variables Numéricas:** `log_S01_05_A` (personal), `log_S01_03_C` (sueldos básicos), `log_S01_14` (otras remuneraciones), `log_S02_09` (energía y agua), `log_S07_09_E` (activos fijos), `log_S06_06_B` (inventarios finales), `log_S12_01_B` (almacén materias primas), `log_S12_02_B` (almacén producto terminado), `log_n_insumos` (variedad de insumos), `log_total_valor_co` (compras de insumos), `log_total_valor_uti` (consumo productivo de insumos).
-2. **2 Variables Categóricas:** `depto` (9 departamentos) y `sector_macro` (14 macrosectores CAEB).
+1. **9 Variables Numéricas:** `log_S01_05_A` (personal), `log_S01_03_C` (sueldos básicos), `log_S01_14` (otras remuneraciones), `log_S02_09` (energía y agua), `log_S07_09_E` (activos fijos), `log_S06_06_B` (inventarios finales), `log_n_insumos` (variedad de insumos), `log_total_valor_co` (compras de insumos), `log_total_valor_uti` (consumo productivo de insumos). Las cantidades de capacidad `S12_*_B` quedaron **excluidas** por decisión D07: sus unidades `S12_*_C` son heterogéneas y no admiten suma ni normalización defendible en este extracto.
+2. **2 Variables Categóricas:** `depto` (9 departamentos observados) y `sector_macro` (13 macrosectores observados; no se declaran los 14 teóricos).
+3. **Faltantes:** la imputación por mediana vive dentro del `Pipeline` y se ajusta solo con datos de entrenamiento; los faltantes de materiales preservados por T03 nunca se rellenan con cero antes del modelo.
 
 ---
 
-## 4. Benchmark de Modelos Evaluados
+## 4. Benchmark de Modelos Evaluados (iteración v1.20260928.2256, run_id RUN-20260928-b3cfc0795ed7)
 
-Evaluación sobre el conjunto de prueba independiente (*Test Holdout* 20% = 631 empresas) y validación cruzada de 5 particiones estratificadas:
+Protocolo predefinido en [protocolo_entrenamiento.md](protocolo_entrenamiento.md): prueba final reservada (631 empresas), calibración separada (631), CV sobre el bloque de ajuste (1.891). Evaluación sobre el conjunto de prueba y validación cruzada de 5 particiones estratificadas:
 
-| Algoritmo | CV $R^2$ (Log) | Test $R^2$ (Log) | Test $R^2$ (Escala Bs) | MedAPE (% Error Mediano) | MAE (Bs) | Smearing Factor | Estado |
+| Algoritmo | CV $R^2$ (Log) | Test $R^2$ (Log) | Test $R^2$ (Escala Bs) | MedAPE | Smearing | Cobertura conformal | Estado |
 |---|---|---|---|---|---|---|---|
-| **Ridge Regression** | 0.5476 ± 0.027 | 0.5718 | 0.5171 | 74.07% | 34,309,195 | 1.5352 | Base Lineal |
-| **Random Forest Regressor** 🏆 | **0.7724 ± 0.019** | **0.7868** | **0.7529** | **36.20%** | **22,888,317** | **1.0401** | **En Producción** |
-| **HistGradientBoosting** | 0.7700 ± 0.014 | 0.7815 | 0.7289 | 36.94% | 23,662,733 | 1.1068 | Alternativa Ensamble |
+| **Ridge Regression** | 0.5662 ± 0.054 | 0.5953 | 0.5750 | 67.41% | — | 84.47% | Base Lineal |
+| **Random Forest Regressor** 🏆 | **0.7609 ± 0.027** | **0.7824** | **0.7396** | **35.10%** | 1.0404 | **88.27%** | **En Producción** |
+| **HistGradientBoosting** | 0.7630 ± 0.030 | 0.7744 | 0.6286 | 39.37% | — | 90.65% | Alternativa Ensamble |
 
 ### Justificación del Modelo Seleccionado:
 **Random Forest Regressor** fue seleccionado como el modelo campeón debido a:
-- Mayor poder explicativo tanto en escala logarítmica ($R^2 = 0.7868$) como en escala monetaria real ($R^2 = 0.7529$).
-- Menor sesgo de re-transformación (factor de Duan más cercano a 1.0: 1.0401 vs 1.1068 de Gradient Boosting).
+- Mayor poder explicativo tanto en escala logarítmica ($R^2 = 0.7824$) como en escala monetaria real ($R^2 = 0.7396$).
+- Menor sesgo de re-transformación (factor de Duan más cercano a 1.0).
 - Mayor robustez ante relaciones no lineales entre factores productivos (capital y trabajo).
-- Capacidad nativa de calcular la dispersión de predicciones entre árboles para estimar intervalos de confianza al 90%.
+- Intervalo predictivo **conformal calibrado** (D02): q̂(log)=0,9025 sobre un conjunto de calibración separado; cobertura empírica 88,27% dentro de la tolerancia predefinida [85%, 95%], por lo que puede etiquetarse como intervalo calibrado al 90% nominal. La cobertura por quintiles varía de 83,5% (Q1) a 93,7% (Q2) y se publica por segmento; el método ±1,645×RMSE queda como referencia nominal no calibrada.
+- Meta D06: MedAPE 35,10% ≤ umbral de aprobación 40% y R²(Bs) 0,7396 ≥ 0,70 → **umbral de aprobación cumplido**; la meta histórica ≤25% **no se alcanza** y se muestra siempre etiquetada como brecha.
 
 ---
 
@@ -123,7 +127,10 @@ python models/drift.py
 ## 7. Gobernanza y Trazabilidad MLOps
 
 Cada ejecución de `models/train.py`:
-1. Genera un identificador de versión único con marca temporal (ej. `v1.20260921.2352`).
-2. Actualiza `dashboard/artifacts/registry.json`, archivando la versión anterior y fijando la nueva como `ACTIVE`.
-3. Exporta la importancia de variables normalizada a `dashboard/artifacts/feature_importance.json`.
-4. Guarda las predicciones detalladas del conjunto de prueba en `dashboard/artifacts/test_predictions.csv` para auditoría y visualización de residuos.
+1. Genera `run_id` (RUN-fecha-hash) derivado del modelo serializado y del `run_id` de preprocesamiento; el paquete completo comparte ese identificador.
+2. Actualiza `dashboard/artifacts/registry.json` con versión activa, cohortes (ajuste/calibración/prueba), conformal y metas D06, archivando la versión anterior.
+3. Escribe `dashboard/artifacts/manifest.json` con los SHA-256 de `best_model.joblib`, `test_predictions.csv`, `cv_results.json`, `feature_importance.json`, `registry.json` y `bitacora_modelos.json`; el servidor debe rechazar mezclas entre ejecuciones verificando `run_id` y hashes (A07).
+4. Guarda `test_predictions.csv` con intervalo conformal (`lower_bs`/`upper_bs`), referencia nominal rotulada, sector, departamento y quintil por fila.
+5. Exporta la importancia de variables y `models/bitacora_modelos.json` con el mismo `run_id`.
+
+Pruebas: `python -m unittest discover -s tests -p "test_model_evaluation.py"` (8 casos A05–A07).

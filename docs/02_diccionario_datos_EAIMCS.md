@@ -4,10 +4,10 @@ Fuente: Catálogo ANDA (INE Bolivia), estudio BOL-INE-EAIMCS-2017-2018.
 Diccionario de datos oficial: https://anda.ine.gob.bo/index.php/catalog/252/data-dictionary
 
 Este documento cubre únicamente los dos archivos usados en el proyecto:
-1. **MODULO_ANUAL_Secc_1-7_y_12** (`MOD_ANUAL_S1-07_12_general`) — 152 variables, nivel empresa.
+1. **MODULO_ANUAL_Secc_1-7_y_12** (`MOD_ANUAL_S1-07_12_general`) — 152 variables en el catálogo; el CSV local añade 15 indicadores derivados (167 columnas), nivel empresa.
 2. **M_ANUAL_Sec_10_MATERIAS_PRIMAS** (`MOD_ANUAL_S10_materiales`) — 8 variables, nivel ítem/insumo.
 
-> Nota general de tipo de dato: todas las variables monetarias están expresadas en **Bolivianos (Bs)**, gestión 2017 (o el cierre fiscal correspondiente a la actividad). Las variables `_E` o con sufijo "especifique" son texto libre (abierto) asociado a una opción "otros". Recordar que valores como **99999** pueden representar datos imputados/pendientes según el proceso de consistencia del INE (ver documento de análisis).
+> Nota general de tipo de dato: todas las variables monetarias están expresadas en **Bolivianos (Bs)**, gestión 2017 o el cierre fiscal correspondiente a la actividad. Las variables `_E` o con sufijo "especifique" son texto libre asociado a una opción "otros". Un código como **99999** solo se recodifica como ausente si la regla de esa variable está documentada y se han contado sus apariciones; no se aplica a todos los montos.
 
 ---
 
@@ -29,7 +29,7 @@ Incluye la carátula (identificación de la empresa) y las secciones 0 a 7 y 12 
 
 | Variable | Descripción |
 |---|---|
-| `S00_01_A` | Valor TOTAL de Ingresos Operativos, en Bs (año calendario enero–diciembre 2017) |
+| `S00_01_A` | Valor TOTAL de Ingresos Operativos, en Bs; el catálogo lo rotula como año calendario 2017, mientras la ficha de la encuesta distingue cierres fiscales por actividad. Objetivo elegido para este proyecto, sujeto a conciliación con `S05_04`. |
 
 ### Sección 1 – Personal ocupado, sueldos y salarios y otras remuneraciones
 
@@ -174,7 +174,11 @@ Para cada tipo de activo se registran 6 componentes: **A** = valor histórico in
 | `S12_02_B` | Cantidad máxima de PRODUCTO que pudo haber almacenado al 31/dic/2017 |
 | `S12_02_C` | Unidad de medida (producto) |
 
-**Total variables en este archivo: 152**
+**Total variables de encuesta según el catálogo: 152.** El CSV local general contiene además las 15 columnas derivadas `VPA`, `PC`, `ISPOINF`, `VIPP`, `VBP`, `EAC`, `OGO`, `VUMPEEI`, `CI`, `VA`, `SSB`, `OPP`, `PS`, `R` y `D` (167 en total). Estas columnas no forman parte de las 152 variables originales y deben evaluarse por posible fuga del objetivo antes de modelar.
+
+`S00_01_A` y `S05_04` coinciden exactamente en 3.093 de 3.153 registros locales. En 60 difieren por redondeo o precisión, con diferencia absoluta máxima de Bs 1. La regla del proyecto conserva `S00_01_A` como objetivo y exige que toda nueva entrada mantenga `|S00_01_A - S05_04| ≤ Bs 1` o registre una incidencia para revisión; no se afirma igualdad exacta.
+
+Las cantidades de capacidad `S12_01_B` y `S12_02_B` se interpretan junto con las unidades `S12_01_C` y `S12_02_C`. No se suman cantidades con unidades distintas ni se transforma un valor ausente en cero sin justificación de campo.
 
 ---
 
@@ -214,6 +218,6 @@ M_ANUAL_Sec_10_MATERIAS_PRIMAS (N filas = N insumos por empresa)
 ```
 
 ## 4. Notas de calidad para el modelado
-- Verificar y tratar como *missing* los valores centinela **99999** (usados por el INE cuando la identidad `Utilización = Compras + Inventario inicial − Inventario final` no se cumplía o el dato faltaba).
+- Verificar y contar códigos **99999** por variable; solo tratarlos como ausentes cuando su uso específico esté documentado. La revisión local de las columnas de materiales no encontró coincidencias exactas. Un importe alto no es automáticamente un centinela.
 - Las variables tipo "especifique" (`S01_10E`, `S01_13E`, `S02_08E`, `S04_19E`, `S07_08_F1`) son texto libre; no usar directamente en un modelo numérico sin categorizar.
 - Los códigos CAEB (actividad económica) y CCP (productos/insumos) requieren su tabla de equivalencias oficial (no incluida en el diccionario de datos) si se desea decodificarlos a texto legible.

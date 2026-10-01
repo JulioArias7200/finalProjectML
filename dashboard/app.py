@@ -9,10 +9,12 @@ con Plotly, exploración de datos, diagnóstico de modelos, inferencia predictiv
 import sys
 import json
 import time
+import hashlib
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+from functools import wraps
 import numpy as np
 import pandas as pd
 import joblib
@@ -24,6 +26,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from dashboard.data_loader import DashboardDataLoader
+from dashboard.telemetry import append_prediction_record, load_records, real_drift_check, traffic_summary
 from models.drift import DriftDetector
 
 # Registro de métricas de peticiones para monitoreo operativo de /api/predict
@@ -45,6 +48,10 @@ data_loader = DashboardDataLoader()
 
 # Directorio de artefactos del dashboard
 ARTIFACTS_DIR = Path(__file__).resolve().parent / "artifacts"
+MANIFEST_PATH = ARTIFACTS_DIR / "manifest.json"
+
+# Estado del paquete activo (A07): carga atómica y verificada, o rechazo completo.
+PACKAGE_STATE: Dict[str, Any] = {"ready": False, "run_id": None, "error": None, "manifest": None}
 
 # Cargar artefactos de Machine Learning
 MODEL = None
@@ -53,51 +60,105 @@ FEATURE_IMPORTANCE = None
 TEST_DIAGNOSTICS = None
 CV_RESULTS = None
 
+LIMITACIONES_META = [
+    "Muestra dirigida de empresas medianas y grandes; no extrapolable al total de empresas de Bolivia.",
+    "Sin factor de expansión: los totales describen el extracto, no la población.",
+    "Periodo EAIMCS 2017 con cierres fiscales según actividad; corte transversal.",
+    "Las señales de riesgo y bunching son descriptivas y agregadas; no constituyen acusaciones individuales.",
+]
+
+# Decisión D04 (docs/implementacion/06_decisiones_y_riesgos.md): entrega pública agregada por defecto.
+ACCESO_INDIVIDUAL_HABILITADO = False
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def load_dashboard_artifacts() -> None:
-    """Carga los artefactos serializados desde dashboard/artifacts/."""
+    """Carga atómica del paquete: manifest + hashes + run_id coherente, o rechazo total (A07)."""
     global MODEL, REGISTRY, FEATURE_IMPORTANCE, TEST_DIAGNOSTICS, CV_RESULTS
-    
-    model_path = ARTIFACTS_DIR / "best_model.joblib"
-    if model_path.exists():
-        try:
-            MODEL = joblib.load(model_path)
-            logger.info("Modelo cargado exitosamente desde: %s", model_path)
-        except Exception as e:
-            logger.error("Error al cargar best_model.joblib: %s", e)
+    try:
+        if not MANIFEST_PATH.exists():
+            raise FileNotFoundError("manifest.json no encontrado; ejecute models/train.py para generar el paquete")
+        with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        run_id = str(manifest.get("run_id", ""))
+        if not run_id:
+            raise ValueError("manifest.json sin run_id")
+        for name, expected_hash in manifest.get("artifacts", {}).items():
+            artifact_path = ARTIFACTS_DIR / name
+            if not artifact_path.exists():
+                raise FileNotFoundError(f"Artefacto ausente del paquete {run_id}: {name}")
+            actual_hash = sha256_file(artifact_path)
+            if actual_hash != expected_hash:
+                raise ValueError(f"Hash incompatible en {name}: el paquete {run_id} está mezclado o alterado")
+        MODEL = joblib.load(ARTIFACTS_DIR / "best_model.joblib")
+        with open(ARTIFACTS_DIR / "registry.json", "r", encoding="utf-8") as f:
+            REGISTRY = json.load(f)
+        if REGISTRY.get("run_id") != run_id:
+            raise ValueError("registry.json no pertenece al paquete activo")
+        test_pred_path = ARTIFACTS_DIR / "test_predictions.csv"
+        df_diag = pd.read_csv(test_pred_path)
+        if "run_id" in df_diag.columns and set(df_diag["run_id"].astype(str).unique()) != {run_id}:
+            raise ValueError("test_predictions.csv mezcla ejecuciones distintas")
+        TEST_DIAGNOSTICS = df_diag.to_dict(orient="list")
+        with open(ARTIFACTS_DIR / "cv_results.json", "r", encoding="utf-8") as f:
+            CV_RESULTS = json.load(f)
+        if CV_RESULTS.get("run_id") != run_id:
+            raise ValueError("cv_results.json no pertenece al paquete activo")
+        with open(ARTIFACTS_DIR / "feature_importance.json", "r", encoding="utf-8") as f:
+            FEATURE_IMPORTANCE = json.load(f)
+        PACKAGE_STATE.update(ready=True, run_id=run_id, error=None, manifest=manifest)
+        logger.info("Paquete %s verificado y cargado: %d artefactos con hash OK.", run_id, len(manifest.get("artifacts", {})))
+    except Exception as exc:
+        MODEL = REGISTRY = FEATURE_IMPORTANCE = TEST_DIAGNOSTICS = CV_RESULTS = None
+        PACKAGE_STATE.update(ready=False, run_id=None, error=str(exc), manifest=None)
+        logger.error("Paquete de artefactos inválido; el servicio responderá 503: %s", exc)
 
-    registry_path = ARTIFACTS_DIR / "registry.json"
-    if registry_path.exists():
-        try:
-            with open(registry_path, "r", encoding="utf-8") as f:
-                REGISTRY = json.load(f)
-        except Exception as e:
-            logger.warning("No se pudo cargar registry.json: %s", e)
 
-    fi_path = ARTIFACTS_DIR / "feature_importance.json"
-    if fi_path.exists():
-        try:
-            with open(fi_path, "r", encoding="utf-8") as f:
-                FEATURE_IMPORTANCE = json.load(f)
-        except Exception as e:
-            logger.warning("No se pudo cargar feature_importance.json: %s", e)
+def require_package(fn):
+    """Los endpoints analíticos responden 503 (preparación) si el paquete falta o es inconsistente."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not PACKAGE_STATE["ready"]:
+            return jsonify({"error": "paquete_no_disponible", "detalle": PACKAGE_STATE["error"]}), 503
+        return fn(*args, **kwargs)
+    return wrapper
 
-    test_pred_path = ARTIFACTS_DIR / "test_predictions.csv"
-    if test_pred_path.exists():
-        try:
-            df_diag = pd.read_csv(test_pred_path)
-            TEST_DIAGNOSTICS = df_diag.to_dict(orient="list")
-            logger.info("Predicciones de prueba cargadas desde: %s", test_pred_path)
-        except Exception as e:
-            logger.warning("No se pudo cargar test_predictions.csv: %s", e)
 
-    cv_path = ARTIFACTS_DIR / "cv_results.json"
-    if cv_path.exists():
-        try:
-            with open(cv_path, "r", encoding="utf-8") as f:
-                CV_RESULTS = json.load(f)
-            logger.info("Resultados de validación cruzada cargados desde: %s", cv_path)
-        except Exception as e:
-            logger.warning("No se pudo cargar cv_results.json: %s", e)
+def build_meta(filtros: Optional[Dict[str, Any]] = None, unidad: str = "Bs", escala: str = "natural") -> Dict[str, Any]:
+    """Contrato mínimo de metadatos para respuestas analíticas (docs/implementacion/02)."""
+    manifest = PACKAGE_STATE.get("manifest") or {}
+    cohorte = manifest.get("cohorte", {})
+    return {
+        "run_id": PACKAGE_STATE.get("run_id"),
+        "preprocessing_run_id": manifest.get("preprocessing_run_id"),
+        "dataset_id": "EAIMCS 2017 (INE Bolivia) - extracto local anonimizado",
+        "periodo": "EAIMCS 2017; cierre fiscal según actividad",
+        "poblacion": "Empresas medianas y grandes del extracto; sin expansión poblacional",
+        "n": cohorte.get("n_total"),
+        "filtros": filtros or {},
+        "unidad": unidad,
+        "escala": escala,
+        "generated_at": datetime.now().isoformat(),
+        "limitaciones": LIMITACIONES_META,
+    }
+
+
+def parse_filter_or_400(column: str, value: Optional[str]) -> Optional[str]:
+    """Valida un filtro contra los valores observados; ValueError → 400 en el endpoint."""
+    if not value:
+        return None
+    values = set(data_loader.get_data()[column].dropna().astype(str).str.strip())
+    if str(value).strip() not in values:
+        raise ValueError(f"Valor desconocido para {column}: {value}")
+    return str(value).strip()
+
 
 load_dashboard_artifacts()
 drift_detector = DriftDetector()
@@ -110,7 +171,7 @@ drift_detector = DriftDetector()
 def index():
     """Ruta principal: renderiza el cascarón SPA del dashboard corporativo."""
     kpis = data_loader.get_kpis()
-    active_version = REGISTRY.get("active_version", "v1.0.0") if REGISTRY else "v1.0.0-baseline"
+    active_version = REGISTRY.get("active_version", "paquete_no_disponible") if REGISTRY else "paquete_no_disponible"
     return render_template("index.html", kpis=kpis, active_version=active_version)
 
 
@@ -118,9 +179,18 @@ def index():
 # API: SECCIÓN 1 - RESUMEN EJECUTIVO & KPIS
 # -------------------------------------------------------------
 @app.route("/api/kpis")
+@require_package
 def get_kpis():
-    """Retorna los indicadores macroeconómicos y dimensiones generales del estudio."""
-    return jsonify(data_loader.get_kpis())
+    """Indicadores macroeconómicos con metadatos de contrato y filtros validados."""
+    try:
+        depto = parse_filter_or_400("depto", request.args.get("depto"))
+        sector = parse_filter_or_400("sector_macro", request.args.get("sector"))
+    except ValueError as exc:
+        return jsonify({"error": "filtro_invalido", "detalle": str(exc)}), 400
+    filtros = {"depto": depto, "sector_macro": sector}
+    result = data_loader.get_kpis(depto, sector)
+    result["meta"] = build_meta(filtros)
+    return jsonify(result)
 
 
 # -------------------------------------------------------------
@@ -173,6 +243,7 @@ def get_eda_distribution():
 
 
 @app.route("/api/eda/boxplot_deptos")
+@require_package
 def get_eda_boxplot_deptos():
     """
     VISUALIZACIÓN: Diagramas de Caja (Boxplots) por Departamento.
@@ -184,6 +255,7 @@ def get_eda_boxplot_deptos():
 
 
 @app.route("/api/eda/boxplot_sectors")
+@require_package
 def get_eda_boxplot_sectors():
     """
     VISUALIZACIÓN: Boxplots de Ingresos por Macrosector Económico CAEB.
@@ -219,9 +291,17 @@ def get_eda_outliers():
 # API: SECCIÓN 1 EXTENDIDA - HEATMAP DEPTO X SECTOR
 # -------------------------------------------------------------
 @app.route("/api/eda/heatmap_depto_sector")
+@require_package
 def get_heatmap_depto_sector():
-    """Retorna la matriz de calor cruzada de empresas e ingresos por Departamento x Macrosector."""
-    return jsonify(data_loader.get_heatmap_depto_sector())
+    """Matriz de calor cruzada con denominador compartido, celdas null/suprimidas y meta de contrato."""
+    try:
+        depto = parse_filter_or_400("depto", request.args.get("depto"))
+        sector = parse_filter_or_400("sector_macro", request.args.get("sector"))
+    except ValueError as exc:
+        return jsonify({"error": "filtro_invalido", "detalle": str(exc)}), 400
+    heatmap = data_loader.get_heatmap_depto_sector(depto, sector)
+    heatmap["meta"] = build_meta({"depto": depto, "sector_macro": sector}, unidad="millones de Bs")
+    return jsonify(heatmap)
 
 
 # -------------------------------------------------------------
@@ -240,8 +320,8 @@ def get_pipeline():
             },
             {
                 "step": 2,
-                "title": "Tratamiento de Valores Centinela (99999) y Atípicos",
-                "desc": "Sustitución de centinelas 99999 (imputación pendiente del INE) por NaN y corrección de valores anómalos negativos mediante acotamiento (clip(lower=0)).",
+                "title": "Reglas de valores especiales (T03)",
+                "desc": "El código 99999 se cuenta por campo pero no se recodifica globalmente (puede ser un importe real); los importes negativos pasan a ausente; un importe alto nunca se trata como faltante.",
                 "status": "Completado"
             },
             {
@@ -252,8 +332,8 @@ def get_pipeline():
             },
             {
                 "step": 4,
-                "title": "Fusión Relacional (Left Join)",
-                "desc": "Cruce por ID conservando las 3,153 empresas. Asignación coherente de valor 0 a empresas comerciales o de servicios sin insumos manufactureros.",
+                "title": "Fusión Relacional (Left Join) sin fabricar ceros",
+                "desc": "Cruce por ID conservando las 3,153 empresas. n_insumos=0 significa sin filas de materiales; los importes sin declaración permanecen ausentes (1,540 empresas en total_valor_co), separando desconocido de cero observado.",
                 "status": "Completado"
             },
             {
@@ -265,7 +345,7 @@ def get_pipeline():
             {
                 "step": 6,
                 "title": "Ingeniería de Características y Normalización",
-                "desc": "Mapeo de 445 códigos CAEB a 14 macrosectores. Aplicación de transformación logarítmica log(1 + x) a montos monetarios y personal.",
+                "desc": "Mapeo CAEB a macrosectores: 13 observados en el extracto. Transformación log(1 + x) a montos y personal. Capacidades S12_*_B excluidas por unidades heterogéneas (decisión D07).",
                 "status": "Completado"
             },
             {
@@ -321,23 +401,42 @@ def get_bitacora_modelos():
 # API: MÓDULO OPERATIVO DE EMPRESAS Y RIESGO (TAREA 3)
 # -------------------------------------------------------------
 @app.route("/api/empresas_riesgo")
+@require_package
 def get_empresas_riesgo():
-    """Retorna las empresas ordenadas por score de riesgo con filtros, paginación y bunching."""
-    limit = int(request.args.get("limit", 50))
-    offset = int(request.args.get("offset", 0))
+    """Listado agregado ordenado por score de riesgo, con política D04 y meta de contrato."""
+    try:
+        limit = int(request.args.get("limit", 50))
+        offset = int(request.args.get("offset", 0))
+    except ValueError:
+        return jsonify({"error": "parametro_invalido", "detalle": "limit y offset deben ser enteros"}), 400
+    if not (0 <= offset and 0 < limit <= 200):
+        return jsonify({"error": "parametro_invalido", "detalle": "requiere 0<limit<=200 y offset>=0"}), 400
     riesgo = request.args.get("riesgo", "")
     sector = request.args.get("sector", "")
     depto = request.args.get("depto", "")
     query = request.args.get("q", "")
 
     result = data_loader.get_companies_risk(limit=limit, offset=offset, riesgo=riesgo, sector=sector, depto=depto, query=query)
+    result["meta"] = build_meta({"riesgo": riesgo or None, "sector_macro": sector or None, "depto": depto or None, "q": query or None})
+    result["acceso_individual"] = {
+        "politica": "D04: entrega pública agregada por defecto",
+        "detalle_individual_habilitado": ACCESO_INDIVIDUAL_HABILITADO,
+    }
     result["bunching_analisis"] = data_loader.get_bunching_analysis()
     return jsonify(result)
 
 
 @app.route("/api/empresas_riesgo/<int:company_id>")
 def get_empresa_detalle(company_id):
-    """Retorna la ficha individual detallada de una empresa específica."""
+    """Ficha individual: gated por D04 mientras no exista control de acceso verificado."""
+    if not ACCESO_INDIVIDUAL_HABILITADO:
+        return jsonify({
+            "error": "acceso_restringido",
+            "detalle": "El detalle individual de empresas permanece cerrado según la decisión D04 (entrega pública agregada por defecto) mientras no exista control de acceso verificado.",
+            "decision": "D04",
+        }), 403
+    if not PACKAGE_STATE["ready"]:
+        return jsonify({"error": "paquete_no_disponible", "detalle": PACKAGE_STATE["error"]}), 503
     comp = data_loader.get_company_detail(company_id)
     if comp:
         return jsonify(comp)
@@ -345,9 +444,16 @@ def get_empresa_detalle(company_id):
 
 
 @app.route("/api/bunching_alerta")
+@require_package
 def get_bunching_alerta():
-    """Retorna el panel agregado de alertas de bunching a nivel de sector."""
-    return jsonify(data_loader.get_bunching_analysis())
+    """Panel agregado de bunching a nivel sectorial, con rotulación descriptiva (contrato 02)."""
+    result = data_loader.get_bunching_analysis()
+    result["meta"] = build_meta(unidad="Bs")
+    result["caracter_descriptivo"] = (
+        "Señal agregada y descriptiva sobre densidades sectoriales; no constituye evidencia de incumplimiento individual "
+        "ni acusación contra empresa alguna (contrato estadístico del plan de implementación)."
+    )
+    return jsonify(result)
 
 
 # -------------------------------------------------------------
@@ -360,11 +466,16 @@ def get_models_results():
     gráficos de Real vs. Predicho, análisis de residuos, importancia de variables y CV.
     """
     models_metrics = {}
-    if REGISTRY and "versions" in REGISTRY and len(REGISTRY["versions"]) > 0:
-        models_metrics = REGISTRY["versions"][0].get("all_models_metrics", {})
+    active_entry = REGISTRY.get("versions", [{}])[0] if REGISTRY else {}
+    models_metrics = active_entry.get("all_models_metrics", {})
 
     return jsonify({
-        "active_model": REGISTRY.get("versions", [{}])[0].get("model_type", "RandomForest") if REGISTRY else "RandomForest",
+        "meta": build_meta(escala="log1p_y_Bs"),
+        "run_id": PACKAGE_STATE["run_id"],
+        "active_model": active_entry.get("model_type", "RandomForest"),
+        "cohorte": active_entry.get("cohorte", {}),
+        "conformal": active_entry.get("conformal", {}),
+        "metas": active_entry.get("metas", {}),
         "metrics_comparison": models_metrics,
         "feature_importance": FEATURE_IMPORTANCE or [],
         "test_diagnostics": TEST_DIAGNOSTICS or {},
@@ -373,12 +484,14 @@ def get_models_results():
 
 
 @app.route("/api/cross_validation")
+@require_package
 def get_cross_validation_results():
     """
     Retorna los resultados y métricas por pliegue de la validación cruzada (5-Fold Stratified CV)
     para Ridge, RandomForest e HistGradientBoosting.
     """
     if CV_RESULTS:
+        CV_RESULTS["meta"] = build_meta(escala="log1p")
         return jsonify(CV_RESULTS)
     # Fallback extrayendo de REGISTRY si está disponible
     if REGISTRY and "versions" in REGISTRY and len(REGISTRY["versions"]) > 0:
@@ -403,6 +516,7 @@ def get_cross_validation_results():
                 for name, m in models_metrics.items()
             }
         }
+        fallback_data["meta"] = build_meta(escala="log1p")
         return jsonify(fallback_data)
     return jsonify({"error": "No hay datos de validación cruzada disponibles"}), 404
 
@@ -411,79 +525,102 @@ def get_cross_validation_results():
 # API: SECCIÓN 6 - PREDICCIÓN INTERACTIVA
 # -------------------------------------------------------------
 @app.route("/api/predict", methods=["POST"])
+@require_package
 def predict_income():
     """
-    Endpoint de Inferencia Predictiva:
-    Recibe los datos operativos de una empresa, transforma las variables al espacio logarítmico,
-    ejecuta el pipeline de Machine Learning y devuelve el ingreso proyectado en Bolivianos (Bs),
-    intervalo de confianza y categoría de tamaño empresarial (Mediana vs. Gran empresa).
+    Inferencia con validación estricta de entradas y intervalo CONFORMAL calibrado (D02).
+    Entrada inválida → 400 con detalle; paquete indisponible → 503 (por el guard).
     """
-    if MODEL is None:
-        return jsonify({"error": "El modelo de Machine Learning no está cargado."}), 500
+    active_entry = REGISTRY.get("versions", [{}])[0] if REGISTRY else {}
+    active_model = active_entry.get("model_type", "")
+    conformal = active_entry.get("conformal", {})
+    metas = active_entry.get("metas", {})
 
     try:
-        data = request.get_json(force=True)
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({"error": "peticion_invalida", "detalle": "El cuerpo debe ser JSON objeto"}), 400
 
-        depto = str(data.get("depto", "SANTA CRUZ")).strip().upper()
-        sector_macro = str(data.get("sector_macro", "Industria Manufacturera")).strip()
-
-        personal = float(data.get("personal", 25.0))
-        sueldos = float(data.get("sueldos", 1200000.0))
-        remuneraciones = float(data.get("remuneraciones", 600000.0))
-        energia = float(data.get("energia", 150000.0))
-        activos = float(data.get("activos", 5000000.0))
-        inventarios = float(data.get("inventarios", 1000000.0))
-        capacidad_mp = float(data.get("capacidad_mp", 0.0))
-        capacidad_pt = float(data.get("capacidad_pt", 0.0))
-        n_insumos = float(data.get("n_insumos", 2.0))
-        total_valor_co = float(data.get("total_valor_co", 2500000.0))
-        total_valor_uti = float(data.get("total_valor_uti", 2400000.0))
-
-        input_dict = {
-            "log_S01_05_A": [np.log1p(max(0, personal))],
-            "log_S01_03_C": [np.log1p(max(0, sueldos))],
-            "log_S01_14": [np.log1p(max(0, remuneraciones))],
-            "log_S02_09": [np.log1p(max(0, energia))],
-            "log_S07_09_E": [np.log1p(max(0, activos))],
-            "log_S06_06_B": [np.log1p(max(0, inventarios))],
-            "log_S12_01_B": [np.log1p(max(0, capacidad_mp))],
-            "log_S12_02_B": [np.log1p(max(0, capacidad_pt))],
-            "log_n_insumos": [np.log1p(max(0, n_insumos))],
-            "log_total_valor_co": [np.log1p(max(0, total_valor_co))],
-            "log_total_valor_uti": [np.log1p(max(0, total_valor_uti))],
-            "depto": [depto],
-            "sector_macro": [sector_macro]
+        # ---- Validación de tipos y rangos (400 antes de tocar el modelo) ----
+        numeric_fields = {
+            "personal": ("S01_05_A", 1.0, 50000.0),
+            "sueldos": ("S01_03_C", 0.0, 5e9),
+            "remuneraciones": ("S01_14", 0.0, 5e9),
+            "energia": ("S02_09", 0.0, 5e9),
+            "activos": ("S07_09_E", 0.0, 5e10),
+            "inventarios": ("S06_06_B", 0.0, 5e9),
+            "n_insumos": ("n_insumos", 0.0, 200.0),
+            "total_valor_co": ("total_valor_co", 0.0, 5e10),
+            "total_valor_uti": ("total_valor_uti", 0.0, 5e10),
         }
+        input_dict: Dict[str, list] = {}
+        for field, (col, lo, hi) in numeric_fields.items():
+            raw = data.get(field)
+            if raw is None:
+                return jsonify({"error": "campo_requerido", "detalle": f"Falta el campo requerido: {field}"}), 400
+            try:
+                value = float(raw)
+            except (TypeError, ValueError):
+                return jsonify({"error": "tipo_invalido", "detalle": f"{field} debe ser numérico"}), 400
+            if not (lo <= value <= hi):
+                return jsonify({"error": "rango_invalido", "detalle": f"{field}={value} fuera de rango permitido [{lo}, {hi}]"}), 400
+            input_dict[f"log_{col}"] = [np.log1p(max(0.0, value))]
+
+        # ---- Validación de categorías conocidas ----
+        depto = str(data.get("depto", "")).strip().upper()
+        sector_macro = str(data.get("sector_macro", "")).strip()
+        valid_deptos = set(data_loader.get_data()["depto"].dropna().astype(str).unique())
+        valid_sectors = set(data_loader.get_data()["sector_macro"].dropna().astype(str).unique())
+        if depto not in valid_deptos:
+            return jsonify({"error": "categoria_invalida", "detalle": f"depto desconocido: '{depto}'. Valores: {sorted(valid_deptos)}"}), 400
+        if sector_macro not in valid_sectors:
+            return jsonify({"error": "categoria_invalida", "detalle": f"sector_macro desconocido: '{sector_macro}'. Valores: {sorted(valid_sectors)}"}), 400
+        input_dict["depto"] = [depto]
+        input_dict["sector_macro"] = [sector_macro]
 
         input_df = pd.DataFrame(input_dict)
         pred_log = float(MODEL.predict(input_df)[0])
 
-        # Extraer parámetros de calibración estadística del registro MLOps
-        smearing_factor = float(REGISTRY.get("smearing_factor", 1.0)) if REGISTRY else 1.0
-        rmse_log = float(REGISTRY.get("rmse_log", 0.529)) if REGISTRY else 0.529
+        smearing_factor = float(REGISTRY.get("smearing_factor", 1.0))
+        q_log = float(conformal.get("q_log", 0.0))
 
         start_time = time.time()
         pred_bs = float(np.maximum(0.0, np.exp(pred_log) * smearing_factor - 1.0))
         elapsed_ms = round((time.time() - start_time) * 1000 + 12.0, 2)
 
-        # Registro para monitoreo operativo en memoria
+        # Intervalo CONFORMAL calibrado (D02); referencia nominal rotulada aparte
+        rmse_log = float(REGISTRY.get("rmse_log", 0.0))
+        lower_log = pred_log - q_log
+        upper_log = pred_log + q_log
+        lower_bs = float(np.maximum(0.0, np.exp(lower_log) * smearing_factor - 1.0))
+        upper_bs = float(np.maximum(0.0, np.exp(upper_log) * smearing_factor - 1.0))
+        ref_lower_bs = float(np.maximum(0.0, np.exp(pred_log - 1.645 * rmse_log) * smearing_factor - 1.0))
+        ref_upper_bs = float(np.maximum(0.0, np.exp(pred_log + 1.645 * rmse_log) * smearing_factor - 1.0))
+
+        # Telemetría REAL persistida (A10): insumos crudos, sin identificadores empresariales
+        append_prediction_record({
+            "status": "200 OK",
+            "latency_ms": elapsed_ms,
+            "features": {
+                "S01_05_A": float(np.expm1(input_dict["log_S01_05_A"][0])),
+                "S01_03_C": float(np.expm1(input_dict["log_S01_03_C"][0])),
+                "S02_09": float(np.expm1(input_dict["log_S02_09"][0])),
+                "S07_09_E": float(np.expm1(input_dict["log_S07_09_E"][0])),
+                "total_valor_uti": float(np.expm1(input_dict["log_total_valor_uti"][0])),
+            },
+        })
         REQUEST_LOGS.append({
             "timestamp": datetime.now().isoformat(),
             "hour_label": datetime.now().strftime("%H:%M"),
             "latency_ms": elapsed_ms,
             "status": "200 OK",
+            "origen": "predict",
             "depto": depto,
             "sector": sector_macro,
             "pred_bs": round(pred_bs, 2)
         })
         if len(REQUEST_LOGS) > 500:
             REQUEST_LOGS.pop(0)
-
-        # Intervalo de predicción al 90%
-        lower_log = pred_log - 1.645 * rmse_log
-        upper_log = pred_log + 1.645 * rmse_log
-        lower_bs = float(np.maximum(0.0, np.exp(lower_log) * smearing_factor - 1.0))
-        upper_bs = float(np.maximum(0.0, np.exp(upper_log) * smearing_factor - 1.0))
 
         is_produccion = "Industria" in sector_macro or "Construcción" in sector_macro or "Minería" in sector_macro
         umbral_gran = 35000000.0 if is_produccion else 28000000.0
@@ -499,37 +636,76 @@ def predict_income():
             categoria_tamano = "Por debajo del umbral (< Mediana)"
             categoria_color = "amber"
 
+        etiqueta_intervalo = "90% (conformal calibrado)" if conformal.get("etiqueta_calibrado") else "no calibrado"
         return jsonify({
+            "meta": build_meta({"depto": depto, "sector_macro": sector_macro}),
             "success": True,
+            "version": REGISTRY.get("active_version"),
+            "run_id": PACKAGE_STATE["run_id"],
             "prediction_bs": round(pred_bs, 2),
             "prediction_formatted": f"Bs {pred_bs:,.2f}",
+            "interval_label": etiqueta_intervalo,
             "lower_bound_bs": round(lower_bs, 2),
             "upper_bound_bs": round(upper_bs, 2),
             "interval_formatted": f"Bs {lower_bs:,.2f} – Bs {upper_bs:,.2f}",
+            "reference_nominal_interval_bs": [round(ref_lower_bs, 2), round(ref_upper_bs, 2)],
+            "reference_nominal_note": "Referencia ±1.645xRMSE sin calibrar; solo orientativa",
+            "cobertura_empirica_pct": conformal.get("cobertura_empirica_pct"),
             "categoria_tamano": categoria_tamano,
             "categoria_color": categoria_color,
             "log_prediction": round(pred_log, 4),
             "smearing_factor_applied": round(smearing_factor, 4),
+            "limitacion_uso": "Estimación de referencia técnica sobre el extracto EAIMCS 2017; no constituye evaluación tributaria ni declaracion individual.",
+            "metas_modelo": metas,
             "latency_ms": elapsed_ms
         })
     except Exception as e:
         logger.error("Error al procesar la predicción: %s", e)
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": "error_interno", "detalle": str(e)}), 400
 
 
 # -------------------------------------------------------------
 # API: SECCIÓN 7 - MLOPS, REGISTRO DE VERSIONES & DATA DRIFT
 # -------------------------------------------------------------
 @app.route("/api/mlops")
+@require_package
 def get_mlops_info():
-    """Retorna el estado de gobernanza, trazabilidad y registro de versiones del modelo."""
-    drift_status = drift_detector.simulate_or_test_drift()
+    """Gobernanza, trazabilidad y estado de deriva: REAL con telemetría, simulada rotulada si aún no hay tráfico."""
+    reference_stats = {}
+    ref_path = PROJECT_ROOT / "models" / "reference_stats.json"
+    if ref_path.exists():
+        try:
+            with open(ref_path, "r", encoding="utf-8") as f:
+                reference_stats = json.load(f)
+        except Exception:
+            reference_stats = {}
+    drift_status = real_drift_check(reference_stats, window_hours=168)
+    drift_modo = drift_status.get("__modo__", "sin datos")
+    if drift_modo != "real":
+        demo = drift_detector.simulate_or_test_drift()
+        demo["__modo__"] = "simulado (demostración separada)"
+        drift_demo = demo
+    else:
+        drift_demo = None
 
+    active_version_entry = (REGISTRY.get("versions") or [{}])[0] if REGISTRY else {}
     return jsonify({
-        "active_version": REGISTRY.get("active_version", "v1.0.0") if REGISTRY else "v1.0.0",
-        "last_updated": REGISTRY.get("last_updated", "2026-09-21T15:00:00") if REGISTRY else "",
-        "history": REGISTRY.get("versions", []) if REGISTRY else [],
+        "meta": build_meta(),
+        "active_version": REGISTRY.get("active_version"),
+        "run_id": PACKAGE_STATE["run_id"],
+        "last_updated": REGISTRY.get("last_updated", ""),
+        "model_type": active_version_entry.get("model_type"),
+        "smearing_factor": REGISTRY.get("smearing_factor"),
+        "rmse_log": REGISTRY.get("rmse_log"),
+        "conformal": active_version_entry.get("conformal", {}),
+        "history": [
+            {k: v for k, v in entry.items() if k != "all_models_metrics"}
+            for entry in REGISTRY.get("versions", [])
+        ],
         "drift_metrics": drift_status,
+        "drift_demostracion": drift_demo,
+        "drift_modo": drift_modo,
+        "drift_nota": drift_status.get("__nota__", ""),
         "pipeline_status": "OPERATIVO",
         "mlflow_integration": {
             "supported": True,
@@ -540,52 +716,71 @@ def get_mlops_info():
 
 
 @app.route("/api/mlops/monitoring")
+@require_package
 def get_mlops_monitoring():
-    """Retorna el estado de reentrenamiento programado y métricas de volumen de consultas a /api/predict."""
-    now = datetime.now()
-    # Sembrar registros sintéticos de demo visual si el buffer está casi vacío
-    if len(REQUEST_LOGS) < 6:
-        base_counts = [24, 38, 52, 79, 104, 128, 95, 110, 118, 86, 62, 45]
-        for i, cnt in enumerate(base_counts):
-            t_point = now - timedelta(hours=(12 - i))
-            REQUEST_LOGS.append({
-                "timestamp": t_point.isoformat(),
-                "hour_label": t_point.strftime("%H:00"),
-                "requests": cnt,
-                "latency_ms": round(11.8 + (i % 4) * 1.4, 1),
-                "status": "200 OK"
-            })
+    """Telemetría REAL persistida (telemetry.jsonl); sin tráfico suficiente muestra 'sin telemetría' (A10)."""
+    summary = traffic_summary(window_hours=24)
+    if summary["status"] != "OPERATIVO":
+        return jsonify({
+            "meta": build_meta(unidad="peticiones"),
+            "status": "SIN TELEMETRÍA",
+            "mensaje": "Aún no hay tráfico real suficiente en /api/predict; no se muestran métricas simuladas (decisión de la puerta G5/A10).",
+            "n_ventana": summary.get("n_ventana", 0),
+            "total_requests": 0,
+            "avg_latency_ms": None,
+            "error_rate_pct": None,
+            "recent_traffic": [],
+            "run_id": PACKAGE_STATE["run_id"],
+        })
 
-    last_updated_str = REGISTRY.get("last_updated", now.isoformat()) if REGISTRY else now.isoformat()
+    last_updated_str = REGISTRY.get("last_updated", datetime.now().isoformat()) if REGISTRY else datetime.now().isoformat()
     try:
         last_dt = datetime.fromisoformat(last_updated_str.replace("Z", "+00:00")).replace(tzinfo=None)
         next_dt = last_dt + timedelta(days=90)
         next_scheduled = next_dt.strftime("%Y-%m-%d (Ciclo Trimestral)")
     except Exception:
-        next_scheduled = (now + timedelta(days=90)).strftime("%Y-%m-%d (Ciclo Trimestral)")
+        next_scheduled = (datetime.now() + timedelta(days=90)).strftime("%Y-%m-%d (Ciclo Trimestral)")
 
-    total_reqs = sum(r.get("requests", 1) for r in REQUEST_LOGS)
-    avg_lat = round(float(np.mean([r.get("latency_ms", 13.5) for r in REQUEST_LOGS])), 2)
-
+    recent = load_records(window_hours=24)[-12:]
     return jsonify({
+        "meta": build_meta(unidad="peticiones"),
         "status": "OPERATIVO",
-        "active_model": REGISTRY.get("active_version", "v1.0.0") if REGISTRY else "v1.0.0",
+        "active_model": REGISTRY.get("active_version") if REGISTRY else None,
         "last_retrained": last_updated_str,
         "next_scheduled_retraining": next_scheduled,
         "retraining_policy": "Reentrenamiento periódico cada 90 días o ante deriva estructural detectada (KS-test p < 0.05).",
-        "total_requests": total_reqs,
-        "avg_latency_ms": avg_lat,
-        "error_rate_pct": 0.0,
-        "recent_traffic": REQUEST_LOGS[-12:]
+        "ventana_horas": summary["ventana_horas"],
+        "n_ventana": summary["n_ventana"],
+        "total_requests": summary["total_requests"],
+        "avg_latency_ms": summary["avg_latency_ms"],
+        "p95_latency_ms": summary["p95_latency_ms"],
+        "error_rate_pct": summary["error_rate_pct"],
+        "by_hour": summary["by_hour"],
+        "fuente": summary["fuente"],
+        "recent_traffic": recent,
+        "run_id": PACKAGE_STATE["run_id"],
     })
 
 
 @app.route("/api/mlops/drift", methods=["POST"])
 def trigger_drift_simulation():
-    """Permite simular o probar la detección de drift en una variable específica para auditoría."""
+    """Drift REAL sobre telemetría si hay ≥30 registros; simulación rotulada solo si se pide 'modo=simulado'."""
     data = request.get_json(silent=True) or {}
     feature = data.get("feature", None)
+    modo = data.get("modo", "real")
+    if modo != "simulado":
+        reference_stats = {}
+        ref_path = PROJECT_ROOT / "models" / "reference_stats.json"
+        if ref_path.exists():
+            try:
+                with open(ref_path, "r", encoding="utf-8") as f:
+                    reference_stats = json.load(f)
+            except Exception:
+                reference_stats = {}
+        results = real_drift_check(reference_stats, window_hours=int(data.get("ventana_horas", 168)))
+        return jsonify({"status": "success", "drift_results": results})
     results = drift_detector.simulate_or_test_drift(simulate_drift_feature=feature)
+    results["__modo__"] = "simulado"
     return jsonify({
         "status": "success",
         "drift_results": results
@@ -628,8 +823,17 @@ def get_about_info():
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5055))
-    print(f"\n=======================================================")
-    print(f"🚀 DASHBOARD DE MACHINE LEARNING LEVANTADO CON ÉXITO")
-    print(f"Accede en tu navegador a: http://127.0.0.1:{port}")
-    print(f"=======================================================\n")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    safe_print = print
+    try:
+        "".encode(sys.stdout.encoding or "ascii", errors="strict")
+    except UnicodeEncodeError:
+        def safe_print(*args, **kwargs):  # consolas cp1252 sin emojis
+            for msg in args:
+                print(str(msg).encode("ascii", "ignore").decode("ascii"), **kwargs)
+    safe_print("\n=======================================================")
+    safe_print("DASHBOARD DE MACHINE LEARNING LEVANTADO CON EXITO")
+    safe_print(f"Accede en tu navegador a: http://127.0.0.1:{port}")
+    safe_print("=======================================================\n")
+    # debug=False: el reloader de Werkzeug reiniciaba el proceso ante cambios de archivo
+    # y el debugger exponía PIN en consola; ambas cosas servían la SPA en mitad de recarga.
+    app.run(host="127.0.0.1", port=port, debug=False)

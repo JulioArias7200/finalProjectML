@@ -264,6 +264,28 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   window.chartsRegistry = chartsRegistry;
 
+  // Obtención compartida con deduplicación: una sola petición en vuelo por
+  // endpoint y caché de sesión. Evita dobles fetch (y el parpadeo asociado)
+  // cuando varios consumidores —tabla y gráfico— piden el mismo recurso.
+  window.fetchShared = function(url, force = false) {
+    const key = url.split('?')[0];
+    const cache = state._endpointCache || (state._endpointCache = {});
+    const inflight = state._inflight || (state._inflight = {});
+    if (!force && cache[key]) return Promise.resolve(cache[key]);
+    if (!force && inflight[key]) return inflight[key];
+    const p = fetch(url).then(async (res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }).then((data) => {
+      cache[key] = data;
+      return data;
+    });
+    inflight[key] = p;
+    const done = () => { delete inflight[key]; };
+    p.then(done, done);
+    return p;
+  };
+
   window.reloadChart = async function(chartId, force = true) {
     const cfg = chartsRegistry[chartId];
     if (!cfg) return;
@@ -275,16 +297,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorEl = document.getElementById(`error-${chartId}`);
     const btn = document.querySelector(`.chart-refresh-btn[data-chart="${chartId}"]`);
 
-    if (loadingEl) loadingEl.style.display = 'flex';
+    const needsFetch = force || !state[cfg.stateProp];
+    // ¿Habrá petición de red real? Solo entonces se muestra el overlay: con
+    // datos en caché (o uniéndose a una petición en vuelo) el gráfico se
+    // redibuja sin parpadeo visible.
+    const cache = state._endpointCache || (state._endpointCache = {});
+    const inflight = state._inflight || (state._inflight = {});
+    const willFetch = needsFetch && !cache[cfg.endpoint] && !inflight[cfg.endpoint];
+
+    if (willFetch && loadingEl) loadingEl.style.display = 'flex';
     if (errorEl) errorEl.style.display = 'none';
     if (btn) btn.classList.add('spinning');
 
     try {
-      if (force || !state[cfg.stateProp]) {
-        const url = cfg.endpoint + (force ? `?_t=${Date.now()}` : '');
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        state[cfg.stateProp] = await res.json();
+      if (needsFetch) {
+        const url = force ? `${cfg.endpoint}?_t=${Date.now()}` : cfg.endpoint;
+        state[cfg.stateProp] = await fetchShared(url, force);
       }
       await cfg.render();
       if (loadingEl) loadingEl.style.display = 'none';
@@ -465,7 +493,9 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Error al cargar KPIs:', e);
     }
   }
-  loadKPIs();
+  // Nota: los KPIs se cargan desde switchSection('panorama') al final de la
+  // inicialización. Una llamada aquí provocaba una segunda petición
+  // redundante a /api/kpis en cada carga de la página.
 
   const btnHeatmapMetricCount = document.getElementById('btnHeatmapMetricCount');
   const btnHeatmapMetricMedian = document.getElementById('btnHeatmapMetricMedian');
@@ -643,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <tr>
           <td>
-            <span class="badge-riesgo ${riesgoClass}">
+            <span class="badge-riesgo ${riesgoClass}" title="Señal descriptiva de discrepancia frente a la estructura productiva; no constituye acusación individual">
               ${emp.riesgo_nivel}
             </span>
           </td>
@@ -659,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
           <td>Percentil ${emp.posicion_sector_pct}%</td>
           <td>
-            <button class="status-pill active" onclick="window.openCompanyModal(${emp.id})" style="cursor: pointer; padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+            <button class="status-pill active" onclick="window.openCompanyModal(${emp.id})" style="cursor: pointer; padding: 0.25rem 0.65rem; font-size: 0.78rem;" title="Detalle individual sujeto a la política D04">
               Ver Ficha
             </button>
           </td>
@@ -698,6 +728,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openCompanyModal = async function(companyId) {
     try {
       const res = await fetch(`/api/empresas_riesgo/${companyId}`);
+      if (res.status === 403) {
+        const body = await res.json().catch(() => ({}));
+        alert(body.detalle || 'El detalle individual está restringido por la política de acceso D04 (entrega pública agregada).');
+        return;
+      }
       if (!res.ok) {
         alert('No se pudo encontrar la información técnica de la empresa.');
         return;
@@ -820,18 +855,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!tableBody) return;
 
     try {
-      const res = await fetch('/api/bitacora_modelos');
-      const data = await res.json();
+      const data = await window.fetchShared('/api/bitacora_modelos');
       state.bitacoraModelosData = data;
 
-      // Actualizar número y barra de Cobertura Empírica del IC 90%
+      // Actualizar número y barra de cobertura del intervalo conformal (D02)
       const covNum = document.getElementById('coverageEmpiricalNum');
       const covBar = document.getElementById('coverageEmpiricalBar');
-      if (covNum && data.cobertura_ic_90_campeon) {
-        covNum.textContent = `${data.cobertura_ic_90_campeon.toFixed(1)}%`;
+      const covNota = document.getElementById('coverageEmpiricalNota');
+      const cobertura = data.cobertura_ic_90_campeon || (data.modelos || []).find(m => m.campeon)?.test_metricas?.cobertura_ic_90;
+      if (covNum && cobertura) {
+        covNum.textContent = `${Number(cobertura).toFixed(1)}%`;
       }
-      if (covBar && data.cobertura_ic_90_campeon) {
-        covBar.style.width = `${data.cobertura_ic_90_campeon}%`;
+      if (covBar && cobertura) {
+        covBar.style.width = `${Math.min(100, Number(cobertura))}%`;
+      }
+      if (covNota && cobertura) {
+        const dentro = Number(cobertura) >= 85 && Number(cobertura) <= 95;
+        covNota.textContent = dentro
+          ? `✓ Dentro de la tolerancia predefinida [85%, 95%] → intervalo etiquetable como 90% calibrado`
+          : `⚠ Fuera de la tolerancia [85%, 95%] → NO etiquetar como intervalo 90% calibrado`;
+        covNota.style.color = dentro ? 'var(--color-alerta-baja)' : 'var(--color-alerta-alta)';
       }
 
       // Renderizar tabla de modelos
@@ -842,7 +885,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const cvMed = `${m.cv_resumen.medape_promedio.toFixed(1)}% ± ${m.cv_resumen.medape_std.toFixed(1)}%`;
           const testR2 = m.test_metricas.r2_bs.toFixed(4);
           const testMed = `${m.test_metricas.medape.toFixed(2)}%`;
-          const covIC = m.test_metricas.cobertura_ic_90 ? `${m.test_metricas.cobertura_ic_90.toFixed(1)}%` : '--';
+          const covIC = m.test_metricas.cobertura_ic_90 != null ? `${m.test_metricas.cobertura_ic_90.toFixed(1)}%` : '--';
 
           return `
             <tr style="${isBest ? 'background-color: var(--primary-light); font-weight: 600;' : ''}">
@@ -888,6 +931,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const rmseLogVals = list.map(m => m.test_metricas.rmse_log);
     const medapeVals = list.map(m => m.test_metricas.medape);
 
+    // A09: R² (adimensional) y RMSE(log) NO comparten eje con MedAPE; se usa un eje secundario
+    // rotulado para el porcentaje, conservando escalas separadas en el mismo gráfico.
     const traceR2 = {
       x: names,
       y: r2Vals,
@@ -895,7 +940,8 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'bar',
       marker: { color: '#0B3D62' },
       text: r2Vals.map(v => v.toFixed(3)),
-      textposition: 'auto'
+      textposition: 'auto',
+      hovertemplate: 'R²(Bs): %{y:.3f}<extra></extra>'
     };
 
     const traceRmse = {
@@ -905,26 +951,37 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'bar',
       marker: { color: '#1B5A8C' },
       text: rmseLogVals.map(v => v.toFixed(3)),
-      textposition: 'auto'
+      textposition: 'auto',
+      hovertemplate: 'RMSE(log): %{y:.3f}<extra></extra>'
     };
 
     const traceMedape = {
       x: names,
-      y: medapeVals.map(v => v / 100), // En escala fraccional para no distorsionar el eje Y
-      name: 'MedAPE / 100',
+      y: medapeVals, // porcentaje en su propio eje (0–100), nunca MedAPE/100 junto a R²
+      name: 'MedAPE (%)',
       type: 'bar',
+      yaxis: 'y2',
       marker: { color: '#F4B400' },
       text: medapeVals.map(v => `${v.toFixed(1)}%`),
-      textposition: 'auto'
+      textposition: 'auto',
+      hovertemplate: 'MedAPE: %{y:.2f}%<extra></extra>'
     };
 
     const layout = {
       ...state.plotlyLayoutBase,
       barmode: 'group',
       title: 'Desempeño Comparativo de Modelos (Test Set)',
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'Valor de Métrica' },
+      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'R² (Bs) / RMSE (log)' },
+      yaxis2: {
+        title: 'MedAPE (%)',
+        overlaying: 'y',
+        side: 'right',
+        range: [0, 100],
+        showgrid: false,
+        zeroline: false
+      },
       legend: { orientation: 'h', y: -0.22, x: 0.05 },
-      margin: { l: 50, r: 25, t: 40, b: 65 }
+      margin: { l: 50, r: 55, t: 40, b: 65 }
     };
 
     Plotly.react('chartModelsBarComparison', [traceR2, traceRmse, traceMedape], layout, { responsive: true, displayModeBar: false });
@@ -1040,6 +1097,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderCvFoldsChart() {
     const cv = state.cvResults;
     if (!cv || !cv.models) return;
+    // Cohorte explícita de la comparación (contrato 02: misma cohorte de evaluación)
+    const cohortNote = cv.cohorte
+      ? ` · CV sobre bloque de ajuste n=${cv.cohorte.n_entrenamiento_ajuste} (calibración ${cv.cohorte.n_calibracion}, prueba ${cv.cohorte.n_prueba}) · run ${String(cv.run_id || '').slice(0, 20)}`
+      : '';
     const foldsLabels = ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5'];
     const ridge = cv.models.Ridge || {};
     const hgb = cv.models.HistGradientBoosting || {};
@@ -1075,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const layoutFolds = {
       ...state.plotlyLayoutBase,
-      title: 'Evolución de R² por Pliegue (Stratified 5-Fold)',
+      title: `Evolución de R² por Pliegue (Stratified 5-Fold)${cohortNote}`,
       xaxis: { ...state.plotlyLayoutBase.xaxis, title: 'Pliegues de Validación' },
       yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'R² (Escala Log)', range: [0.45, 0.85] },
       legend: { orientation: 'h', y: -0.22, x: 0.05 },
@@ -1250,9 +1311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inventarios: parseFloat(document.getElementById('predInventarios').value) || 0,
         total_valor_co: parseFloat(document.getElementById('predInsumosCompras').value) || 0,
         total_valor_uti: parseFloat(document.getElementById('predInsumosUtil').value) || 0,
-        n_insumos: parseInt(document.getElementById('predNInsumos').value) || 0,
-        capacidad_mp: parseFloat(document.getElementById('predCapacidadMP').value) || 0,
-        capacidad_pt: 0
+        n_insumos: parseInt(document.getElementById('predNInsumos').value) || 0
       };
 
       resultAmount.textContent = 'Calculando...';
@@ -1268,13 +1327,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           resultCard.classList.add('has-result');
           resultAmount.textContent = data.prediction_formatted;
-          resultInterval.textContent = data.interval_formatted;
+          resultInterval.textContent = `${data.interval_formatted} · ${data.interval_label || ''}`;
 
           resultCategory.textContent = data.categoria_tamano;
           resultCategory.className = `size-category-badge ${data.categoria_color}`;
+        } else if (res.status === 400) {
+          resultAmount.textContent = 'Entrada inválida';
+          resultInterval.textContent = data.detalle || 'Revise los valores ingresados.';
+        } else if (res.status === 503) {
+          resultAmount.textContent = 'Servicio en preparación';
+          resultInterval.textContent = 'El paquete de modelo no está disponible temporalmente (503).';
         } else {
           resultAmount.textContent = 'Error';
-          alert('Error en la predicción: ' + (data.error || 'Desconocido'));
+          resultInterval.textContent = data.detalle || data.error || 'Error desconocido';
         }
       } catch (err) {
         console.error('Error al predecir:', err);
@@ -1292,14 +1357,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       state.monitoringData = data;
 
-      document.getElementById('kpiMonitoringTotalReqs').textContent = Number(data.total_requests).toLocaleString('es-BO');
-      document.getElementById('kpiMonitoringLatency').textContent = `${data.avg_latency_ms.toFixed(1)} ms`;
-      document.getElementById('kpiMonitoringLastDate').textContent = data.last_retrained.substring(0, 10);
-      document.getElementById('kpiMonitoringNextDate').textContent = data.next_scheduled_retraining;
-      document.getElementById('kpiMonitoringActiveVer').textContent = `Versión activa ${data.active_model}`;
+      // A10: sin tráfico real se muestra 'sin telemetría', nunca métricas simuladas
+      const sinTelemetria = data.status === 'SIN TELEMETRÍA' || !Array.isArray(data.recent_traffic) || data.recent_traffic.length === 0;
+      document.getElementById('kpiMonitoringTotalReqs').textContent = sinTelemetria ? 'Sin telemetría' : Number(data.total_requests).toLocaleString('es-BO');
+      document.getElementById('kpiMonitoringLatency').textContent = sinTelemetria ? '—' : `${Number(data.avg_latency_ms).toFixed(1)} ms`;
+      document.getElementById('kpiMonitoringLastDate').textContent = (data.last_retrained || '').substring(0, 10);
+      document.getElementById('kpiMonitoringNextDate').textContent = data.next_scheduled_retraining || '—';
+      document.getElementById('kpiMonitoringActiveVer').textContent = `Versión activa ${data.active_model || '—'}`;
 
-      renderTrafficChart();
-      renderTrafficTable(data.recent_traffic);
+      if (sinTelemetria) {
+        try { Plotly.purge('chartTrafficVolume'); } catch (err) { /* contenedor aún sin gráfico */ }
+      } else {
+        renderTrafficChart();
+        renderTrafficTable(data.recent_traffic);
+      }
     } catch (e) {
       console.error('Error al cargar métricas de monitoreo:', e);
     }
@@ -1381,7 +1452,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       document.getElementById('mlopsActiveVersion').textContent = data.active_version;
-      document.getElementById('mlopsLastUpdated').textContent = new Date(data.last_updated).toLocaleString('es-BO');
+      document.getElementById('mlopsModelType').textContent = data.model_type || '—';
+      document.getElementById('mlopsSmearingFactor').textContent = data.smearing_factor == null ? '—' : Number(data.smearing_factor).toFixed(4);
+      document.getElementById('mlopsLastUpdated').textContent = data.last_updated ? new Date(data.last_updated).toLocaleString('es-BO') : '—';
 
       // Trazabilidad de versiones
       const tbody = document.getElementById('mlopsHistoryTableBody');
@@ -1572,7 +1645,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const traces = data.map(d => ({
       y: d.sample_log,
       type: 'box',
-      name: d.depto,
+      name: d.status === 'suppressed'
+        ? `<${d.min_n ?? 5} ▲`
+        : `${d.depto.length > 14 ? d.depto.substring(0, 13) + '…' : d.depto} (N=${d.count})`,
       boxpoints: 'outliers',
       marker: { size: 4 }
     }));
@@ -1595,7 +1670,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const traces = data.map(s => ({
       y: s.sample_log,
       type: 'box',
-      name: s.sector.length > 20 ? s.sector.substring(0, 18) + '...' : s.sector,
+      // Etiqueta con N y marca de suprimido D05; el nombre completo viaja en hover/texto
+      name: s.status === 'suppressed'
+        ? `<${s.min_n ?? 5} ▲`
+        : `${s.sector.length > 16 ? s.sector.substring(0, 15) + '…' : s.sector} (N=${s.count})`,
+      fullSectorName: s.sector,
+      customdata: [s.sector, s.status === 'suppressed' ? `N<${s.min_n ?? 5} (suprimido)` : s.count],
       boxpoints: 'outliers',
       marker: { size: 4 }
     }));

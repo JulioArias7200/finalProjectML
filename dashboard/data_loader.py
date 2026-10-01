@@ -20,6 +20,7 @@ from preprocessing.preprocessing import (
     map_caeb_to_sector,
     PREDICTOR_NUM_COLS
 )
+from dashboard.aggregation import select_rows, summarize_kpis, summarize_groups, department_sector_heatmap
 
 logger = logging.getLogger("dashboard.data_loader")
 
@@ -60,22 +61,29 @@ class DashboardDataLoader:
         top_depto = str(self.df["depto"].value_counts().index[0])
         top_sector = str(self.df["sector_macro"].value_counts().index[0])
 
-        self.kpis = {
-            "total_empresas": tot_emp,
-            "ingreso_mediano": med_ing,
-            "ingreso_promedio": mean_ing,
-            "ingreso_total_agregado": tot_ing,
-            "num_departamentos": n_deptos,
-            "num_macrosectores": n_sectores,
-            "top_departamento": top_depto,
-            "top_sector": top_sector,
+        self.kpis = summarize_kpis(self.df)
+        self.kpis.update({
             "fuente": "INE Bolivia - EAIMCS 2017-2018",
-            "cobertura": "Nacional (9 departamentos, medianas y grandes empresas)"
-        }
+            "cobertura": "Extracto local de empresas medianas y grandes; sin expansión"
+        })
         logger.info("Data loader inicializado: %d empresas cargadas.", tot_emp)
 
-    def get_kpis(self) -> Dict[str, Any]:
-        return self.kpis
+    def get_kpis(self, depto: str | None = None, sector: str | None = None) -> Dict[str, Any]:
+        if not depto and not sector:
+            return self.kpis
+        result = summarize_kpis(select_rows(self.df, depto, sector))
+        result.update({"fuente": self.kpis["fuente"], "cobertura": self.kpis["cobertura"]})
+        return result
+
+    def get_filtered_views(self, depto: str | None = None, sector: str | None = None) -> Dict[str, Any]:
+        """Resumen y matrices que comparten exactamente la misma selección."""
+        selected = select_rows(self.df, depto, sector)
+        return {
+            "kpis": summarize_kpis(selected),
+            "heatmap": department_sector_heatmap(selected),
+            "departamentos": summarize_groups(selected, "depto"),
+            "sectores": summarize_groups(selected, "sector_macro"),
+        }
 
     def get_data(self) -> pd.DataFrame:
         return self.df
@@ -87,7 +95,7 @@ class DashboardDataLoader:
             {"name": "C2_01", "section": "Carátula", "desc": "Departamento de ubicación de la empresa (9 departamentos)", "type": "Texto / Categórica", "sample": "SANTA CRUZ, LA PAZ, COCHABAMBA"},
             {"name": "actividad_pricipal_codigo_V1", "section": "Carátula", "desc": "Código CAEB de la Actividad Principal de la empresa", "type": "Código / Categórica", "sample": "41000, 47301, 10104"},
             {"name": "S00_01_A", "section": "Sección 0", "desc": "TOTAL Ingresos Operativos en Bs (VARIABLE OBJETIVO DEL MODELO)", "type": "Monetaria (Bs)", "sample": "Mediana: 15.83M Bs, Min: 1.28M Bs"},
-            {"name": "S05_04", "section": "Sección 5", "desc": "TOTAL Ingresos Sección 5 (equivalente exacto a S00_01_A)", "type": "Monetaria (Bs)", "sample": "Mediana: 15.83M Bs"},
+            {"name": "S05_04", "section": "Sección 5", "desc": "TOTAL Ingresos Sección 5; conciliado con S00_01_A, con redondeo de hasta Bs 1 en 60 registros", "type": "Monetaria (Bs)", "sample": "Mediana: 15.83M Bs"},
             {"name": "S05_01", "section": "Sección 5", "desc": "Ingresos por venta de productos fabricados en Bs (Excluida por fuga)", "type": "Monetaria (Bs)", "sample": "0 a 5.19B Bs"},
             {"name": "S05_02", "section": "Sección 5", "desc": "Ingresos por venta de mercaderías en Bs (Excluida por fuga)", "type": "Monetaria (Bs)", "sample": "0 a 2.05B Bs"},
             {"name": "S05_03", "section": "Sección 5", "desc": "Ingresos por servicios prestados en Bs (Excluida por fuga)", "type": "Monetaria (Bs)", "sample": "0 a 4.68B Bs"},
@@ -97,8 +105,8 @@ class DashboardDataLoader:
             {"name": "S02_09", "section": "Sección 2", "desc": "TOTAL Energía eléctrica, agua y combustibles consumidos en Bs", "type": "Monetaria (Bs)", "sample": "Mediana: 131,748 Bs"},
             {"name": "S07_09_E", "section": "Sección 7", "desc": "TOTAL Valor Histórico Final de Activos Fijos (maquinaria, edificios, transporte)", "type": "Monetaria (Bs)", "sample": "Mediana: 5.72M Bs"},
             {"name": "S06_06_B", "section": "Sección 6", "desc": "TOTAL Inventarios Finales (materias primas, productos en proceso y terminados)", "type": "Monetaria (Bs)", "sample": "Mediana: 977,600 Bs"},
-            {"name": "S12_01_B", "section": "Sección 12", "desc": "Capacidad máxima de almacenamiento de materia prima", "type": "Cantidad / Capacidad", "sample": "0 a 637M unidades"},
-            {"name": "S12_02_B", "section": "Sección 12", "desc": "Capacidad máxima de almacenamiento de producto terminado", "type": "Cantidad / Capacidad", "sample": "0 a 122M unidades"},
+            {"name": "S12_01_B", "section": "Sección 12", "desc": "Capacidad de materia prima; interpretar con unidad S12_01_C, excluida del modelo actual", "type": "Cantidad con unidad variable", "sample": "No sumar entre unidades"},
+            {"name": "S12_02_B", "section": "Sección 12", "desc": "Capacidad de producto; interpretar con unidad S12_02_C, excluida del modelo actual", "type": "Cantidad con unidad variable", "sample": "No sumar entre unidades"},
             {"name": "n_insumos", "section": "Sección 10", "desc": "Número de materias primas/materiales declarados por empresa (agregado)", "type": "Conteo", "sample": "0 a 67 insumos"},
             {"name": "total_valor_co", "section": "Sección 10", "desc": "Valor total de compras de materias primas e insumos en Bs (agregado)", "type": "Monetaria (Bs)", "sample": "Mediana fabril: 3.22M Bs"},
             {"name": "total_valor_uti", "section": "Sección 10", "desc": "Valor total de utilización de insumos en el proceso productivo en Bs", "type": "Monetaria (Bs)", "sample": "Mediana fabril: 3.20M Bs"}
@@ -122,51 +130,13 @@ class DashboardDataLoader:
         }
         return self._cached_distribution
 
-    def get_boxplot_depto_data(self) -> List[Dict[str, Any]]:
-        """Datos de ingresos agrupados por los 9 departamentos sin truncamiento muestral."""
-        if hasattr(self, "_cached_boxplot_deptos") and self._cached_boxplot_deptos is not None:
-            return self._cached_boxplot_deptos
+    def get_boxplot_depto_data(self, depto: str | None = None, sector: str | None = None) -> List[Dict[str, Any]]:
+        selected = select_rows(self.df, depto, sector)
+        return [{**item, "depto": item["name"]} for item in summarize_groups(selected, "depto")]
 
-        result = []
-        for depto, group in self.df.groupby("depto"):
-            vals = group["target"].values
-            vals_log = group["target_log"].values
-            result.append({
-                "depto": depto,
-                "count": len(vals),
-                "median_bs": float(np.median(vals)),
-                "q25_bs": float(np.percentile(vals, 25)),
-                "q75_bs": float(np.percentile(vals, 75)),
-                "sample_bs": [float(v) for v in vals],
-                "sample_log": [float(v) for v in vals_log]
-            })
-        result = sorted(result, key=lambda x: x["count"], reverse=True)
-        self._cached_boxplot_deptos = result
-        return self._cached_boxplot_deptos
-
-    def get_boxplot_sector_data(self) -> List[Dict[str, Any]]:
-        """Datos de ingresos agrupados por todos los macrosectores económicos."""
-        if hasattr(self, "_cached_boxplot_sectors") and self._cached_boxplot_sectors is not None:
-            return self._cached_boxplot_sectors
-
-        result = []
-        for sector, group in self.df.groupby("sector_macro"):
-            if len(group) < 5:
-                continue
-            vals = group["target"].values
-            vals_log = group["target_log"].values
-            result.append({
-                "sector": sector,
-                "count": len(vals),
-                "median_bs": float(np.median(vals)),
-                "q25_bs": float(np.percentile(vals, 25)),
-                "q75_bs": float(np.percentile(vals, 75)),
-                "sample_bs": [float(v) for v in vals],
-                "sample_log": [float(v) for v in vals_log]
-            })
-        result = sorted(result, key=lambda x: x["median_bs"], reverse=True)
-        self._cached_boxplot_sectors = result
-        return self._cached_boxplot_sectors
+    def get_boxplot_sector_data(self, depto: str | None = None, sector: str | None = None) -> List[Dict[str, Any]]:
+        selected = select_rows(self.df, depto, sector)
+        return [{**item, "sector": item["name"]} for item in summarize_groups(selected, "sector_macro")]
 
     def get_correlation_data(self) -> Dict[str, Any]:
         """Matriz de correlación lineal entre predictores e ingresos en escala logarítmica."""
@@ -181,8 +151,7 @@ class DashboardDataLoader:
             "Energía/Comb. (S02_09)": "S02_09",
             "Activos Fijos (S07_09_E)": "S07_09_E",
             "Inventarios (S06_06_B)": "S06_06_B",
-            "Insumos Utiliz.": "total_valor_uti",
-            "Capacidad Almac.": "S12_01_B"
+            "Insumos Utiliz.": "total_valor_uti"
         }
         labels = list(vars_dict.keys())
         cols = list(vars_dict.values())
@@ -191,11 +160,13 @@ class DashboardDataLoader:
         for l, c in zip(labels, cols):
             sub_df[l] = np.log1p(self.df[c])
 
-        corr_matrix = sub_df.corr().round(3).values.tolist()
+        corr_matrix = sub_df.corr().round(3).replace({np.nan: None}).values.tolist()
+        pair_counts = sub_df.notna().astype(int).T.dot(sub_df.notna().astype(int)).values.tolist()
         self._cached_correlation = {
             "labels": labels,
             "matrix": corr_matrix,
-            "method": "Pearson sobre escala logarítmica log(1 + x)"
+            "pair_counts": pair_counts,
+            "method": "Pearson sobre escala logarítmica log(1 + x); asociación no causal"
         }
         return self._cached_correlation
 
@@ -213,15 +184,19 @@ class DashboardDataLoader:
         log_y = np.log1p(sample["target"])
         log_w = np.log1p(sample["S01_03_C"])
         
-        # Regresión ortogonal / tendencia base simple
-        residuos = np.abs(log_y - (0.65 * log_w + 6.5))
+        # Tendencia descriptiva ajustada a este extracto, sin coeficientes fijos arbitrarios.
+        slope, intercept = np.polyfit(log_w, log_y, 1)
+        residuos = np.abs(log_y - (slope * log_w + intercept))
         q75_res = np.percentile(residuos, 75)
         iqr_res = q75_res - np.percentile(residuos, 25)
         umbral_outlier = q75_res + 1.5 * iqr_res
         sample["is_outlier"] = residuos > umbral_outlier
 
+        flagged = sample[sample["is_outlier"]]
+        regular = sample[~sample["is_outlier"]].sample(n=min(500, int((~sample["is_outlier"]).sum())), random_state=42)
+        displayed = pd.concat([flagged, regular], ignore_index=True)
         data_points = []
-        for _, r in sample.sample(n=min(500, len(sample)), random_state=42).iterrows():
+        for _, r in displayed.iterrows():
             data_points.append({
                 "id": int(r["ID"]),
                 "depto": str(r["depto"]),
@@ -236,52 +211,15 @@ class DashboardDataLoader:
         self._cached_outliers = {
             "points": data_points,
             "total_outliers_iqr": int(sample["is_outlier"].sum()),
-            "outliers_pct": round(float(sample["is_outlier"].mean() * 100), 2)
+            "outliers_pct": round(float(sample["is_outlier"].mean() * 100), 2),
+            "total_empresas": int(len(sample)),
+            "total_dibujados": int(len(displayed)),
+            "metodo": "Residuo absoluto de regresión lineal en log1p(ingreso) vs log1p(sueldos); umbral Q3 + 1,5 IQR. Señal descriptiva, no juicio individual."
         }
         return self._cached_outliers
 
-    def get_heatmap_depto_sector(self) -> Dict[str, Any]:
-        """Calcula matriz 2D cruzada de Departamento x Macrosector para el Panorama General."""
-        if hasattr(self, "_cached_heatmap") and self._cached_heatmap is not None:
-            return self._cached_heatmap
-
-        deptos = sorted(list(self.df["depto"].unique()))
-        top_sectores = list(self.df["sector_macro"].value_counts().head(8).index)
-        
-        counts_matrix = []
-        median_matrix = []
-        total_matrix = []
-
-        for d in deptos:
-            d_sub = self.df[self.df["depto"] == d]
-            row_c = []
-            row_m = []
-            row_t = []
-            for s in top_sectores:
-                cell = d_sub[d_sub["sector_macro"] == s]
-                if len(cell) > 0:
-                    row_c.append(int(len(cell)))
-                    row_m.append(round(float(cell["target"].median() / 1e6), 2))
-                    row_t.append(round(float(cell["target"].sum() / 1e6), 2))
-                else:
-                    row_c.append(0)
-                    row_m.append(0.0)
-                    row_t.append(0.0)
-            counts_matrix.append(row_c)
-            median_matrix.append(row_m)
-            total_matrix.append(row_t)
-
-        self._cached_heatmap = {
-            "deptos": deptos,
-            "sectores": top_sectores,
-            "counts": counts_matrix,
-            "median_bs_millions": median_matrix,
-            "total_bs_millions": total_matrix,
-            "matrix_count": counts_matrix,
-            "matrix_median": median_matrix,
-            "matrix_total": total_matrix
-        }
-        return self._cached_heatmap
+    def get_heatmap_depto_sector(self, depto: str | None = None, sector: str | None = None) -> Dict[str, Any]:
+        return department_sector_heatmap(select_rows(self.df, depto, sector))
 
     def _prepare_risk_and_predictions(self):
         """Precomputa predicciones e indicadores de riesgo para todas las empresas."""

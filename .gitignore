@@ -1,6 +1,7 @@
 # Entornos virtuales e instalaciones locales
 venv/
 .venv/
+.python/
 env/
 ENV/
 
@@ -35,3 +36,4 @@ dashboard/data/sav/*
 !dashboard/data/csv/.gitkeep
 !dashboard/data/sav/.gitkeep
 
+.freebuff/

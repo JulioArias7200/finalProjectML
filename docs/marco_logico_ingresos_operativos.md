@@ -107,6 +107,11 @@ Esta tabla muestra cómo cada medio del árbol de objetivos se cubre con un comp
 2. **Fechas.** Están calculadas desde el 21 de septiembre de 2026, con cierre el 30 de noviembre. Si la fecha de entrega es otra, las duraciones se ajustan proporcionalmente.
 3. **Costos.** Son estimaciones en dólares. Pueden reemplazarse por horas de trabajo si no hay presupuesto monetario.
 4. **Fuga de datos (*data leakage*).** Los componentes de los ingresos (por ejemplo, los detalles de la Sección 8) no deben usarse como predictores del total de ingresos. Definir el conjunto de predictores es una decisión crítica de la actividad 4.
-5. **Tamaño de muestra.** El diccionario de datos muestra 0 casos en todos los archivos; este valor debe confirmarse al obtener los microdatos, porque condiciona la elección de modelos y las métricas alcanzables.
+5. **Tamaño de muestra.** El catálogo en línea muestra 0 casos como metadato, pero los CSV locales contienen 3.153 empresas en el archivo general y 6.428 filas físicas de materiales. Una de estas filas está vacía: 6.427 registros utilizables corresponden a 1.614 empresas. Esos conteos pertenecen al extracto disponible y deben recalcularse al actualizarlo.
+
 6. **Acceso a los datos.** El INE solicita registro y autorización para descargar los microdatos; esto afecta el cronograma (actividad 1).
 7. **Puntos marcados *(verificar)*.** Los enunciados del árbol que dependen de los datos reales (correlaciones, proporción de ausentes, concentración de ingresos) se confirman en el componente 2 y pueden modificar la matriz.
+
+## Estado de los objetivos originales (revisión 2026-09-28)
+
+Este marco lógico conserva las metas iniciales; el [seguimiento de implementación](implementacion/README.md) y su matriz de aceptación contienen el estado vigente. El registro activo informa R² en Bs ≈0,753 y MedAPE ≈36,20% en prueba: la meta de R² ≥0,70 se observa en esa ejecución y la meta MedAPE ≤25% **no** se cumple. Esas métricas requieren nueva evaluación después de corregir datos, fuga, artefactos e intervalos. Fechas y presupuesto anteriores son estimaciones históricas, no compromisos actualizados.

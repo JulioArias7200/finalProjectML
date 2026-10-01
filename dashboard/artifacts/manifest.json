@@ -1,0 +1,42 @@
+{
+  "run_id": "RUN-20260929-b3cfc0795ed7",
+  "active_version": "v1.20260929.0054",
+  "generated_at": "2026-09-29T00:54:13.773965",
+  "cohorte": {
+    "preprocesamiento_run_id": "PRE-20260928-d004f6ddd436",
+    "n_total": 3153,
+    "n_entrenamiento_ajuste": 1891,
+    "n_calibracion": 631,
+    "n_prueba": 631,
+    "semilla": 42,
+    "protocolo": "models/protocolo_entrenamiento.md",
+    "protocolo_version": "2026-09-28"
+  },
+  "conformal": {
+    "metodo": "split conformal en escala log1p con conjunto de calibración separado",
+    "nominal": 0.9,
+    "q_log": 0.9024543930768161,
+    "cobertura_empirica_pct": 88.27,
+    "amplitud_media_bs": 91219268.74,
+    "tolerancia": [
+      0.85,
+      0.95
+    ],
+    "etiqueta_calibrado": true
+  },
+  "metas": {
+    "d06_medape_max": 40.0,
+    "d06_r2_bs_min": 0.7,
+    "meta_historica_medape": 25.0,
+    "medape_cumple_umbral_aprobacion": true
+  },
+  "artifacts": {
+    "best_model.joblib": "441db573d0c2a6aa7f89aac22bf536dfaccadd3ca8a46966093775586e05a87c",
+    "test_predictions.csv": "f5947ab4a40aeb53b768064bc457e14b72f47ff02216e581a726ab12c51b408b",
+    "cv_results.json": "67721953a231171bee06e608506bfae6577b8674044a309933b440ed2c748f54",
+    "feature_importance.json": "a0d91cac19019b517b6479e168a5ce61cab409cdd8abf67c7e8a32a955c60b7f",
+    "registry.json": "b680f763c5a6cf3f2f967230373f89352f51b886a93369f9a814a2257549767f",
+    "bitacora_modelos.json": "a9539a9a89001488ca7b7a2aa674025fe5108bcc2492f34b2d1312429a80c11c"
+  },
+  "preprocessing_run_id": "PRE-20260928-d004f6ddd436"
+}
