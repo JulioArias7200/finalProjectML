@@ -90,26 +90,13 @@
     
     % LOGO DE LA UNIVERSIDAD (Imagen o Vector TikZ elegante como fallback)
     \IfFileExists{imagenes/logo_umsa.png}{
-        \includegraphics[height=3.8cm,keepaspectratio]{imagenes/logo_umsa.png}
-    }{
-        \begin{tikzpicture}
-            \draw[line width=1.5pt, blue!70!black, fill=blue!5] (0,0) circle (1.8cm);
-            \draw[line width=0.8pt, blue!50!black] (0,0) circle (1.55cm);
-            \node at (0, 0.9) {\fontsize{7pt}{8pt}\selectfont \textbf{UNIVERSIDAD MAYOR}};
-            \node at (0, 0.65) {\fontsize{7pt}{8pt}\selectfont \textbf{DE SAN ANDRÉS}};
-            \draw[thick, gold!80!black, fill=yellow!25] (0, -0.05) ellipse (0.7cm and 0.5cm);
-            \node at (0, -0.05) {\fontsize{10pt}{12pt}\selectfont \textbf{UMSA}};
-            \node at (0, -0.8) {\fontsize{6.5pt}{7.5pt}\selectfont \textbf{INFORMÁTICA}};
-            \node at (0, -1.1) {\fontsize{6pt}{7pt}\selectfont \textit{Fundada en 1830}};
-        \end{tikzpicture}
+        \includegraphics[height=6cm,keepaspectratio]{imagenes/logo_umsa.png}
     }
-    \\[0.9cm]
     
     % TÍTULO DEL PROYECTO
     \rule{\linewidth}{1.2pt}\\[0.4cm]
-    {\fontsize{15pt}{19pt}\selectfont \textbf{SISTEMA DE CONTRASTE DE INGRESOS OPERATIVOS DECLARADOS MEDIANTE MACHINE LEARNING}}\\[0.3cm]
-    {\fontsize{12pt}{16pt}\selectfont \textbf{Aplicación a Medianas y Grandes Empresas Bolivianas (EAIMCS - INE)}}\\[0.2cm]
-    \rule{\linewidth}{1.2pt}\\[1.0cm]
+    {\fontsize{15pt}{19pt}\selectfont \textbf{SISTEMA DE CONTRASTE DE INGRESOS OPERATIVOS DECLARADOS MEDIANTE MACHINE LEARNING}}
+    \rule{\linewidth}{1.2pt}\\[0.1cm]
     
     % ESTUDIANTES, DOCENTE Y ENLACES INSTITUCIONALES DEL PROYECTO
     \begin{minipage}{0.94\textwidth}
@@ -126,7 +113,7 @@
     
     \vfill
     
-    {\fontsize{11pt}{14pt}\selectfont \textbf{La Paz -- Bolivia}}\\[0.1cm]
+    {\fontsize{11pt}{14pt}\selectfont \textbf{La Paz -- Bolivia}}\\[0.05cm]
     {\fontsize{10pt}{12pt}\selectfont 2026}
 \end{titlepage}
 
