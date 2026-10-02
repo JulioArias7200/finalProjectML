@@ -1,0 +1,117 @@
+<!-- =====================================================================
+     MÓDULO 2: EMPRESAS Y RIESGO (AUDITORÍA & BUNCHING SECTORIAL)
+     ===================================================================== -->
+<section class="section-panel" id="panel-riesgo">
+  <!-- Sub-navegación dentro de Empresas & Riesgo -->
+  <div class="subnav-tabs">
+    <button class="subnav-tab-btn active" data-subtab="riesgo-tabla">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      Tabla de Empresas por Score de Riesgo
+    </button>
+    <button class="subnav-tab-btn" data-subtab="riesgo-bunching">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+      Panel de Alertas de "Bunching" Sectorial
+    </button>
+  </div>
+
+  <!-- VISTA A: TABLA DE EMPRESAS POR SCORE DE RIESGO -->
+  <div id="subtab-content-riesgo-tabla">
+    <!-- Resumen de Riesgo en Tarjetas (señal descriptiva; fórmula visible según contrato 02) -->
+    <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+      <div class="kpi-card" style="border-left: 4px solid var(--color-alerta-alta);">
+        <span class="kpi-label">Empresas en Riesgo Alto</span>
+        <div class="kpi-value" id="kpiRiesgoAlto" style="color: var(--color-alerta-alta);">--</div>
+        <div class="kpi-subtext">Señal descriptiva: ingreso declarado &gt;40% menor al esperado o z &lt; −1,4; no constituye acusación</div>
+      </div>
+      <div class="kpi-card" style="border-left: 4px solid var(--color-alerta-media);">
+        <span class="kpi-label">Empresas en Riesgo Medio</span>
+        <div class="kpi-value" id="kpiRiesgoMedio" style="color: var(--color-alerta-media);">--</div>
+        <div class="kpi-subtext">Señal descriptiva: discrepancia moderada (18%–40% inferior o z &lt; −0,6)</div>
+      </div>
+      <div class="kpi-card" style="border-left: 4px solid var(--color-alerta-baja);">
+        <span class="kpi-label">Empresas en Riesgo Bajo</span>
+        <div class="kpi-value" id="kpiRiesgoBajo" style="color: var(--color-alerta-baja);">--</div>
+        <div class="kpi-subtext">Ingreso concordante o superior a la estructura productiva estimada</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Universo Evaluado</span>
+        <div class="kpi-value" id="kpiRiesgoTotal">3,153</div>
+        <div class="kpi-subtext">Microdatos anonimizados DL 1405</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ranking de Empresas Priorizadas por Riesgo</div>
+      <div class="card-subtitle">Ordenado por mayor discrepancia negativa de ingresos declarados respecto a su estructura productiva</div>
+
+      <!-- Filtros de la tabla -->
+      <div class="table-toolbar">
+        <div class="search-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="riskSearchInput" placeholder="Buscar por ID, sector o departamento...">
+        </div>
+        <select class="filter-select" id="riskFilterSelect">
+          <option value="">Todos los niveles de riesgo</option>
+          <option value="Alto">Riesgo Alto (Prioridad)</option>
+          <option value="Medio">Riesgo Medio</option>
+          <option value="Bajo">Riesgo Bajo</option>
+        </select>
+        <select class="filter-select" id="riskDeptoFilter">
+          <option value="">Todos los departamentos</option>
+          <option value="SANTA CRUZ">Santa Cruz</option>
+          <option value="LA PAZ">La Paz</option>
+          <option value="COCHABAMBA">Cochabamba</option>
+          <option value="TARIJA">Tarija</option>
+          <option value="ORURO">Oruro</option>
+          <option value="CHUQUISACA">Chuquisaca</option>
+          <option value="POTOSI">Potosí</option>
+          <option value="BENI">Beni</option>
+          <option value="PANDO">Pando</option>
+        </select>
+      </div>
+
+      <!-- Tabla de Empresas -->
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Score Riesgo</th>
+              <th>ID Empresa</th>
+              <th>Departamento</th>
+              <th>Macrosector CAEB</th>
+              <th>Ingreso Declarado</th>
+              <th>Ingreso Esperado (RF)</th>
+              <th>Discrepancia</th>
+              <th>Posición Sector</th>
+              <th>Ficha Técnica</th>
+            </tr>
+          </thead>
+          <tbody id="companiesRiskTableBody">
+            <tr><td colspan="9" style="text-align: center; padding: 2rem;">Cargando evaluación de riesgos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA B: PANEL DE ALERTAS DE BUNCHING SECTORIAL -->
+  <div id="subtab-content-riesgo-bunching" style="display: none;">
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-title">Monitoreo de Concentración Anómala en Umbrales Regulatorios (Bunching Analysis)</div>
+      <div class="card-subtitle">Detección de aglomeración artificial de empresas por debajo del umbral de categorización empresarial</div>
+      <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.5rem;">
+        En economía tributaria y regulatoria, el efecto <em>"bunching"</em> ocurre cuando existe una concentración anormalmente elevada 
+        de empresas inmediatamente antes de un umbral que activa mayores obligaciones impositivas o de supervisión (ej. umbral de Gran Empresa de Bs 28M/35M).
+        <strong>Importante:</strong> Esta auditoría se presenta exclusivamente agregada a nivel de sector económico (Directriz DL 1405), nunca individual.
+      </p>
+    </div>
+
+    <!-- Cuadrícula de Macrosectores con Alerta de Bunching -->
+    <div class="bunching-grid" id="bunchingGridContainer">
+      <!-- Renderizado dinámico vía app.js -->
+    </div>
+  </div>
+</section>

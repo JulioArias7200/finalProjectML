@@ -1,0 +1,166 @@
+<!-- =====================================================================
+     MÓDULO 4: MONITOREO Y SEGURIDAD (TRÁFICO, DRIFT & REENTRENAMIENTO)
+     ===================================================================== -->
+<section class="section-panel" id="panel-monitoreo">
+  <!-- Sub-navegación dentro de Monitoreo -->
+  <div class="subnav-tabs">
+    <button class="subnav-tab-btn active" data-subtab="mon-trafico">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      Monitoreo de Consultas (/api/predict)
+    </button>
+    <button class="subnav-tab-btn" data-subtab="mon-drift">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      Data Drift & Gobernanza
+    </button>
+    <button class="subnav-tab-btn" data-subtab="mon-historial">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg>
+      Registro Histórico de Versiones
+    </button>
+  </div>
+
+  <!-- SUB-PANEL 1: MONITOREO DE CONSULTAS Y REENTRENAMIENTO -->
+  <div id="subtab-content-mon-trafico">
+    <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+      <div class="kpi-card accent-indigo">
+        <span class="kpi-label">Volumen Consultas /predict</span>
+        <div class="kpi-value" id="kpiMonitoringTotalReqs">Cargando...</div>
+        <div class="kpi-subtext">Monitoreo continuo en ventana horaria</div>
+      </div>
+      <div class="kpi-card accent-emerald">
+        <span class="kpi-label">Latencia Mediana Inferencia</span>
+        <div class="kpi-value" id="kpiMonitoringLatency">—</div>
+        <div class="kpi-subtext">Tiempo de respuesta en sub-segundo</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Último Reentrenamiento</span>
+        <div class="kpi-value" id="kpiMonitoringLastDate" style="font-size: 1.25rem;">—</div>
+        <div class="kpi-subtext" id="kpiMonitoringActiveVer">Versión —</div>
+      </div>
+      <div class="kpi-card accent-amber">
+        <span class="kpi-label">Próximo Reentrenamiento</span>
+        <div class="kpi-value" id="kpiMonitoringNextDate" style="font-size: 1.15rem;">—</div>
+        <div class="kpi-subtext">Ciclo periódico cada 90 días</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="chart-header">
+        <div class="chart-header-left">
+          <div class="card-title">Volumen de Peticiones al Endpoint /api/predict (Tráfico)</div>
+          <div class="card-subtitle">Monitoreo operativo de carga por ventana de tiempo</div>
+        </div>
+        <button class="chart-refresh-btn" data-chart="chartTrafficVolume" title="Actualizar gráfico" aria-label="Actualizar tráfico de inferencia">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="chart-wrapper" style="min-height: 360px;">
+        <div class="chart-loading-overlay" id="loading-chartTrafficVolume" style="display: none;">
+          <div class="chart-spinner"></div>
+          <span>Cargando métricas de tráfico...</span>
+        </div>
+        <div class="chart-error-overlay" id="error-chartTrafficVolume" style="display: none;">
+          <span>Error al cargar tráfico</span>
+          <button class="chart-retry-btn" onclick="reloadChart('chartTrafficVolume')">Reintentar</button>
+        </div>
+        <div id="chartTrafficVolume" style="height: 360px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Consultas Recientes de Inferencia</div>
+      <div class="card-subtitle">Registro de auditoría de predicciones procesadas</div>
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Departamento</th>
+              <th>Macrosector</th>
+              <th>Ingreso Proyectado</th>
+              <th>Latencia</th>
+              <th>Estado HTTP</th>
+            </tr>
+          </thead>
+          <tbody id="trafficTableBody">
+            <tr><td colspan="6" style="text-align: center; padding: 1.5rem;">Cargando registro de tráfico...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 2: DATA DRIFT & GOBERNANZA -->
+  <div id="subtab-content-mon-drift" style="display: none;">
+    <div class="grid-2-col" style="margin-bottom: 2rem;">
+      <div class="card">
+        <div class="card-title">Gobernanza del Modelo y Trazabilidad</div>
+        <div class="card-subtitle">Detalles de despliegue y versionamiento MLOps</div>
+        <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Versión en Producción</span>
+            <strong class="font-mono" id="mlopsActiveVersion">v1.0.0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Algoritmo Serializado</span>
+            <strong id="mlopsModelType">Cargando...</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Factor de Retransformación Duan</span>
+            <strong class="font-mono" id="mlopsSmearingFactor">—</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Fecha de Reentrenamiento</span>
+            <span id="mlopsLastUpdated">—</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Integración MLflow Tracking</span>
+            <span class="status-pill-subtle active">Stubs Configurados</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>Auditoría de Data Drift (Deriva de Datos)</span>
+          <button class="status-pill" id="btnTestDrift" style="cursor: pointer; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-color);">
+            Simular Prueba KS
+          </button>
+        </div>
+        <div class="card-subtitle">Pruebas Kolmogorov-Smirnov y Wasserstein frente a distribución base</div>
+        <div id="driftStatusList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Renderizado dinámico vía app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 3: REGISTRO HISTÓRICO -->
+  <div id="subtab-content-mon-historial" style="display: none;">
+    <div class="card">
+      <div class="card-title">Registro Histórico de Versiones del Modelo</div>
+      <div class="card-subtitle">Historial de experimentos y artefactos registrados en dashboard/artifacts/registry.json</div>
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Versión</th>
+              <th>Algoritmo</th>
+              <th>Fecha de Entrenamiento</th>
+              <th>Registros</th>
+              <th>R² (Escala Bs)</th>
+              <th>MedAPE (%)</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="mlopsHistoryTableBody">
+            <tr><td colspan="7" style="text-align: center; padding: 1rem;">Cargando registro histórico...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

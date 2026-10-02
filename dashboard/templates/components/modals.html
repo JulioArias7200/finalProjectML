@@ -1,0 +1,84 @@
+<!-- =========================================================================
+     MODAL: FICHA INDIVIDUAL DETALLADA POR EMPRESA (AUDITORÍA DL 1405)
+     ========================================================================= -->
+<div class="company-modal-backdrop" id="companyModal" style="display: none;">
+  <div class="company-modal-card">
+    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-elevated);">
+      <div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2rem;">
+          Ficha de Consistencia: Empresa ID <span id="modalCompanyId" class="font-mono">--</span>
+        </h3>
+        <span style="font-size: 0.8rem; color: var(--text-muted);" id="modalCompanySubtitle">--</span>
+      </div>
+      <button id="modalCloseBtn" style="background: transparent; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.5rem; line-height: 1;">&times;</button>
+    </div>
+
+    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+      <!-- Badge de Riesgo y Discrepancia -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-elevated); padding: 0.85rem 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div>
+          <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block;">Diagnóstico de Riesgo</span>
+          <span id="modalRiskBadge" class="badge-riesgo badge-riesgo-alto" style="margin-top: 0.25rem;">Alto</span>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block;">Discrepancia Porcentual</span>
+          <strong id="modalDiscrepancyPct" style="font-size: 1.2rem; color: var(--color-alerta-alta);">-45.2%</strong>
+        </div>
+      </div>
+
+      <!-- Ingreso Declarado vs Esperado -->
+      <div class="grid-2-col" style="gap: 1rem;">
+        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+          <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Ingreso Declarado (EAIMCS)</span>
+          <div id="modalDeclaredIncome" style="font-size: 1.35rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">Bs --</div>
+          <span style="font-size: 0.76rem; color: var(--text-muted);">Declaración contable registrada</span>
+        </div>
+
+        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--primary-light);">
+          <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--primary); font-weight: 600;">Ingreso Esperado (Modelo RF)</span>
+          <div id="modalExpectedIncome" style="font-size: 1.35rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem;">Bs --</div>
+          <span style="font-size: 0.76rem; color: var(--text-muted);">Basado en dotación productiva</span>
+        </div>
+      </div>
+
+      <!-- Intervalo de Confianza al 90% -->
+      <div style="padding: 0.85rem 1.25rem; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.85rem;">
+          <span>Intervalo de Confianza al 90%:</span>
+          <strong id="modalConfidenceInterval">Bs -- – Bs --</strong>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="modalIntervalPositionBar" style="width: 50%; background: var(--color-primario);"></div>
+        </div>
+      </div>
+
+      <!-- Posición Sectorial y Datos Operativos -->
+      <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem; border-top: 1px solid var(--border-color); padding-top: 0.85rem;">
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-secondary);">Posición dentro de su sector:</span>
+          <strong id="modalSectorPosition">Percentil -- (Ranking --)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-secondary);">Mediana de ingresos del sector:</span>
+          <strong id="modalSectorMedian">Bs --</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-secondary);">Personal Ocupado / Sueldos Básicos:</span>
+          <strong id="modalPersonnelSalaries">-- personas / Bs --</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-secondary);">Activos Fijos Declarados:</span>
+          <strong id="modalFixedAssets">Bs --</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--border-color); padding-top: 0.5rem; margin-top: 0.25rem;">
+          <span style="color: var(--text-secondary);">Motivo de auditoría:</span>
+          <span id="modalRiskReason" style="font-weight: 500; font-size: 0.82rem; color: var(--text-primary); text-align: right; max-width: 380px;">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 1rem 1.5rem; background: var(--bg-surface-elevated); border-top: 1px solid var(--border-color); text-align: right;">
+      <button id="modalCloseActionBtn" class="status-pill active" style="cursor: pointer; padding: 0.45rem 1.25rem;">Cerrar Ficha</button>
+    </div>
+  </div>
+</div>

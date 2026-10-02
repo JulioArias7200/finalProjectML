@@ -1,0 +1,319 @@
+<!-- =====================================================================
+     MÓDULO 5: METODOLOGÍA Y GOBERNANZA (PIPELINE, EDA, DICCIONARIO, ABOUT)
+     ===================================================================== -->
+<section class="section-panel" id="panel-gobernanza">
+  <!-- Sub-navegación dentro de Metodología & Gobernanza -->
+  <div class="subnav-tabs">
+    <button class="subnav-tab-btn active" data-subtab="gob-pipeline">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+      Pipeline de Preprocesamiento & Bitácora
+    </button>
+    <button class="subnav-tab-btn" data-subtab="gob-eda">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      Análisis Exploratorio (EDA)
+    </button>
+    <button class="subnav-tab-btn" data-subtab="gob-diccionario">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+      Diccionario de Datos
+    </button>
+    <button class="subnav-tab-btn" data-subtab="gob-marco">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      Marco Lógico & Ficha Técnica
+    </button>
+  </div>
+
+  <!-- SUB-PANEL 1: PIPELINE & BITÁCORA DE PREPROCESAMIENTO (TAREA 2) -->
+  <div id="subtab-content-gob-pipeline">
+    <!-- TABLA DE EVOLUCIÓN ETAPA POR ETAPA -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">Evolución del Dataset a través de las Etapas de Limpieza (Bitácora de Preprocesamiento)</div>
+      <div class="card-subtitle">Registro auditable generado automáticamente por preprocessing/preprocessing.py</div>
+
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Etapa del Pipeline</th>
+              <th>Filas (Antes → Después)</th>
+              <th>Columnas (Antes → Después)</th>
+              <th>Valores Afectados / Tratados</th>
+              <th>Regla de Negocio Aplicada</th>
+            </tr>
+          </thead>
+          <tbody id="prepEvolutionTableBody">
+            <tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Cargando bitácora de preprocesamiento...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Línea de tiempo visual del pipeline -->
+    <div class="card">
+      <div class="card-title">Arquitectura del Pipeline de Limpieza y Transformación</div>
+      <div class="card-subtitle">Flujo secuencial reproducible desde archivos crudos hasta la matriz final</div>
+      <div class="prep-timeline" id="prepTimelineContainer">
+        <!-- Renderizado dinámico vía app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 2: ANÁLISIS EXPLORATORIO (EDA) -->
+  <div id="subtab-content-gob-eda" style="display: none;">
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="chart-header">
+        <div class="chart-header-left">
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <span>Distribución de Ingresos Operativos (S05_04 / S00_01_A)</span>
+            <button class="status-pill" id="btnScaleToggle" style="cursor: pointer; background: var(--primary-light); color: var(--primary);">
+              Alternar a Escala Logarítmica log(1+x)
+            </button>
+          </div>
+          <div class="card-subtitle">Análisis de Asimetría y Justificación de la Transformación Logarítmica</div>
+        </div>
+        <button class="chart-refresh-btn" data-chart="chartDistribution" title="Actualizar gráfico" aria-label="Actualizar distribución de ingresos">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="chart-wrapper" style="min-height: 380px;">
+        <div class="chart-loading-overlay" id="loading-chartDistribution" style="display: none;">
+          <div class="chart-spinner"></div>
+          <span>Cargando distribución de ingresos...</span>
+        </div>
+        <div class="chart-error-overlay" id="error-chartDistribution" style="display: none;">
+          <span>Error al cargar distribución</span>
+          <button class="chart-retry-btn" onclick="reloadChart('chartDistribution')">Reintentar</button>
+        </div>
+        <div id="chartDistribution" style="height: 380px; width: 100%;"></div>
+      </div>
+      <div class="chart-rationale-box">
+        <strong>¿Por qué este gráfico?</strong> Evidencia la severa asimetría derecha (cola pesada tipo Pareto) en escala natural y demuestra cómo log(1+x) normaliza la distribución para los algoritmos.
+      </div>
+    </div>
+
+    <div class="grid-2-col" style="margin-bottom: 2rem;">
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Ingresos Operativos por Departamento</div>
+            <div class="card-subtitle">Boxplots comparativos en escala logarítmica (Bs)</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartBoxDeptos" title="Actualizar gráfico" aria-label="Actualizar boxplots por departamento">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 380px;">
+          <div class="chart-loading-overlay" id="loading-chartBoxDeptos" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando boxplots departamentales...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartBoxDeptos" style="display: none;">
+            <span>Error al cargar boxplots</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartBoxDeptos')">Reintentar</button>
+          </div>
+          <div id="chartBoxDeptos" style="height: 380px;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Ingresos por Macrosector Económico</div>
+            <div class="card-subtitle">Dispersión por actividad CAEB</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartBoxSectors" title="Actualizar gráfico" aria-label="Actualizar boxplots por sector">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 380px;">
+          <div class="chart-loading-overlay" id="loading-chartBoxSectors" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando boxplots sectoriales...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartBoxSectors" style="display: none;">
+            <span>Error al cargar boxplots</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartBoxSectors')">Reintentar</button>
+          </div>
+          <div id="chartBoxSectors" style="height: 380px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2-col">
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Matriz de Correlación de Predictores</div>
+            <div class="card-subtitle">Heatmap de correlación lineal en escala logarítmica</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartCorrelation" title="Actualizar gráfico" aria-label="Actualizar matriz de correlación">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 400px;">
+          <div class="chart-loading-overlay" id="loading-chartCorrelation" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando matriz de correlación...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartCorrelation" style="display: none;">
+            <span>Error al cargar correlación</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartCorrelation')">Reintentar</button>
+          </div>
+          <div id="chartCorrelation" style="height: 400px;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Detección Visual de Outliers y Ratios</div>
+            <div class="card-subtitle">Sueldos vs. Ingresos y auditoría de consistencia bivariada</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartOutliers" title="Actualizar gráfico" aria-label="Actualizar gráfico de outliers">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 400px;">
+          <div class="chart-loading-overlay" id="loading-chartOutliers" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando análisis de outliers...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartOutliers" style="display: none;">
+            <span>Error al cargar outliers</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartOutliers')">Reintentar</button>
+          </div>
+          <div id="chartOutliers" style="height: 400px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 3: DICCIONARIO DE DATOS -->
+  <div id="subtab-content-gob-diccionario" style="display: none;">
+    <div class="card">
+      <div class="card-title">
+        <span>Catálogo Oficial de Variables del Proyecto</span>
+        <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);">Basado en docs/informe/02_diccionario_datos_EAIMCS.md</span>
+      </div>
+      <div class="card-subtitle">Explora los campos de MOD_ANUAL_S01-07_12_general_i y MOD_ANUAL_S10_materiales_i</div>
+
+      <div class="table-toolbar">
+        <div class="search-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="dictSearchInput" placeholder="Buscar variable, sección o descripción...">
+        </div>
+        <select class="filter-select" id="dictSectionFilter">
+          <option value="">Todas las secciones</option>
+          <option value="Carátula">Carátula</option>
+          <option value="Sección 1">Sección 1 (Personal y Remuneraciones)</option>
+          <option value="Sección 2">Sección 2 (Energía y Combustibles)</option>
+          <option value="Sección 5">Sección 5 (Ingresos Operativos - Target)</option>
+          <option value="Sección 6">Sección 6 (Inventarios)</option>
+          <option value="Sección 7">Sección 7 (Activos Fijos)</option>
+          <option value="Sección 12">Sección 12 (Almacenamiento)</option>
+          <option value="Sección 10">Sección 10 (Materias Primas / Insumos)</option>
+        </select>
+      </div>
+
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Sección</th>
+              <th>Descripción Oficial</th>
+              <th>Tipo de Variable</th>
+              <th>Valores / Estadísticas</th>
+            </tr>
+          </thead>
+          <tbody id="dictionaryTableBody">
+            <tr><td colspan="5" style="text-align: center; padding: 2rem;">Cargando catálogo de variables...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 4: MARCO LÓGICO & FICHA TÉCNICA -->
+  <div id="subtab-content-gob-marco" style="display: none;">
+    <div class="grid-2-col" style="margin-bottom: 2rem;">
+      <div class="card">
+        <div class="card-title">Marco Lógico del Proyecto</div>
+        <div class="card-subtitle">Estructura formal de objetivos e indicadores</div>
+        <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.88rem; color: var(--text-secondary);">
+          <div>
+            <strong style="color: var(--text-primary);">Fin / Impacto:</strong>
+            <p>Consolidar estadísticas económicas y cuentas sectoriales con ingresos declarados contrastados contra un valor técnico de referencia.</p>
+          </div>
+          <div>
+            <strong style="color: var(--text-primary);">Propósito / Objetivo Central:</strong>
+            <p>Dotar a la administración de un modelo supervisado con R² ≥ 0.70 y error mediano porcentual ≤ 25% capaz de proyectar ingresos a partir de insumos y estructura productiva.</p>
+          </div>
+          <div>
+            <strong style="color: var(--text-primary);">Componentes del Sistema:</strong>
+            <ul style="margin-left: 1.25rem; margin-top: 0.25rem; display: flex; flex-direction: column; gap: 0.25rem;">
+              <li>C1: Ingesta, limpieza y descarte de centinelas (data/processed/dataset_procesado.csv).</li>
+              <li>C2: Diagnóstico exploratorio y estabilización de varianza.</li>
+              <li>C3: Modelado de regresión con validación cruzada y Duan Smearing.</li>
+              <li>C4: Módulo de auditoría de riesgo empresarial y análisis de bunching.</li>
+              <li>C5: Panel operativo interactivo y monitoreo continuo MLOps.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ficha Técnica de la Encuesta EAIMCS</div>
+        <div class="card-subtitle">Instituto Nacional de Estadística (INE Bolivia)</div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Catálogo ANDA (INE)</span>
+            <strong class="font-mono">BOL-INE-EAIMCS-2017-2018</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Período de Referencia</span>
+            <strong>Ejercicio Contable 2017 - 2018</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Universo Analizado</span>
+            <strong>Marco oficial: Empresas Medianas y Grandes (10,044 empresas); extracto disponible: 3,153</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Cobertura Territorial</span>
+            <strong>Nacional (9 departamentos)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem;">
+            <span>Confidencialidad</span>
+            <strong>Decreto Ley 1405 (Datos anonimizados)</strong>
+          </div>
+        </div>
+
+        <div class="chart-rationale-box" style="margin-top: 1.5rem;">
+          <strong>Limitaciones Metodológicas:</strong> No incluye micro y pequeñas empresas (MIPYMES). La muestra es de carácter dirigido y de corte transversal (no es serie de tiempo).
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

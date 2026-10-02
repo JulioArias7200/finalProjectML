@@ -1,0 +1,159 @@
+<!-- =====================================================================
+     MÓDULO 6: BITÁCORA DE ANÁLISIS INTEGRAL DEL PROYECTO
+     ===================================================================== -->
+<section class="section-panel" id="panel-bitacora_analisis">
+  <!-- Sub-navegación dentro de Bitácora de Análisis -->
+  <div class="subnav-tabs">
+    <button class="subnav-tab-btn active" data-subtab="bit-hitos">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg>
+      Línea de Tiempo & Hitos Metodológicos
+    </button>
+    <button class="subnav-tab-btn" data-subtab="bit-calidad">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      Matriz de Calidad & Criterios MML
+    </button>
+    <button class="subnav-tab-btn" data-subtab="bit-raw">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+      Visor de Datos JSON & Payload
+    </button>
+  </div>
+
+  <!-- Tarjeta de Metadatos de la Bitácora -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div class="card-title">Bitácora de Análisis Integral del Proyecto (EAIMCS - INE Bolivia)</div>
+        <div class="card-subtitle">Registro de auditoría técnica, decisiones de ingeniería de datos, benchmark y MLOps</div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="status-pill active" id="btnExportAnalysisLogJson" style="cursor: pointer; background: var(--color-primario); color: #fff;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Exportar JSON
+        </button>
+        <button class="status-pill" id="btnExportQualityMatrixCsv" style="cursor: pointer; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-color);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Exportar MML (CSV)
+        </button>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 1.5rem; margin-top: 1.25rem; font-size: 0.85rem; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 0.85rem;">
+      <div>
+        <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Run ID Activo:</span>
+        <strong class="font-mono" id="logRunIdBadge">RUN-Cargando...</strong>
+      </div>
+      <div>
+        <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Preprocesamiento:</span>
+        <strong class="font-mono" id="logPreRunIdBadge">PRE-Cargando...</strong>
+      </div>
+      <div>
+        <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Fecha Generación:</span>
+        <span id="logGeneratedDate">—</span>
+      </div>
+      <div>
+        <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Marco Legal:</span>
+        <span style="color: var(--color-alerta-baja); font-weight: 600;">Decreto Ley N° 1405 (Datos Anonimizados)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 1: HITOS Y LÍNEA DE TIEMPO METODOLÓGICA -->
+  <div id="subtab-content-bit-hitos">
+    <!-- KPIs Resumen de la Bitácora -->
+    <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+      <div class="kpi-card accent-indigo">
+        <span class="kpi-label">Empresas Analizadas</span>
+        <div class="kpi-value" id="bitKpiUniverso">3,153</div>
+        <div class="kpi-subtext">Corte transversal EAIMCS 2017</div>
+      </div>
+      <div class="kpi-card accent-emerald">
+        <span class="kpi-label">Modelo Campeón</span>
+        <div class="kpi-value" id="bitKpiModelo" style="font-size: 1.35rem;">Random Forest</div>
+        <div class="kpi-subtext">R² Bs = 0.7529 | MedAPE = 36.2%</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Factor Duan Smearing</span>
+        <div class="kpi-value" id="bitKpiDuan">1.04035</div>
+        <div class="kpi-subtext">Corrección desigualdad de Jensen</div>
+      </div>
+      <div class="kpi-card accent-amber">
+        <span class="kpi-label">Cobertura Conformal</span>
+        <div class="kpi-value" id="bitKpiConformal">90.33%</div>
+        <div class="kpi-subtext">IC 90% (Tolerancia [85%, 95%])</div>
+      </div>
+    </div>
+
+    <!-- Filtros de Hitos -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="table-toolbar" style="margin-bottom: 0;">
+        <div class="search-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="analysisLogSearchInput" placeholder="Buscar en la bitácora por fase, hallazgo o responsable...">
+        </div>
+        <select class="filter-select" id="analysisLogPhaseFilter">
+          <option value="">Todas las Fases Metodológicas</option>
+          <option value="Ingesta">1. Ingesta & Calidad de Microdatos</option>
+          <option value="Exploratorio">2. Análisis Exploratorio & Varianza</option>
+          <option value="Blindaje">3. Blindaje Anti-Leakage</option>
+          <option value="Benchmark">4. Benchmark Experimental de Modelos</option>
+          <option value="Calibración">5. Calibración Duan & Conformal</option>
+          <option value="Auditoría">6. Auditoría de Riesgo & Bunching</option>
+          <option value="Gobernanza">7. Gobernanza MLOps & Data Drift</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Contenedor Dinámico de la Línea de Tiempo de Hitos -->
+    <div id="analysisLogTimelineContainer" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="card" style="text-align: center; padding: 2rem;">
+        <div class="chart-spinner" style="margin: 0 auto 1rem;"></div>
+        <span>Cargando bitácora de análisis y trazabilidad del proyecto...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 2: MATRIZ DE CALIDAD Y CRITERIOS MML -->
+  <div id="subtab-content-bit-calidad" style="display: none;">
+    <div class="card">
+      <div class="card-title">Matriz de Control de Calidad y Criterios de Aceptación (MML)</div>
+      <div class="card-subtitle">Verificación formal de metas objetivas, tolerancias estadísticas y salvaguardas legales</div>
+
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Criterio de Evaluación</th>
+              <th>Categoría</th>
+              <th>Meta Esperada (MML)</th>
+              <th>Valor Obtenido en el Sistema</th>
+              <th>Estado</th>
+              <th>Evidencia Técnica</th>
+            </tr>
+          </thead>
+          <tbody id="qualityMatrixTableBody">
+            <tr><td colspan="6" style="text-align: center; padding: 2rem;">Cargando matriz de control de calidad...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 3: VISOR DE DATOS RAW JSON -->
+  <div id="subtab-content-bit-raw" style="display: none;">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <div class="card-title">Visor de Datos JSON de la Bitácora de Análisis</div>
+          <div class="card-subtitle">Payload completo servido por el endpoint /api/bitacora_analisis</div>
+        </div>
+        <button class="status-pill active" id="btnCopyAnalysisJson" style="cursor: pointer; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-color);">
+          Copiar JSON
+        </button>
+      </div>
+      <pre id="analysisRawJsonViewer" style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-family: monospace; font-size: 0.85rem; max-height: 550px; overflow-y: auto; white-space: pre-wrap; color: var(--text-primary);">Cargando estructura JSON...</pre>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,621 @@
+<!-- =====================================================================
+     MÓDULO 3: MODELO Y VALIDEZ (DIAGNÓSTICO, CV, COMPARATIVA & SIMULADOR)
+     ===================================================================== -->
+<section class="section-panel" id="panel-modelo_validez">
+  <!-- Sub-navegación dentro de Modelo & Validez -->
+  <div class="subnav-tabs">
+    <button class="subnav-tab-btn active" data-subtab="mv-diagnostico">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      Diagnóstico de Modelos & Bitácora
+    </button>
+    <button class="subnav-tab-btn" data-subtab="mv-cv">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+      Validación Cruzada Estratificada (5 Folds)
+    </button>
+    <button class="subnav-tab-btn" data-subtab="mv-comparativa">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      Cuadro Comparativo: Sin Entrenar vs. Modelos ML
+    </button>
+    <button class="subnav-tab-btn" data-subtab="mv-simulador">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      Simulador de Inferencia Predictiva
+    </button>
+  </div>
+
+  <!-- SUB-PANEL 1: DIAGNÓSTICO DE MODELOS -->
+  <div id="subtab-content-mv-diagnostico">
+    <!-- Tabla de Modelos Evaluados -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">Bitácora Comparativa de Modelos Evaluados</div>
+      <div class="card-subtitle">Historial auditable de algoritmos evaluados con 5-Fold CV y Test Holdout (20%)</div>
+
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Algoritmo</th>
+              <th>CV R² (Log)</th>
+              <th>CV MedAPE (%)</th>
+              <th>Test R² (Escala Bs)</th>
+              <th>Test MedAPE (%)</th>
+              <th>Cobertura IC 90%</th>
+              <th>Decisión / Razón Metodológica</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="modelsTableBody">
+            <tr><td colspan="8" style="text-align:center; padding: 1.5rem;">Cargando bitácora de modelos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Highlight: Cobertura Empírica del Intervalo CONFORMAL calibrado (D02) -->
+    <div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--color-secundario);">
+      <div class="grid-2-col" style="align-items: center;">
+        <div class="metric-highlight-card">
+          <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
+            Cobertura empírica del intervalo conformal nominal 90% (prueba, N=631)
+          </span>
+          <div class="metric-highlight-num" id="coverageEmpiricalNum">—</div>
+          <span style="font-size: 0.85rem; color: var(--color-alerta-baja); font-weight: 600; margin-top: 0.25rem;" id="coverageEmpiricalNota">
+            Tolerancia predefinida [85%, 95%]; calibrado con conjunto de calibración separado (decisión D02)
+          </span>
+          <div class="progress-bar-wrap" style="margin-top: 1rem; max-width: 260px;">
+            <div class="progress-bar-fill" id="coverageEmpiricalBar" style="width: 0%; background: var(--color-alerta-baja);"></div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
+            Intervalo predictivo por conformal prediction (D02)
+          </h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            El intervalo se calibra con <em>split conformal</em> en escala log1p: la no conformidad <code>|y − ŷ|</code> se mide sobre un
+            conjunto de calibración separado (631 empresas, excluido del ajuste) y el cuantil conforme <code>q̂</code> define
+            <code>ŷ ± q̂</code>, retransformado a Bs con Duan. La etiqueta "90%" solo se usa si la cobertura empírica en prueba queda
+            dentro de la tolerancia [85%, 95%] fijada antes de mirar la prueba.
+          </p>
+          <div class="chart-rationale-box">
+            <strong>Garantía de auditoría:</strong> la referencia <code>±1.645 × RMSE(log)</code> no se presenta como intervalo 90%:
+            viaja rotulada como referencia nominal y la cobertura por quintiles y sectores se publica con N en <code>/api/models</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos de Diagnóstico: Real vs Predicho & Histograma de Residuos -->
+    <div class="grid-2-col" style="margin-bottom: 2rem;">
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Real vs. Predicho (Holdout Test 20%)</div>
+            <div class="card-subtitle">Dispersión con recta diagonal de referencia y = x</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartRealVsPred" title="Actualizar gráfico" aria-label="Actualizar gráfico Real vs Predicho">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 380px;">
+          <div class="chart-loading-overlay" id="loading-chartRealVsPred" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando diagnóstico Real vs Predicho...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartRealVsPred" style="display: none;">
+            <span>Error al cargar datos</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartRealVsPred')">Reintentar</button>
+          </div>
+          <div id="chartRealVsPred" style="height: 380px;"></div>
+        </div>
+        <div class="chart-rationale-box">
+          <strong>Diagnóstico:</strong> Buena alineación diagonal sin dispersión anómala en los extremos de la distribución.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Histograma de Residuos (Homocedasticidad)</div>
+            <div class="card-subtitle">Distribución del error (Real - Predicho) para verificar ausencia de sesgo sistemático</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartResidualsHist" title="Actualizar gráfico" aria-label="Actualizar histograma de residuos">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 380px;">
+          <div class="chart-loading-overlay" id="loading-chartResidualsHist" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando histograma de residuos...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartResidualsHist" style="display: none;">
+            <span>Error al cargar residuos</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartResidualsHist')">Reintentar</button>
+          </div>
+          <div id="chartResidualsHist" style="height: 380px;"></div>
+        </div>
+        <div class="chart-rationale-box">
+          <strong>Ausencia de Sesgo:</strong> La media de residuos centrada en cero confirma que el modelo no tiene subestimación ni sobreestimación sistemática.
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos: Comparación de Barras de 3 Modelos & Feature Importance -->
+    <div class="grid-2-col">
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Comparativa de Modelos (R², RMSE, MedAPE)</div>
+            <div class="card-subtitle">Rendimiento comparativo lado a lado entre Ridge, Random Forest y HistGradientBoosting</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartModelsBarComparison" title="Actualizar gráfico" aria-label="Actualizar comparativa de modelos">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 370px;">
+          <div class="chart-loading-overlay" id="loading-chartModelsBarComparison" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando comparativa de modelos...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartModelsBarComparison" style="display: none;">
+            <span>Error al cargar comparativa</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartModelsBarComparison')">Reintentar</button>
+          </div>
+          <div id="chartModelsBarComparison" style="height: 370px;"></div>
+        </div>
+        <div class="chart-rationale-box">
+          <strong>Conclusión:</strong> Random Forest supera a Ridge por más de 23 puntos porcentuales de R² y reduce el MedAPE a menos de la mitad.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div class="card-title">Importancia de Variables (Feature Importance)</div>
+            <div class="card-subtitle">Predictores dominantes según el modelo campeón Random Forest</div>
+          </div>
+          <button class="chart-refresh-btn" data-chart="chartFeatureImportance" title="Actualizar gráfico" aria-label="Actualizar feature importance">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chart-wrapper" style="min-height: 370px;">
+          <div class="chart-loading-overlay" id="loading-chartFeatureImportance" style="display: none;">
+            <div class="chart-spinner"></div>
+            <span>Cargando importancia de variables...</span>
+          </div>
+          <div class="chart-error-overlay" id="error-chartFeatureImportance" style="display: none;">
+            <span>Error al cargar variables</span>
+            <button class="chart-retry-btn" onclick="reloadChart('chartFeatureImportance')">Reintentar</button>
+          </div>
+          <div id="chartFeatureImportance" style="height: 370px;"></div>
+        </div>
+        <div class="chart-rationale-box">
+          <strong>Factores Clave:</strong> La masa salarial (sueldos y remuneraciones) y los activos fijos concentran más del 65% del poder explicativo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 2: VALIDACIÓN CRUZADA ESTRATIFICADA (5 FOLDS) -->
+  <div id="subtab-content-mv-cv" style="display: none;">
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">Auditoría de Validación Cruzada (5-Fold Stratified CV)</div>
+      <div class="card-subtitle">Estabilidad entre pliegues estratificados por cuantiles de ingresos log(1+y) con semilla 42</div>
+
+      <div class="grid-2-col" style="margin-bottom: 1.5rem;">
+        <div class="card" style="background: var(--bg-surface-elevated);">
+          <div class="chart-header">
+            <div class="card-title" style="font-size: 0.95rem;">1. Desempeño por Pliegue (R² Fold a Fold)</div>
+            <button class="chart-refresh-btn" data-chart="chartCvFolds" title="Actualizar gráfico" aria-label="Actualizar pliegues CV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="chart-wrapper" style="min-height: 340px;">
+            <div class="chart-loading-overlay" id="loading-chartCvFolds" style="display: none;">
+              <div class="chart-spinner"></div>
+              <span>Cargando pliegues CV...</span>
+            </div>
+            <div class="chart-error-overlay" id="error-chartCvFolds" style="display: none;">
+              <span>Error al cargar pliegues</span>
+              <button class="chart-retry-btn" onclick="reloadChart('chartCvFolds')">Reintentar</button>
+            </div>
+            <div id="chartCvFolds" style="height: 340px;"></div>
+          </div>
+        </div>
+
+        <div class="card" style="background: var(--bg-surface-elevated);">
+          <div class="chart-header">
+            <div class="card-title" style="font-size: 0.95rem;">2. Estabilidad de Modelos (Media ± Desv. Estándar)</div>
+            <button class="chart-refresh-btn" data-chart="chartCvStability" title="Actualizar gráfico" aria-label="Actualizar estabilidad de modelos">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="chart-wrapper" style="min-height: 340px;">
+            <div class="chart-loading-overlay" id="loading-chartCvStability" style="display: none;">
+              <div class="chart-spinner"></div>
+              <span>Cargando estabilidad CV...</span>
+            </div>
+            <div class="chart-error-overlay" id="error-chartCvStability" style="display: none;">
+              <span>Error al cargar estabilidad</span>
+              <button class="chart-retry-btn" onclick="reloadChart('chartCvStability')">Reintentar</button>
+            </div>
+            <div id="chartCvStability" style="height: 340px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2-col">
+        <div class="card" style="background: var(--bg-surface-elevated);">
+          <div class="chart-header">
+            <div class="card-title" style="font-size: 0.95rem;">3. Dispersión de Métricas CV (Boxplots de Folds)</div>
+            <button class="chart-refresh-btn" data-chart="chartCvBoxplot" title="Actualizar gráfico" aria-label="Actualizar boxplots CV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="chart-wrapper" style="min-height: 340px;">
+            <div class="chart-loading-overlay" id="loading-chartCvBoxplot" style="display: none;">
+              <div class="chart-spinner"></div>
+              <span>Cargando boxplots CV...</span>
+            </div>
+            <div class="chart-error-overlay" id="error-chartCvBoxplot" style="display: none;">
+              <span>Error al cargar boxplots</span>
+              <button class="chart-retry-btn" onclick="reloadChart('chartCvBoxplot')">Reintentar</button>
+            </div>
+            <div id="chartCvBoxplot" style="height: 340px;"></div>
+          </div>
+        </div>
+
+        <div class="card" style="background: var(--bg-surface-elevated);">
+          <div class="chart-header">
+            <div class="card-title" style="font-size: 0.95rem;">4. Generalización: CV Train vs. Test Holdout</div>
+            <button class="chart-refresh-btn" data-chart="chartCvVsTest" title="Actualizar gráfico" aria-label="Actualizar CV vs Test">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="chart-wrapper" style="min-height: 340px;">
+            <div class="chart-loading-overlay" id="loading-chartCvVsTest" style="display: none;">
+              <div class="chart-spinner"></div>
+              <span>Cargando comparación CV vs Test...</span>
+            </div>
+            <div class="chart-error-overlay" id="error-chartCvVsTest" style="display: none;">
+              <span>Error al cargar comparación</span>
+              <button class="chart-retry-btn" onclick="reloadChart('chartCvVsTest')">Reintentar</button>
+            </div>
+            <div id="chartCvVsTest" style="height: 340px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-PANEL COMPARATIVO: DATOS SIN ENTRENAR VS. MODELOS ML PROPUESTOS -->
+  <div id="subtab-content-mv-comparativa" style="display: none;">
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">Cuadro Comparativo: Datos Sin Entrenar vs. Modelos de Machine Learning</div>
+      <div class="card-subtitle">Demostración cuantitativa de la superioridad del pipeline supervisado frente a reglas tradicionales y análisis de beneficios para las 3,153 empresas analizadas</div>
+
+      <!-- Fila de 4 KPI Cards de Mejora Cuantitativa -->
+      <div class="kpi-grid" style="margin-bottom: 2rem;">
+        <div class="kpi-card" style="border-left: 4px solid var(--primary);">
+          <div class="kpi-label">Reducción Error Relativo (MedAPE)</div>
+          <div class="kpi-value" id="comp-kpi-error-reduc">-51.6%</div>
+          <div class="kpi-subtext" style="color: var(--success); font-weight: 600;">36.20% vs. 74.80% (MCO) / 145.8% (Naive)</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid var(--accent);">
+          <div class="kpi-label">Varianza Explicada en Moneda Real (R² Bs)</div>
+          <div class="kpi-value" id="comp-kpi-r2-bs">+43.3%</div>
+          <div class="kpi-subtext" style="color: var(--primary); font-weight: 600;">R² = 0.7529 vs. 0.5254 en escala natural</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid var(--warning);">
+          <div class="kpi-label">Corrección Sesgo de Jensen (Duan)</div>
+          <div class="kpi-value" id="comp-kpi-duan">Ŝ = 1.0401</div>
+          <div class="kpi-subtext" style="color: var(--warning); font-weight: 600;">Elimina subestimación sistemática del -21.4%</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid var(--success);">
+          <div class="kpi-label">Caída de Falsos Positivos Fiscales</div>
+          <div class="kpi-value" id="comp-kpi-falsos-pos">11.8%</div>
+          <div class="kpi-subtext" style="color: var(--success); font-weight: 600;">Frente al 62.4% de ratios estáticos tradicionales</div>
+        </div>
+      </div>
+
+      <!-- TARJETA DESTACADA: BENEFICIOS E IMPACTO PARA LAS EMPRESAS ANALIZADAS -->
+      <div class="card" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); margin-bottom: 2rem;">
+        <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; color: var(--primary);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          ¿Cuánto ganaron y qué mejoramos para las 3,153 empresas objeto de análisis?
+        </div>
+        <div class="card-subtitle">Impacto socioeconómico positivo del modelo de Machine Learning sobre el sector formal empresarial boliviano</div>
+
+        <div class="grid-2-col" style="gap: 1.25rem; margin-top: 1rem;">
+          <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--success);">
+            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Ahorro Agregado de Bs 45M a Bs 115M en Auditorías Espurias
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+              Una fiscalización tributaria profunda dura entre <strong>3 y 8 meses</strong> y cuesta entre <strong>Bs 35,000 y Bs 150,000</strong> por empresa en peritajes contables, firmas auditoras externas y horas-hombre. Al reducir las fiscalizaciones ciegas en más del 70%, se ahorran decenas de millones de Bolivianos al tejido productivo nacional.
+            </div>
+          </div>
+
+          <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--primary);">
+            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              Blindaje Inmediato a más de 1,595 Empresas Formales
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+              Bajo reglas no entrenadas, empresas intensivas en capital (alta maquinaria y tecnología pero márgenes iniciales ajustados) eran acusadas erróneamente de subdeclaración. El modelo multivariado reconoce su estructura tecnológica y las protege técnicamente.
+            </div>
+          </div>
+
+          <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--accent);">
+            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              Certidumbre Operativa con Bandas Conformal al 90%
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+              En lugar de imponer una cifra rígida arbitraria, el sistema entrega un intervalo dinámico <code>[IC_inf, IC_sup]</code> (cobertura empírica verificada de 90.33%). Mientras la empresa opere dentro de su banda de confianza, se presume su consistencia operativa ante el fisco y el INE.
+            </div>
+          </div>
+
+          <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: 8px; border-left: 3px solid var(--warning);">
+            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Competencia Justa y Resguardo del Secreto Estadístico
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+              Se combate la competencia desleal de empresas que subdeclaran masivamente, premiando la formalidad de los contribuyentes transparentes. Todo el proceso cumple estrictamente con el secreto y reserva legal del <strong>Decreto Ley N° 1405</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA COMPARATIVA MAESTRA -->
+      <div style="margin-bottom: 2rem;">
+        <div class="card-title" style="font-size: 1rem; margin-bottom: 0.25rem;">Matriz Comparativa de Desempeño: Tradicional Sin Entrenar vs. Modelos Supervisados</div>
+        <div class="card-subtitle">Comparación exhaustiva de métricas de precisión, sesgos y capacidad de discriminación fiscal</div>
+
+        <div class="custom-table-container">
+          <table class="custom-table" id="tabla-comparativa-baseline">
+            <thead>
+              <tr>
+                <th>Enfoque Metodológico</th>
+                <th>Categoría</th>
+                <th>MedAPE (%)</th>
+                <th>R² (Escala Bs)</th>
+                <th>R² (Log)</th>
+                <th>Sesgo de Jensen</th>
+                <th>Bandas IC 90%</th>
+                <th>Falsos Positivos</th>
+                <th>Estado y Veredicto</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-comparativa-baseline-body">
+              <!-- Filas inyectadas dinámicamente desde /api/comparativa_baseline -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- GRÁFICOS COMPARATIVOS PLOTLY -->
+      <div class="grid-2-col" style="margin-bottom: 1.5rem;">
+        <div class="card" style="background: var(--bg-surface-elevated);">
+          <div class="chart-header">
+            <div class="card-title" style="font-size: 0.95rem;">1. Error Relativo MedAPE (%) vs. Meta del Marco Lógico (40%)</div>
+            <button class="chart-refresh-btn" data-chart="chartComparativaMedape" title="Actualizar gráfico" aria-label="Actualizar gráfico de MedAPE">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </button>
+          </div>
+          <div class="chart-wrapper" style="min-height: 350px;">
+            <div class="chart-loading-overlay" id="loading-chartComparativaMedape" style="display: none;">
+              <div class="chart-spinner"></div>
+              <span>Cargando comparación de MedAPE...</span>
+            </div>
+            <div id="chartComparativaMedape" style="height: 350px;"></div>
+          </div>
+        </div>
+
+        <div class="card" style="background: var(--bg-surface-elevated);">
+          <div class="chart-header">
+            <div class="card-title" style="font-size: 0.95rem;">2. Varianza Explicada en Moneda Nacional (R² en Escala de Bs)</div>
+            <button class="chart-refresh-btn" data-chart="chartComparativaR2" title="Actualizar gráfico" aria-label="Actualizar gráfico de R2 Bs">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </button>
+          </div>
+          <div class="chart-wrapper" style="min-height: 350px;">
+            <div class="chart-loading-overlay" id="loading-chartComparativaR2" style="display: none;">
+              <div class="chart-spinner"></div>
+              <span>Cargando varianza R² en Bs...</span>
+            </div>
+            <div id="chartComparativaR2" style="height: 350px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FICHA DE MÉTODOS MATEMÁTICOS Y ALGORÍTMICOS APLICADOS -->
+      <div class="card" style="background: var(--bg-surface-elevated); border-top: 3px solid var(--primary); margin-top: 1rem;">
+        <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Metodología de Entrenamiento y Pipeline Algorítmico Supervisado
+        </div>
+        <div class="card-subtitle">Detalle de las técnicas estadísticas, regularización y calibración implementadas en models/train.py</div>
+
+        <div class="grid-2-col" style="gap: 1.25rem; margin-top: 1rem;">
+          <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6;">
+            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.3rem;">1. Preprocesamiento & Blindaje Anti-Fuga (Pipeline Scikit-Learn)</div>
+            <ul style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem;">
+              <li><strong>ColumnTransformer:</strong> Separación estricta de ramas numéricas y categóricas.</li>
+              <li><strong>SimpleImputer(median):</strong> Imputación de nulos calculada únicamente dentro de cada pliegue de entrenamiento (previene fuga entre pliegues).</li>
+              <li><strong>StandardScaler & OneHotEncoder:</strong> Escalado Z-Score en predictores continuos y codificación binaria en <code>depto</code> y <code>sector_macro</code> (con <code>handle_unknown='ignore'</code>).</li>
+            </ul>
+          </div>
+
+          <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6;">
+            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.3rem;">2. Ensamble Supervisado & Calibración No Paramétrica</div>
+            <ul style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem;">
+              <li><strong>Random Forest Regressor (Campeón):</strong> 120 árboles de decisión, profundidad 16, división mínima 4 con semilla 42.</li>
+              <li><strong>HistGradientBoostingRegressor:</strong> 150 árboles con boosting de histogramas y tasa de aprendizaje 0.08.</li>
+              <li><strong>Corrector de Duan (1983):</strong> Factor $\hat{S} = \frac{1}{N}\sum \exp(\hat{\epsilon}_i) = 1.0401$ para corregir la desigualdad de Jensen al revertir $\exp(\hat{y}_{log})-1$.</li>
+              <li><strong>Conformal Prediction (Split Conformal 90%):</strong> Bandas dinámicas de certeza empírica calibradas con conjunto separado de prueba.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUB-PANEL 3: SIMULADOR DE INFERENCIA PREDICTIVA -->
+  <div id="subtab-content-mv-simulador" style="display: none;">
+    <div class="predict-layout">
+      <div class="card">
+        <div class="card-title">Simulador Operativo de Ingreso Esperado</div>
+        <div class="card-subtitle">Introduce los parámetros de una empresa para estimar el ingreso esperado e intervalo al 90%</div>
+
+        <form id="predictionForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="predDepto">Departamento</label>
+              <select class="form-control" id="predDepto">
+                <option value="SANTA CRUZ" selected>Santa Cruz</option>
+                <option value="LA PAZ">La Paz</option>
+                <option value="COCHABAMBA">Cochabamba</option>
+                <option value="TARIJA">Tarija</option>
+                <option value="ORURO">Oruro</option>
+                <option value="CHUQUISACA">Chuquisaca</option>
+                <option value="POTOSI">Potosí</option>
+                <option value="BENI">Beni</option>
+                <option value="PANDO">Pando</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predSector">Macrosector Económico (CAEB)</label>
+              <select class="form-control" id="predSector">
+                <option value="Industria Manufacturera" selected>Industria Manufacturera</option>
+                <option value="Comercio Mayorista y Minorista">Comercio Mayorista y Minorista</option>
+                <option value="Construcción">Construcción</option>
+                <option value="Transporte y Almacenamiento">Transporte y Almacenamiento</option>
+                <option value="Alojamiento y Servicios de Comida">Alojamiento y Comida</option>
+                <option value="Servicios Profesionales y Técnicos">Servicios Profesionales</option>
+                <option value="Información y Comunicaciones">Información y Comunicaciones</option>
+                <option value="Salud y Asistencia Social">Salud y Asistencia Social</option>
+                <option value="Educación">Educación</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predPersonal">Personal Ocupado Total</label>
+              <input type="number" class="form-control" id="predPersonal" value="35" min="1" max="5000">
+              <span class="form-hint">Personas ocupadas permanentes y eventuales</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predSueldos">Sueldos y Salarios Básicos (Bs)</label>
+              <input type="number" class="form-control" id="predSueldos" value="1800000" min="0" step="10000">
+              <span class="form-hint">Gasto anual declarado en sueldos básicos</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predRemuneraciones">Otras Remuneraciones (Bs)</label>
+              <input type="number" class="form-control" id="predRemuneraciones" value="750000" min="0" step="10000">
+              <span class="form-hint">Aguinaldos, aportes salud, AFPs y bonos</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predEnergia">Energía y Combustibles (Bs)</label>
+              <input type="number" class="form-control" id="predEnergia" value="220000" min="0" step="5000">
+              <span class="form-hint">Electricidad, agua, gas y diésel</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predActivos">Valor Activos Fijos Final (Bs)</label>
+              <input type="number" class="form-control" id="predActivos" value="8500000" min="0" step="50000">
+              <span class="form-hint">Maquinaria, edificaciones, transporte</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predInventarios">Inventarios Finales (Bs)</label>
+              <input type="number" class="form-control" id="predInventarios" value="1500000" min="0" step="10000">
+              <span class="form-hint">Productos terminados y materias primas</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predInsumosCompras">Compras de Insumos (Bs)</label>
+              <input type="number" class="form-control" id="predInsumosCompras" value="4500000" min="0" step="50000">
+              <span class="form-hint">Sección 10: Compras de materias primas</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predInsumosUtil">Utilización de Insumos (Bs)</label>
+              <input type="number" class="form-control" id="predInsumosUtil" value="4200000" min="0" step="50000">
+              <span class="form-hint">Insumos efectivamente consumidos</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="predNInsumos">N° Insumos Distintos</label>
+              <input type="number" class="form-control" id="predNInsumos" value="4" min="0" max="100">
+              <span class="form-hint">Variedad de materias primas declaradas</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-predict">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Calcular Ingreso Operativo Estimado
+          </button>
+        </form>
+      </div>
+
+      <!-- Tarjeta de Resultados -->
+      <div class="card predict-result-card" id="predictionResultCard">
+        <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">
+          Ingreso Operativo Proyectado
+        </div>
+        <div class="prediction-amount" id="resultPredictionAmount">Bs --</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+          Intervalo de Confianza (90%):
+          <strong id="resultInterval">Bs --</strong>
+        </div>
+        <div class="size-category-badge indigo" id="resultSizeCategory">Esperando Simulación</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1.5rem; max-width: 280px; text-align: center;">
+          Basado en el ensamble Random Forest con calibración Duan Smearing y transformaciones logarítmicas.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

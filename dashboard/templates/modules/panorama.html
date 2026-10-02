@@ -1,0 +1,232 @@
+<!-- =====================================================================
+     MÓDULO 1: PANORAMA GENERAL & PIPELINE DE DATOS
+     ===================================================================== -->
+<section class="section-panel active" id="panel-panorama">
+  <!-- KPIs Principales -->
+  <div class="kpi-grid">
+    <div class="kpi-card accent-emerald">
+      <span class="kpi-label">Total Empresas Encuestadas</span>
+      <div class="kpi-value" id="kpiTotalEmpresas">3,153</div>
+      <div class="kpi-subtext">Registros del extracto local EAIMCS (marco oficial: 10,044 empresas; sin factor de expansión)</div>
+    </div>
+    <div class="kpi-card accent-indigo">
+      <span class="kpi-label">Ingreso Operativo Mediano</span>
+      <div class="kpi-value" id="kpiIngresoMediano">Bs 15.83 M</div>
+      <div class="kpi-subtext">50% empresas declaran ingresos superiores</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Ingreso Operativo Promedio</span>
+      <div class="kpi-value" id="kpiIngresoPromedio">Bs 56.89 M</div>
+      <div class="kpi-subtext">Sesgado por grandes empresas (Cola Pareto)</div>
+    </div>
+    <div class="kpi-card accent-amber">
+      <span class="kpi-label">Cobertura Territorial</span>
+      <div class="kpi-value" id="kpiDeptos">9 Deptos</div>
+      <div class="kpi-subtext">Santa Cruz lidera con 45.3% de la muestra</div>
+    </div>
+  </div>
+
+  <!-- Propósito y Resumen -->
+  <div class="grid-2-col" style="margin-bottom: 2rem;">
+    <div class="card">
+      <div class="card-title">Propósito del Proyecto y Caso de Uso</div>
+      <div class="card-subtitle">Estimación de valor técnico de referencia contra inconsistencias contables</div>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+        Este sistema implementa un modelo de Machine Learning supervisado (regresión) entrenado con microdatos de la 
+        <strong>EAIMCS 2017-2018 (INE Bolivia)</strong> para estimar el <strong>Ingreso Operativo Anual</strong> esperado 
+        de empresas medianas y grandes a partir de su dotación de personal, remuneraciones, consumo de energía, 
+        activos fijos y compras/utilización de insumos de manufactura.
+      </p>
+      <div class="chart-rationale-box">
+        <strong>Impacto Contable y Metodológico:</strong> Sirve como herramienta de contraste para detectar subdeclaraciones, 
+        asimetrías en deducciones y anomalías contables en estadísticas económicas sectoriales.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Distribución de la Muestra Formal</div>
+      <div class="card-subtitle">Concentración geográfica y sectorial</div>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+          <span>Concentración Eje Central (SCZ + LPZ + CBA)</span>
+          <strong>86.0% (2,707 empresas)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+          <span>Comercio Mayorista y Minorista</span>
+          <strong>39.4% (1,243 empresas)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+          <span>Industria Manufacturera</span>
+          <strong>15.5% (489 empresas)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+          <span>Empresas con Detalle de Insumos (Sección 10)</span>
+          <strong>51.2% (1,614 empresas)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA DE CALOR POR DEPARTAMENTO X MACROSECTOR -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <div class="chart-header">
+      <div class="chart-header-left">
+        <div class="card-title">Mapa de Calor (Heatmap) Territorial y Sectorial</div>
+        <div class="card-subtitle">Cruce bivariado entre los 9 departamentos y los macrosectores económicos CAEB</div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+        <button class="status-pill active" id="btnHeatmapMetricCount" style="cursor: pointer;">Número de Empresas</button>
+        <button class="status-pill" id="btnHeatmapMetricMedian" style="cursor: pointer; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-color);">Ingreso Mediano (M Bs)</button>
+        <button class="status-pill" id="btnHeatmapMetricTotal" style="cursor: pointer; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-color);">Ingreso Agregado (M Bs)</button>
+        <button class="chart-refresh-btn" data-chart="chartHeatmapDeptoSector" title="Actualizar gráfico" aria-label="Actualizar mapa de calor territorial">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" style="min-height: 440px;">
+      <div class="chart-loading-overlay" id="loading-chartHeatmapDeptoSector" style="display: none;">
+        <div class="chart-spinner"></div>
+        <span>Cargando datos territoriales procesados...</span>
+      </div>
+      <div class="chart-error-overlay" id="error-chartHeatmapDeptoSector" style="display: none;">
+        <span>Error al cargar mapa de calor</span>
+        <button class="chart-retry-btn" onclick="reloadChart('chartHeatmapDeptoSector')">Reintentar</button>
+      </div>
+      <div id="chartHeatmapDeptoSector" style="height: 440px; width: 100%;"></div>
+    </div>
+    <div class="chart-rationale-box">
+      <strong>Lectura Territorial:</strong> Santa Cruz lidera tanto en densidad como en escala de ingresos en Comercio e Industria Manufacturera, mientras que La Paz destaca en Servicios Profesionales y Cochabamba en Industria de Alimentos y Bebidas.
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       CICLO DE VIDA DEL DATO: PIPELINE DE CURADURÍA (ANTES VS. DESPUÉS)
+       ===================================================================== -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      Pipeline de Limpieza & Curaduría de Datos: Antes vs. Después
+    </div>
+    <div class="card-subtitle">Evolución metodológica desde microdatos crudos heterogéneos hasta la matriz matemática de modelado</div>
+
+    <!-- Comparativa de Embudo en Tarjetas -->
+    <div class="grid-2-col" style="gap: 1.5rem; margin-top: 1.25rem;">
+      <!-- Tarjeta ANTES -->
+      <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: 8px; border-top: 4px solid var(--warning);">
+        <div style="font-weight: 700; color: var(--warning); font-size: 1rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <span>Estado Inicial (Microdatos Crudos INE)</span>
+          <span class="status-pill" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);">167 Variables</span>
+        </div>
+        <ul style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
+          <li><strong>152 variables de formulario:</strong> Secciones 0 a 7, 10 y 12 con altos niveles de desagregación parcial.</li>
+          <li><strong>19 variables con riesgo de Fuga de Datos:</strong> Sub-ventas (Secc. 5) y agregados contables post-encuesta (VBP, VA, CI) que contenían la respuesta.</li>
+          <li><strong>Estructura Relacional 1:N no agregada:</strong> Sección 10 con múltiples registros por empresa y códigos CCP heterogéneos.</li>
+          <li><strong>Distribución Hiper-Asimétrica:</strong> Sesgo de Pareto $>15.4$ con ingresos entre Bs 1.28M y Bs 24,000M que desestabilizaban el cálculo matricial.</li>
+          <li><strong>Incompatibilidad de Unidades:</strong> Capacidad de almacenamiento (Secc. 12) mezclaba litros, toneladas y unidades sin factor de conversión.</li>
+        </ul>
+      </div>
+
+      <!-- Tarjeta DESPUÉS -->
+      <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: 8px; border-top: 4px solid var(--success);">
+        <div style="font-weight: 700; color: var(--success); font-size: 1rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <span>Estado Final (Matriz Curada Supervisada)</span>
+          <span class="status-pill" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">7 Predictoras Macro</span>
+        </div>
+        <ul style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
+          <li><strong>Blindaje Anti-Leakage Certificado:</strong> Exclusión estricta de componentes de ventas y agregados macroeconómicos del INE.</li>
+          <li><strong>Fundamento en Función de Producción:</strong> Selección de Trabajo ($L$), Capital ($K$), Energía ($E$) e Insumos ($M$).</li>
+          <li><strong>Agregación Canónica 1:1:</strong> Insumos consolidados por empresa mediante <code>count(items)</code> y <code>sum(valor_co, valor_uti)</code>.</li>
+          <li><strong>Normalización Log1p Estabilizada:</strong> Transformación $\ln(1+x)$ en target y predictores, generando distribuciones continuas y simétricas.</li>
+          <li><strong>Pipeline Anti-Fuga ColumnTransformer:</strong> Imputación por mediana ajustada exclusivamente en entrenamiento mediante validación cruzada.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tabla Resumen de Variables Seleccionadas y Factores Teóricos -->
+    <div style="margin-top: 1.5rem;">
+      <div class="card-title" style="font-size: 0.95rem; margin-bottom: 0.4rem;">Matriz de Factores Productivos y Variables Predictoras Finales</div>
+      <div class="custom-table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Factor Teórico</th>
+              <th>Código Variable</th>
+              <th>Descripción en Encuesta EAIMCS</th>
+              <th>Tipo de Dato</th>
+              <th>Método de Transformación</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Objetivo ($y$)</strong></td>
+              <td><span class="font-mono" style="color: var(--primary); font-weight: 700;">S00_01_A</span></td>
+              <td>Total Ingresos Operativos Anuales (en Bolivianos)</td>
+              <td>Monetaria (Bs)</td>
+              <td>Transformación logarítmica $\ln(1+y)$ con factor de corrección Duan $\hat{S}=1.0401$</td>
+            </tr>
+            <tr>
+              <td><strong>Trabajo ($L$)</strong></td>
+              <td><span class="font-mono">S01_05_A</span></td>
+              <td>Total Personal Ocupado (Permanente + Eventual)</td>
+              <td>Conteo</td>
+              <td>Agregación canónica, $\ln(1+x)$, Z-Score Scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Trabajo ($L$)</strong></td>
+              <td><span class="font-mono">S01_03_C</span></td>
+              <td>Sueldos y Salarios Básicos Anuales</td>
+              <td>Monetaria (Bs)</td>
+              <td>$\ln(1+x)$, Z-Score Scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Trabajo ($L$)</strong></td>
+              <td><span class="font-mono">S01_14</span></td>
+              <td>Otras Remuneraciones (Aguinaldos, Aportes Patronales)</td>
+              <td>Monetaria (Bs)</td>
+              <td>$\ln(1+x)$, Z-Score Scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Energía ($E$)</strong></td>
+              <td><span class="font-mono">S02_09</span></td>
+              <td>Total Energía Eléctrica, Agua y Combustibles</td>
+              <td>Monetaria (Bs)</td>
+              <td>$\ln(1+x)$, Z-Score Scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Capital ($K$)</strong></td>
+              <td><span class="font-mono">S07_09_E</span></td>
+              <td>Total Valor Histórico Final de Activos Fijos</td>
+              <td>Monetaria (Bs)</td>
+              <td>Consolidación Secc. 7, $\ln(1+x)$, Z-Score Scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Capital ($K$)</strong></td>
+              <td><span class="font-mono">S06_06_B</span></td>
+              <td>Total Inventarios Finales (Materias Primas + Productos)</td>
+              <td>Monetaria (Bs)</td>
+              <td>$\ln(1+x)$, Z-Score Scaling</td>
+            </tr>
+            <tr>
+              <td><strong>Insumos ($M$)</strong></td>
+              <td><span class="font-mono">n_insumos / total_valor_uti</span></td>
+              <td>Variedad y Valor Total de Utilización de Insumos</td>
+              <td>Conteo / Bs</td>
+              <td>Agregación relacional 1:N por <code>ID</code>, $\ln(1+x)$</td>
+            </tr>
+            <tr>
+              <td><strong>Mercado / Geografía</strong></td>
+              <td><span class="font-mono">depto / sector_macro</span></td>
+              <td>Ubicación Departamental y Macrosector CAEB</td>
+              <td>Categórica</td>
+              <td>One-Hot Encoding binario (12 dimensiones)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
