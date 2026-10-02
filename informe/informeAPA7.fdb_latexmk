@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex informeAPA7"] 1790909231.02938 "informeAPA7.aux" "informeAPA7.bbl" "informeAPA7" 1790909295.98816 0
+["bibtex informeAPA7"] 1790909231.02938 "informeAPA7.aux" "informeAPA7.bbl" "informeAPA7" 1790915735.97531 0
   "./referencias.bib" 1790829210 3482 7d61a1b71d53490a2f5c4ffa6cdef455 ""
   "C:/Users/julio/AppData/Local/Programs/MiKTeX/bibtex/bst/bibtex/apalike.bst" 1291972791 24635 604dafcc79f521a11ea73e506e1fbd98 ""
-  "informeAPA7.aux" 1790909294 15376 b86ff64a82c9be8c815d54f9835cd2a8 "pdflatex"
+  "informeAPA7.aux" 1790915734 15376 b86ff64a82c9be8c815d54f9835cd2a8 "pdflatex"
   (generated)
   "informeAPA7.bbl"
   "informeAPA7.blg"
   (rewritten before read)
-["pdflatex"] 1790909288.00206 "c:/Users/julio/Downloads/INF_2_2026/ML/PROY/BasesFinales/BasesFinales/informe/informeAPA7.tex" "informeAPA7.pdf" "informeAPA7" 1790909295.98939 0
+["pdflatex"] 1790915726.33812 "c:/Users/julio/Downloads/INF_2_2026/ML/PROY/BasesFinales/BasesFinales/informe/informeAPA7.tex" "informeAPA7.pdf" "informeAPA7" 1790915735.97651 0
   "C:/Users/julio/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1790259816 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/julio/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1765566801 13333512 7906b43d323251ebc66fdd6f7d4ecbb4 ""
   "C:/Users/julio/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1233951848 1004 54797486969f23fa377b128694d548df ""
@@ -211,9 +211,9 @@
   "C:/Users/julio/AppData/Local/Programs/MiKTeX/tex/latex/tools/tabularx.sty" 1761901070 7243 a2c17f18e2c9b702b84fad03d5f9c78b ""
   "C:/Users/julio/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/julio/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "c:/Users/julio/Downloads/INF_2_2026/ML/PROY/BasesFinales/BasesFinales/informe/informeAPA7.tex" 1790829493 6826 3158bfa0b19f179d683fc8436cf86b3f ""
-  "imagenes/arbol_objetivos.png" 1790796851 111960 1f855551a4c4be73a3e7d98478e4332e ""
-  "imagenes/arbol_problemas.jpg" 1790828024 138159 4e8ef2ac5a422eb54dff27237648f1f6 ""
+  "c:/Users/julio/Downloads/INF_2_2026/ML/PROY/BasesFinales/BasesFinales/informe/informeAPA7.tex" 1790915722 6766 0966f0296f98c44bcf4045cda1ffbe41 ""
+  "imagenes/arbol_objetivos.png" 1790910358 141169 2e25a56227a33fa549297342edcfec36 ""
+  "imagenes/arbol_problemas.jpg" 1790910378 150489 ff3a59e11dfffda44846bb5e7e068e0a ""
   "imagenes/correlacion_heatmap.png" 1790906707 266901 c0ef3471bd580efd145af84896d12c3c ""
   "imagenes/cv_estabilidad_folds.png" 1790906710 186442 cf7369e415f8458b56a99e0f23420122 ""
   "imagenes/dashboard_auditoria_riesgo.png" 1790905688 176649 ce27dea61fb65f03eaeaa1144706c939 ""
@@ -225,13 +225,13 @@
   "imagenes/distribucion_asimetria_log.png" 1790906706 284215 3d173bf528483335182b3fe87d70b5c9 ""
   "imagenes/logo_umsa.png" 1790796851 49585 fc6dfc68630042ead724f573e9354716 ""
   "imagenes/residuos_homocedasticidad.png" 1790906709 466606 cd5535b11af0832f36c175eb00658372 ""
-  "informeAPA7.aux" 1790909294 15376 b86ff64a82c9be8c815d54f9835cd2a8 "pdflatex"
+  "informeAPA7.aux" 1790915734 15376 b86ff64a82c9be8c815d54f9835cd2a8 "pdflatex"
   "informeAPA7.bbl" 1790909231 2863 ed51e73468b192608ce3bfc778d928df "bibtex informeAPA7"
-  "informeAPA7.lof" 1790909294 2017 99236d4b94e6296416444bed10a3ed14 "pdflatex"
-  "informeAPA7.lot" 1790909294 596 7e16f4df60c0f9403b2d517ade75eb46 "pdflatex"
-  "informeAPA7.out" 1790909294 10353 0abfe34731ea1997d4549942179acc78 "pdflatex"
-  "informeAPA7.tex" 1790829493 6826 3158bfa0b19f179d683fc8436cf86b3f ""
-  "informeAPA7.toc" 1790909294 4220 1b9e5e043de8132395c7a7f2b8edaf54 "pdflatex"
+  "informeAPA7.lof" 1790915734 2017 99236d4b94e6296416444bed10a3ed14 "pdflatex"
+  "informeAPA7.lot" 1790915734 596 7e16f4df60c0f9403b2d517ade75eb46 "pdflatex"
+  "informeAPA7.out" 1790915734 10353 0abfe34731ea1997d4549942179acc78 "pdflatex"
+  "informeAPA7.tex" 1790915722 6766 0966f0296f98c44bcf4045cda1ffbe41 ""
+  "informeAPA7.toc" 1790915734 4220 1b9e5e043de8132395c7a7f2b8edaf54 "pdflatex"
   "secciones/01_introduccion.tex" 1790797278 5073 1432cf64fb88e17f64db103f42c2f64c ""
   "secciones/02_antecedentes.tex" 1790829516 6215 1946592683ac5c3022913c87e614994d ""
   "secciones/03_problematica.tex" 1790909194 6917 b5edbd5b4debed74ad14b2dda4d621e4 ""
