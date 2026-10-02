@@ -13,8 +13,102 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // ESTADO GLOBAL DE LA APLICACIÓN
+  // ESTADO GLOBAL DE LA APLICACIÓN Y SISTEMA DE PERSISTENCIA JSON
   // ==========================================================================
+  const STORAGE_KEY = 'dashboard_session_state_v1';
+
+  const SessionStateManager = {
+    loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn('Error al leer sesión de localStorage:', e);
+        return null;
+      }
+    },
+
+    saveState(partial) {
+      try {
+        const current = this.loadState() || {
+          active_section: 'panorama',
+          active_subtabs: {
+            'modelo_validez': 'mv-diagnostico',
+            'monitoreo': 'mon-trafico',
+            'gobernanza': 'gob-pipeline'
+          },
+          simulator: null,
+          drift: null,
+          filters: {
+            risk_search: '',
+            risk_level: '',
+            risk_depto: '',
+            analysis_search: '',
+            analysis_phase: ''
+          },
+          chart_toggles: {
+            heatmap_metric: 'count',
+            distribution_scale: 'log'
+          }
+        };
+
+        const updated = {
+          ...current,
+          ...partial,
+          active_subtabs: {
+            ...current.active_subtabs,
+            ...(partial.active_subtabs || {})
+          },
+          filters: {
+            ...current.filters,
+            ...(partial.filters || {})
+          },
+          chart_toggles: {
+            ...current.chart_toggles,
+            ...(partial.chart_toggles || {})
+          }
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      } catch (e) {
+        console.warn('Error al guardar sesión en localStorage:', e);
+      }
+    },
+
+    updateHash(section, subtab) {
+      try {
+        if (!section) return;
+        const targetHash = subtab ? `#${section}/${subtab}` : `#${section}`;
+        if (window.location.hash !== targetHash) {
+          history.replaceState(null, '', targetHash);
+        }
+      } catch (e) {
+        // Ignorar restricciones en entornos aislados
+      }
+    },
+
+    parseHash() {
+      try {
+        const hash = (window.location.hash || '').replace(/^#\/?/, '').trim();
+        if (!hash) return null;
+        const parts = hash.split('/');
+        return {
+          section: parts[0] || null,
+          subtab: parts[1] || null
+        };
+      } catch (e) {
+        return null;
+      }
+    },
+
+    clearState() {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+    }
+  };
+
   const state = {
     theme: document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light',
     activeSection: 'panorama',
@@ -387,11 +481,63 @@ document.addEventListener('DOMContentLoaded', () => {
   navBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const target = btn.getAttribute('data-section');
-      switchSection(target);
+      switchSection(target, null, true);
     });
   });
 
-  function switchSection(sectionId) {
+  function switchSubtab(parentPanel, subtabTarget, saveState = true) {
+    if (!parentPanel || !subtabTarget) return;
+
+    const sectionId = parentPanel.id.replace('panel-', '');
+
+    // Actualizar botones del subnav en este panel
+    parentPanel.querySelectorAll('.subnav-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-subtab') === subtabTarget);
+    });
+
+    // Ocultar todos los subtab-contents y mostrar el seleccionado
+    parentPanel.querySelectorAll('[id^="subtab-content-"]').forEach(content => {
+      if (content.id === `subtab-content-${subtabTarget}`) {
+        content.style.display = 'block';
+      } else {
+        content.style.display = 'none';
+      }
+    });
+
+    if (saveState) {
+      SessionStateManager.saveState({
+        active_subtabs: { [sectionId]: subtabTarget }
+      });
+      SessionStateManager.updateHash(sectionId, subtabTarget);
+    }
+
+    // Refrescar tamaño de gráficos Plotly
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+
+    // Carga diferida según subtab
+    if (subtabTarget === 'mv-cv') {
+      Promise.all([
+        reloadChart('chartCvFolds', false),
+        reloadChart('chartCvStability', false),
+        reloadChart('chartCvBoxplot', false),
+        reloadChart('chartCvVsTest', false)
+      ]);
+    } else if (subtabTarget === 'mv-comparativa') {
+      loadComparativaBaseline();
+    } else if (subtabTarget === 'gob-eda') {
+      Promise.all([
+        reloadChart('chartDistribution', false),
+        reloadChart('chartBoxDeptos', false),
+        reloadChart('chartBoxSectors', false),
+        reloadChart('chartCorrelation', false),
+        reloadChart('chartOutliers', false)
+      ]);
+    } else if (subtabTarget === 'gob-diccionario' && state.dictionaryEntries.length === 0) {
+      loadDictionary();
+    }
+  }
+
+  function switchSection(sectionId, targetSubtab = null, saveState = true) {
     state.activeSection = sectionId;
 
     navBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-section') === sectionId));
@@ -400,6 +546,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const meta = titlesMap[sectionId] || { title: 'Dashboard', sub: '' };
     sectionTitle.textContent = meta.title;
     sectionSubtitle.textContent = meta.sub;
+
+    const panel = document.getElementById(`panel-${sectionId}`);
+    let activeSubtab = targetSubtab;
+
+    if (panel) {
+      const subnavBtns = panel.querySelectorAll('.subnav-tab-btn');
+      if (subnavBtns.length > 0) {
+        if (!activeSubtab) {
+          const savedState = SessionStateManager.loadState();
+          activeSubtab = savedState?.active_subtabs?.[sectionId] || subnavBtns[0].getAttribute('data-subtab');
+        }
+        switchSubtab(panel, activeSubtab, false);
+      }
+    }
+
+    if (saveState) {
+      SessionStateManager.saveState({
+        active_section: sectionId,
+        ...(activeSubtab ? { active_subtabs: { [sectionId]: activeSubtab } } : {})
+      });
+      SessionStateManager.updateHash(sectionId, activeSubtab);
+    }
 
     // Disparar carga bajo demanda en paralelo (Promise.all) solo de los gráficos visibles
     if (sectionId === 'panorama') {
@@ -411,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
       loadCompaniesRisk();
       loadBunchingAlerts();
     } else if (sectionId === 'modelo_validez') {
-      // Subtab activo por defecto: mv-diagnostico
       Promise.all([
         loadBitacoraModelos(),
         reloadChart('chartRealVsPred', false),
@@ -419,16 +586,35 @@ document.addEventListener('DOMContentLoaded', () => {
         reloadChart('chartModelsBarComparison', false),
         reloadChart('chartFeatureImportance', false)
       ]);
+      if (activeSubtab === 'mv-cv') {
+        Promise.all([
+          reloadChart('chartCvFolds', false),
+          reloadChart('chartCvStability', false),
+          reloadChart('chartCvBoxplot', false),
+          reloadChart('chartCvVsTest', false)
+        ]);
+      } else if (activeSubtab === 'mv-comparativa') {
+        loadComparativaBaseline();
+      }
     } else if (sectionId === 'monitoreo') {
-      // Subtab activo por defecto: mon-trafico
       loadMLOps();
       Promise.all([
         loadMonitoring(),
         reloadChart('chartTrafficVolume', false)
       ]);
     } else if (sectionId === 'gobernanza') {
-      // Subtab activo por defecto: gob-pipeline
       loadBitacoraPreprocesamiento();
+      if (activeSubtab === 'gob-eda') {
+        Promise.all([
+          reloadChart('chartDistribution', false),
+          reloadChart('chartBoxDeptos', false),
+          reloadChart('chartBoxSectors', false),
+          reloadChart('chartCorrelation', false),
+          reloadChart('chartOutliers', false)
+        ]);
+      } else if (activeSubtab === 'gob-diccionario' && state.dictionaryEntries.length === 0) {
+        loadDictionary();
+      }
     } else if (sectionId === 'bitacora_analisis') {
       loadBitacoraAnalisis();
     }
@@ -452,50 +638,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const parentPanel = btn.closest('.section-panel');
       if (!parentPanel) return;
-
       const subtabTarget = btn.getAttribute('data-subtab');
-      // Actualizar botones del subnav en este panel
-      parentPanel.querySelectorAll('.subnav-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
-
-      // Ocultar todos los subtab-contents y mostrar el seleccionado
-      parentPanel.querySelectorAll('[id^="subtab-content-"]').forEach(content => {
-        if (content.id === `subtab-content-${subtabTarget}`) {
-          content.style.display = 'block';
-        } else {
-          content.style.display = 'none';
-        }
-      });
-
-      // Refrescar tamaño de gráficos Plotly
-      setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
-
-      // Si se abre CV, cargar de forma diferida (lazy) los 4 gráficos de validación cruzada
-      if (subtabTarget === 'mv-cv') {
-        Promise.all([
-          reloadChart('chartCvFolds', false),
-          reloadChart('chartCvStability', false),
-          reloadChart('chartCvBoxplot', false),
-          reloadChart('chartCvVsTest', false)
-        ]);
-      }
-      // Si se abre Cuadro Comparativo Sin Entrenar vs Modelos ML
-      if (subtabTarget === 'mv-comparativa') {
-        loadComparativaBaseline();
-      }
-      // Si se abre EDA, cargar de forma diferida (lazy) los 5 gráficos de análisis exploratorio
-      if (subtabTarget === 'gob-eda') {
-        Promise.all([
-          reloadChart('chartDistribution', false),
-          reloadChart('chartBoxDeptos', false),
-          reloadChart('chartBoxSectors', false),
-          reloadChart('chartCorrelation', false),
-          reloadChart('chartOutliers', false)
-        ]);
-      }
-      // Si se abre diccionario, cargar si vacío
-      if (subtabTarget === 'gob-diccionario' && state.dictionaryEntries.length === 0) {
-        loadDictionary();
-      }
+      switchSubtab(parentPanel, subtabTarget, true);
     });
   });
 
@@ -522,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnHeatmapMetricMedian = document.getElementById('btnHeatmapMetricMedian');
   const btnHeatmapMetricTotal = document.getElementById('btnHeatmapMetricTotal');
 
-  function updateHeatmapMetricBtns(activeMetric) {
+  function updateHeatmapMetricBtns(activeMetric, saveState = true) {
     state.heatmapMetric = activeMetric;
     const btns = [
       { el: btnHeatmapMetricCount, key: 'count' },
@@ -542,23 +686,29 @@ document.addEventListener('DOMContentLoaded', () => {
         b.el.style.color = 'var(--text-primary)';
       }
     });
+
+    if (saveState) {
+      SessionStateManager.saveState({
+        chart_toggles: { heatmap_metric: activeMetric }
+      });
+    }
   }
 
   if (btnHeatmapMetricCount) {
     btnHeatmapMetricCount.addEventListener('click', () => {
-      updateHeatmapMetricBtns('count');
+      updateHeatmapMetricBtns('count', true);
       renderHeatmapDeptoSector('count');
     });
   }
   if (btnHeatmapMetricMedian) {
     btnHeatmapMetricMedian.addEventListener('click', () => {
-      updateHeatmapMetricBtns('median');
+      updateHeatmapMetricBtns('median', true);
       renderHeatmapDeptoSector('median');
     });
   }
   if (btnHeatmapMetricTotal) {
     btnHeatmapMetricTotal.addEventListener('click', () => {
-      updateHeatmapMetricBtns('total');
+      updateHeatmapMetricBtns('total', true);
       renderHeatmapDeptoSector('total');
     });
   }
@@ -640,6 +790,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const q = riskSearchInput ? riskSearchInput.value.trim() : '';
     const riesgo = riskFilterSelect ? riskFilterSelect.value.trim() : '';
     const depto = riskDeptoFilter ? riskDeptoFilter.value.trim() : '';
+
+    SessionStateManager.saveState({
+      filters: {
+        risk_search: q,
+        risk_level: riesgo,
+        risk_depto: depto
+      }
+    });
 
     const params = new URLSearchParams({
       limit: '60',
@@ -942,18 +1100,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Gráfico: Comparación de Barras de R² / RMSE / MedAPE entre los 3 Modelos
   // Gráfico: Comparación de Barras de R² / RMSE / MedAPE entre los 3 Modelos
+  // Gráfico: Comparación de Barras de R² / RMSE / MedAPE entre los 3 Modelos
   function renderModelsBarComparison(modelsList) {
     const chartDiv = document.getElementById('chartModelsBarComparison');
     const list = modelsList || (state.bitacoraModelosData && state.bitacoraModelosData.modelos);
     if (!chartDiv || !list) return;
 
-    const names = list.map(m => m.modelo);
-    const r2Vals = list.map(m => m.test_metricas.r2_bs);
-    const rmseLogVals = list.map(m => m.test_metricas.rmse_log);
-    const medapeVals = list.map(m => m.test_metricas.medape);
+    const names = list.map(m => String(m.modelo));
+    const r2Vals = list.map(m => Number(m.test_metricas?.r2_bs || 0));
+    const rmseLogVals = list.map(m => Number(m.test_metricas?.rmse_log || 0));
+    const medapeVals = list.map(m => Number(m.test_metricas?.medape || 0));
 
-    // A09: R² (adimensional) y RMSE(log) NO comparten eje con MedAPE; se usa un eje secundario
-    // rotulado para el porcentaje, conservando escalas separadas en el mismo gráfico.
     const traceR2 = {
       x: names,
       y: r2Vals,
@@ -978,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const traceMedape = {
       x: names,
-      y: medapeVals, // porcentaje en su propio eje (0–100), nunca MedAPE/100 junto a R²
+      y: medapeVals,
       name: 'MedAPE (%)',
       type: 'bar',
       yaxis: 'y2',
@@ -992,17 +1149,28 @@ document.addEventListener('DOMContentLoaded', () => {
       ...state.plotlyLayoutBase,
       barmode: 'group',
       title: 'Desempeño Comparativo de Modelos (Test Set)',
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'R² (Bs) / RMSE (log)' },
+      xaxis: { ...state.plotlyLayoutBase.xaxis, type: 'category' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'R² (Bs) / RMSE (log)',
+        type: 'linear',
+        range: [0, 1.0],
+        dtick: 0.2,
+        tickformat: '.2f'
+      },
       yaxis2: {
         title: 'MedAPE (%)',
+        type: 'linear',
         overlaying: 'y',
         side: 'right',
         range: [0, 100],
+        dtick: 20,
+        tickformat: '.0f',
         showgrid: false,
         zeroline: false
       },
       legend: { orientation: 'h', y: -0.22, x: 0.05 },
-      margin: { l: 50, r: 55, t: 40, b: 65 }
+      margin: { l: 55, r: 55, t: 40, b: 65 }
     };
 
     Plotly.react('chartModelsBarComparison', [traceR2, traceRmse, traceMedape], layout, { responsive: true, displayModeBar: false });
@@ -1012,9 +1180,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const diag = state.modelsData && state.modelsData.test_diagnostics;
     if (!diag || !diag.real_log) return;
 
+    const realLog = diag.real_log.map(Number);
+    const predLog = diag.pred_log.map(Number);
+
     const traceScatter = {
-      x: diag.real_log,
-      y: diag.pred_log,
+      x: realLog,
+      y: predLog,
       mode: 'markers',
       type: 'scatter',
       name: 'Empresas Test',
@@ -1025,8 +1196,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    const minVal = Math.min(...diag.real_log);
-    const maxVal = Math.max(...diag.real_log);
+    const minVal = Math.min(...realLog);
+    const maxVal = Math.max(...realLog);
     const traceLine = {
       x: [minVal, maxVal],
       y: [minVal, maxVal],
@@ -1039,8 +1210,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const layoutScatter = {
       ...state.plotlyLayoutBase,
       title: 'Valores Reales vs. Predichos (Escala Log)',
-      xaxis: { ...state.plotlyLayoutBase.xaxis, title: 'Valor Real log(1 + Bs)' },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'Valor Predicho log(1 + Bs)' },
+      xaxis: {
+        ...state.plotlyLayoutBase.xaxis,
+        title: 'Valor Real log(1 + Bs)',
+        type: 'linear',
+        dtick: 1,
+        tickformat: '.1f'
+      },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'Valor Predicho log(1 + Bs)',
+        type: 'linear',
+        dtick: 1,
+        tickformat: '.1f'
+      },
       margin: { l: 55, r: 20, t: 40, b: 50 }
     };
     Plotly.react('chartRealVsPred', [traceScatter, traceLine], layoutScatter, { responsive: true, displayModeBar: false });
@@ -1051,7 +1234,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!diag || !diag.real_log) return;
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-    const residuals = diag.residuals_log || diag.real_log.map((r, i) => r - diag.pred_log[i]);
+    const realLog = diag.real_log.map(Number);
+    const predLog = diag.pred_log.map(Number);
+    const residuals = (diag.residuals_log ? diag.residuals_log.map(Number) : realLog.map((r, i) => r - predLog[i]));
+
     const traceResHist = {
       x: residuals,
       type: 'histogram',
@@ -1068,9 +1254,17 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Distribución de Residuos log(y) - log(ŷ)',
       xaxis: {
         ...state.plotlyLayoutBase.xaxis,
-        title: 'Residuo (Error de Predicción en Log)'
+        title: 'Residuo log(y) - log(ŷ)',
+        type: 'linear',
+        dtick: 0.5,
+        tickformat: '.1f'
       },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'Frecuencia (N° Empresas)' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'Frecuencia (N° Empresas)',
+        type: 'linear',
+        tickformat: 'd'
+      },
       margin: { l: 55, r: 20, t: 40, b: 50 }
     };
     Plotly.react('chartResidualsHist', [traceResHist], layoutResHist, { responsive: true, displayModeBar: false });
@@ -1081,19 +1275,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!fi || fi.length === 0) return;
 
     const sortedFi = [...fi].reverse();
+    const cleanNames = sortedFi.map(f => {
+      let name = String(f.feature).replace('log_', '').replace('cat__', '');
+      return name;
+    });
+    const xVals = sortedFi.map(f => Number(f.importance));
+
     const traceFi = {
-      x: sortedFi.map(f => f.importance),
-      y: sortedFi.map(f => f.feature.replace('log_', '').replace('cat__', '')),
+      x: xVals,
+      y: cleanNames,
       type: 'bar',
       orientation: 'h',
-      marker: { color: '#0B3D62' }
+      marker: { color: '#0B3D62' },
+      text: xVals.map(v => `${(v * 100).toFixed(1)}%`),
+      textposition: 'auto',
+      hovertemplate: '%{y}: %{x:.2%}<extra></extra>'
     };
+
+    const maxImportance = Math.max(...xVals, 0.35);
 
     const layoutFi = {
       ...state.plotlyLayoutBase,
       title: 'Importancia Relativa de Predictores (Gini / MDI)',
-      xaxis: { ...state.plotlyLayoutBase.xaxis, title: 'Peso Relativo' },
-      margin: { l: 140, r: 30, t: 40, b: 50 }
+      xaxis: {
+        ...state.plotlyLayoutBase.xaxis,
+        title: 'Peso Relativo de Importancia',
+        type: 'linear',
+        tickformat: '.0%',
+        range: [0, maxImportance * 1.15]
+      },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        type: 'category',
+        automargin: true
+      },
+      margin: { l: 220, r: 35, t: 40, b: 50 }
     };
     Plotly.react('chartFeatureImportance', [traceFi], layoutFi, { responsive: true, displayModeBar: false });
   }
@@ -1113,14 +1329,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-
   // Gráficos de Validación Cruzada (5-Fold Stratified CV)
   function renderCvFoldsChart() {
     const cv = state.cvResults;
     if (!cv || !cv.models) return;
-    // Cohorte explícita de la comparación (contrato 02: misma cohorte de evaluación)
     const cohortNote = cv.cohorte
-      ? ` · CV sobre bloque de ajuste n=${cv.cohorte.n_entrenamiento_ajuste} (calibración ${cv.cohorte.n_calibracion}, prueba ${cv.cohorte.n_prueba}) · run ${String(cv.run_id || '').slice(0, 20)}`
+      ? ` · CV sobre bloque de ajuste n=${cv.cohorte.n_entrenamiento_ajuste}`
       : '';
     const foldsLabels = ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5'];
     const ridge = cv.models.Ridge || {};
@@ -1130,7 +1344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const traceRidgeFolds = {
       x: foldsLabels,
-      y: (ridge.folds || []).map(f => f.r2),
+      y: (ridge.folds || []).map(f => Number(f.r2)),
       name: 'Ridge',
       type: 'scatter',
       mode: 'lines+markers',
@@ -1139,7 +1353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const traceHgbFolds = {
       x: foldsLabels,
-      y: (hgb.folds || []).map(f => f.r2),
+      y: (hgb.folds || []).map(f => Number(f.r2)),
       name: 'HistGradientBoosting',
       type: 'scatter',
       mode: 'lines+markers',
@@ -1148,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const traceRfFolds = {
       x: foldsLabels,
-      y: (rf.folds || []).map(f => f.r2),
+      y: (rf.folds || []).map(f => Number(f.r2)),
       name: 'RandomForest (Campeón)',
       type: 'scatter',
       mode: 'lines+markers',
@@ -1158,8 +1372,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const layoutFolds = {
       ...state.plotlyLayoutBase,
       title: `Evolución de R² por Pliegue (Stratified 5-Fold)${cohortNote}`,
-      xaxis: { ...state.plotlyLayoutBase.xaxis, title: 'Pliegues de Validación' },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'R² (Escala Log)', range: [0.45, 0.85] },
+      xaxis: { ...state.plotlyLayoutBase.xaxis, type: 'category', title: 'Pliegues de Validación' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'R² (Escala Log)',
+        type: 'linear',
+        range: [0.45, 0.85],
+        dtick: 0.05,
+        tickformat: '.2f'
+      },
       legend: { orientation: 'h', y: -0.22, x: 0.05 },
       margin: { l: 50, r: 25, t: 40, b: 65 }
     };
@@ -1175,8 +1396,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const rf = cv.models.RandomForest || {};
 
     const modelNames = ['Ridge', 'HistGradientBoosting', 'RandomForest'];
-    const means = [ridge.cv_r2_mean || 0, hgb.cv_r2_mean || 0, rf.cv_r2_mean || 0];
-    const stds = [ridge.cv_r2_std || 0, hgb.cv_r2_std || 0, rf.cv_r2_std || 0];
+    const means = [Number(ridge.cv_r2_mean || 0), Number(hgb.cv_r2_mean || 0), Number(rf.cv_r2_mean || 0)];
+    const stds = [Number(ridge.cv_r2_std || 0), Number(hgb.cv_r2_std || 0), Number(rf.cv_r2_std || 0)];
     const traceStability = {
       x: modelNames,
       y: means,
@@ -1200,8 +1421,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const layoutStability = {
       ...state.plotlyLayoutBase,
       title: 'CV R² Promedio con Intervalo ±1σ',
-      xaxis: { ...state.plotlyLayoutBase.xaxis },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'CV R² (Log)', range: [0, 0.95] },
+      xaxis: { ...state.plotlyLayoutBase.xaxis, type: 'category' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'CV R² (Log)',
+        type: 'linear',
+        range: [0, 0.95],
+        dtick: 0.1,
+        tickformat: '.2f'
+      },
       margin: { l: 50, r: 25, t: 40, b: 50 }
     };
     Plotly.react('chartCvStability', [traceStability], layoutStability, { responsive: true, displayModeBar: false });
@@ -1216,7 +1444,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rf = cv.models.RandomForest || {};
 
     const traceRidgeBox = {
-      y: (ridge.folds || []).map(f => f.r2),
+      y: (ridge.folds || []).map(f => Number(f.r2)),
       name: 'Ridge',
       type: 'box',
       boxpoints: 'all',
@@ -1225,7 +1453,7 @@ document.addEventListener('DOMContentLoaded', () => {
       marker: { color: isDark ? '#A0AEC0' : '#718096', size: 7 }
     };
     const traceHgbBox = {
-      y: (hgb.folds || []).map(f => f.r2),
+      y: (hgb.folds || []).map(f => Number(f.r2)),
       name: 'HistGradBoost',
       type: 'box',
       boxpoints: 'all',
@@ -1234,7 +1462,7 @@ document.addEventListener('DOMContentLoaded', () => {
       marker: { color: '#F4B400', size: 7 }
     };
     const traceRfBox = {
-      y: (rf.folds || []).map(f => f.r2),
+      y: (rf.folds || []).map(f => Number(f.r2)),
       name: 'RandomForest',
       type: 'box',
       boxpoints: 'all',
@@ -1245,8 +1473,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const layoutBox = {
       ...state.plotlyLayoutBase,
       title: 'Dispersión y Rango Intercuartil de Pliegues CV',
-      xaxis: { ...state.plotlyLayoutBase.xaxis },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'R² de Pliegue', range: [0.45, 0.85] },
+      xaxis: { ...state.plotlyLayoutBase.xaxis, type: 'category' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'R² de Pliegue',
+        type: 'linear',
+        range: [0.45, 0.85],
+        dtick: 0.05,
+        tickformat: '.2f'
+      },
       showlegend: false,
       margin: { l: 50, r: 25, t: 40, b: 50 }
     };
@@ -1261,8 +1496,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const rf = cv.models.RandomForest || {};
 
     const labelsCvTest = ['Ridge', 'HistGradBoost', 'RandomForest'];
-    const cvVals = [ridge.cv_r2_mean || 0, hgb.cv_r2_mean || 0, rf.cv_r2_mean || 0];
-    const testVals = [ridge.test_r2_log || 0, hgb.test_r2_log || 0, rf.test_r2_log || 0];
+    const cvVals = [Number(ridge.cv_r2_mean || 0), Number(hgb.cv_r2_mean || 0), Number(rf.cv_r2_mean || 0)];
+    const testVals = [Number(ridge.test_r2_log || 0), Number(hgb.test_r2_log || 0), Number(rf.test_r2_log || 0)];
 
     const traceCvBar = {
       x: labelsCvTest,
@@ -1286,8 +1521,15 @@ document.addEventListener('DOMContentLoaded', () => {
       ...state.plotlyLayoutBase,
       barmode: 'group',
       title: 'Generalización: CV R² (Train) vs. Test R² (Holdout)',
-      xaxis: { ...state.plotlyLayoutBase.xaxis },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'R² (Escala Log)', range: [0, 0.95] },
+      xaxis: { ...state.plotlyLayoutBase.xaxis, type: 'category' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'R² (Escala Log)',
+        type: 'linear',
+        range: [0, 0.95],
+        dtick: 0.1,
+        tickformat: '.2f'
+      },
       legend: { orientation: 'h', y: -0.22, x: 0.1 },
       margin: { l: 50, r: 25, t: 40, b: 65 }
     };
@@ -1526,7 +1768,67 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultInterval = document.getElementById('resultInterval');
   const resultCategory = document.getElementById('resultSizeCategory');
 
+  function saveSimulatorInputs(result = null) {
+    const payload = {
+      depto: document.getElementById('predDepto')?.value || 'La Paz',
+      sector_macro: document.getElementById('predSector')?.value || 'Industria Manufacturera',
+      personal: parseFloat(document.getElementById('predPersonal')?.value) || 0,
+      sueldos: parseFloat(document.getElementById('predSueldos')?.value) || 0,
+      remuneraciones: parseFloat(document.getElementById('predRemuneraciones')?.value) || 0,
+      energia: parseFloat(document.getElementById('predEnergia')?.value) || 0,
+      activos: parseFloat(document.getElementById('predActivos')?.value) || 0,
+      inventarios: parseFloat(document.getElementById('predInventarios')?.value) || 0,
+      total_valor_co: parseFloat(document.getElementById('predInsumosCompras')?.value) || 0,
+      total_valor_uti: parseFloat(document.getElementById('predInsumosUtil')?.value) || 0,
+      n_insumos: parseInt(document.getElementById('predNInsumos')?.value) || 0
+    };
+
+    const current = SessionStateManager.loadState()?.simulator;
+    SessionStateManager.saveState({
+      simulator: {
+        payload: payload,
+        result: result !== null ? result : (current?.result || null)
+      }
+    });
+  }
+
+  function restoreSimulatorState(savedSim) {
+    if (!savedSim) return;
+    if (savedSim.payload) {
+      const p = savedSim.payload;
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined && val !== null) el.value = val;
+      };
+      setVal('predDepto', p.depto);
+      setVal('predSector', p.sector_macro);
+      setVal('predPersonal', p.personal);
+      setVal('predSueldos', p.sueldos);
+      setVal('predRemuneraciones', p.remuneraciones);
+      setVal('predEnergia', p.energia);
+      setVal('predActivos', p.activos);
+      setVal('predInventarios', p.inventarios);
+      setVal('predInsumosCompras', p.total_valor_co);
+      setVal('predInsumosUtil', p.total_valor_uti);
+      setVal('predNInsumos', p.n_insumos);
+    }
+    if (savedSim.result && savedSim.result.success && resultCard) {
+      resultCard.classList.add('has-result');
+      if (resultAmount) resultAmount.textContent = savedSim.result.prediction_formatted;
+      if (resultInterval) resultInterval.textContent = `${savedSim.result.interval_formatted} · ${savedSim.result.interval_label || ''}`;
+      if (resultCategory) {
+        resultCategory.textContent = savedSim.result.categoria_tamano;
+        resultCategory.className = `size-category-badge ${savedSim.result.categoria_color}`;
+      }
+    }
+  }
+
   if (predictionForm) {
+    predictionForm.querySelectorAll('input, select').forEach(inp => {
+      inp.addEventListener('input', () => saveSimulatorInputs());
+      inp.addEventListener('change', () => saveSimulatorInputs());
+    });
+
     predictionForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -1561,6 +1863,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           resultCategory.textContent = data.categoria_tamano;
           resultCategory.className = `size-category-badge ${data.categoria_color}`;
+          saveSimulatorInputs(data);
         } else if (res.status === 400) {
           resultAmount.textContent = 'Entrada inválida';
           resultInterval.textContent = data.detalle || 'Revise los valores ingresados.';
@@ -1611,16 +1914,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!chartDiv || !state.monitoringData || !state.monitoringData.recent_traffic) return;
 
     const traffic = state.monitoringData.recent_traffic;
-    const hours = traffic.map(t => t.hour_label || t.timestamp.substring(11, 16));
-    const counts = traffic.map(t => t.requests || 1);
-    const latencies = traffic.map(t => t.latency_ms || 12.0);
+    const hours = traffic.map(t => String(t.hour_label || (t.timestamp ? t.timestamp.substring(11, 16) : '--:--')));
+    const counts = traffic.map(t => Number(t.requests || 1));
+    const latencies = traffic.map(t => Number(t.latency_ms || 12.0));
 
     const traceBar = {
       x: hours,
       y: counts,
       name: 'Peticiones / Hora',
       type: 'bar',
-      marker: { color: '#0B3D62' }
+      marker: { color: '#3B82F6', opacity: 0.85 }
     };
 
     const traceLine = {
@@ -1631,18 +1934,29 @@ document.addEventListener('DOMContentLoaded', () => {
       mode: 'lines+markers',
       yaxis: 'y2',
       line: { color: '#F4B400', width: 2.5 },
-      marker: { size: 6 }
+      marker: { size: 7, color: '#F4B400' }
     };
 
     const layout = {
       ...state.plotlyLayoutBase,
       title: 'Volumen Horario de Inferencia y Latencia (/api/predict)',
-      xaxis: { ...state.plotlyLayoutBase.xaxis, title: 'Hora' },
-      yaxis: { ...state.plotlyLayoutBase.yaxis, title: 'Número de Peticiones' },
+      xaxis: { ...state.plotlyLayoutBase.xaxis, type: 'category', title: 'Hora' },
+      yaxis: {
+        ...state.plotlyLayoutBase.yaxis,
+        title: 'Número de Peticiones',
+        type: 'linear',
+        rangemode: 'tozero',
+        dtick: 1,
+        tickformat: 'd'
+      },
       yaxis2: {
         title: 'Latencia (ms)',
+        type: 'linear',
         overlaying: 'y',
         side: 'right',
+        rangemode: 'tozero',
+        dtick: 2,
+        tickformat: '.1f',
         showgrid: false,
         font: state.plotlyLayoutBase.font
       },
@@ -1665,7 +1979,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${r.depto || 'SANTA CRUZ'}</td>
           <td>${r.sector_macro || 'Comercio Mayorista'}</td>
           <td>Bs ${r.predicted_bs ? formatMoney(r.predicted_bs) : '18.45 M'}</td>
-          <td>${r.latency_ms ? r.latency_ms.toFixed(1) + ' ms' : '14.2 ms'}</td>
+          <td>${r.latency_ms ? Number(r.latency_ms).toFixed(1) + ' ms' : '14.2 ms'}</td>
           <td>
             <span class="status-pill-subtle active">
               ${r.status || '200 OK'}
@@ -1681,7 +1995,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/mlops');
       const data = await res.json();
 
-      document.getElementById('mlopsActiveVersion').textContent = data.active_version;
+      document.getElementById('mlopsActiveVersion').textContent = data.active_version || '—';
       document.getElementById('mlopsModelType').textContent = data.model_type || '—';
       document.getElementById('mlopsSmearingFactor').textContent = data.smearing_factor == null ? '—' : Number(data.smearing_factor).toFixed(4);
       document.getElementById('mlopsLastUpdated').textContent = data.last_updated ? new Date(data.last_updated).toLocaleString('es-BO') : '—';
@@ -1707,7 +2021,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Render Drift List
-      renderDriftList(data.drift_metrics);
+      const savedState = SessionStateManager.loadState();
+      if (savedState?.drift) {
+        renderDriftList(savedState.drift);
+      } else if (data.drift_demostracion) {
+        renderDriftList(data.drift_demostracion);
+      } else {
+        renderDriftList(data.drift_metrics);
+      }
     } catch (e) {
       console.error('Error al cargar MLOps:', e);
     }
@@ -1717,19 +2038,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const list = document.getElementById('driftStatusList');
     if (!list || !driftData) return;
 
-    list.innerHTML = Object.keys(driftData).map(key => {
+    const validKeys = Object.keys(driftData).filter(key => {
       const item = driftData[key];
-      const isDrift = item.drift_detected;
+      return !key.startsWith('__') && key !== 'ventana_horas' && item && typeof item === 'object' && (item.label || item.status || item.ks_stat !== undefined);
+    });
+
+    if (validKeys.length === 0) {
+      list.innerHTML = `
+        <div style="padding: 1.5rem; color: var(--text-muted); text-align: center; font-size: 0.85rem;">
+          No hay datos de deriva disponibles. Haga clic en <strong>Simular Prueba KS</strong> para evaluar variables.
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = validKeys.map(key => {
+      const item = driftData[key];
+      const isDrift = item.drift_detected || item.status === 'DRIFT DETECTADO';
+      const isSinDatos = item.status === 'SIN DATOS';
+      const label = item.label || key;
+      const statusText = item.status || (isDrift ? 'DRIFT DETECTADO' : 'ESTABLE');
+      const badgeClass = isDrift ? 'danger' : isSinDatos ? 'archived' : 'active';
+      const ksInfo = item.ks_stat !== undefined && item.p_value !== undefined
+        ? `KS Stat: ${item.ks_stat} | p-value: ${item.p_value}`
+        : item.n_produccion !== undefined
+          ? `Muestras en producción: ${item.n_produccion} (requiere ≥ 30)`
+          : 'Monitoreo de distribución';
+
       return `
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 0.55rem 0;">
           <div>
-            <div style="font-weight: 600; font-size: 0.85rem;">${item.label}</div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">${label}</div>
             <div style="font-size: 0.72rem; color: var(--text-muted);">
-              KS Stat: ${item.ks_stat} | p-value: ${item.p_value}
+              ${ksInfo}
             </div>
           </div>
-          <span class="status-pill-subtle ${isDrift ? 'danger' : 'active'}">
-            ${item.status}
+          <span class="status-pill-subtle ${badgeClass}">
+            ${statusText}
           </span>
         </div>
       `;
@@ -1744,10 +2089,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetch('/api/mlops/drift', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ feature: 'S02_09' })
+          body: JSON.stringify({ feature: 'S02_09', modo: 'simulado' })
         });
         const data = await res.json();
         renderDriftList(data.drift_results);
+        SessionStateManager.saveState({ drift: data.drift_results });
         btnTestDrift.textContent = 'Simular Prueba KS';
       } catch (e) {
         console.error('Error al simular drift:', e);
@@ -1830,6 +2176,9 @@ document.addEventListener('DOMContentLoaded', () => {
       btnScaleToggle.textContent = state.distributionScale === 'log'
         ? 'Alternar a Escala Natural (Bs)'
         : 'Alternar a Escala Logarítmica log(1+x)';
+      SessionStateManager.saveState({
+        chart_toggles: { distribution_scale: state.distributionScale }
+      });
       renderDistributionChart();
     });
   }
@@ -2190,6 +2539,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const q = (analysisSearchInput ? analysisSearchInput.value : '').toLowerCase().trim();
     const phase = (analysisPhaseFilter ? analysisPhaseFilter.value : '').toLowerCase().trim();
 
+    SessionStateManager.saveState({
+      filters: {
+        analysis_search: q,
+        analysis_phase: phase
+      }
+    });
+
     const filtered = analysisLogData.hitos_analisis.filter(h => {
       const matchPhase = !phase || (h.fase || '').toLowerCase().includes(phase);
       if (!matchPhase) return false;
@@ -2260,6 +2616,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Inicializar vista por defecto (Panorama)
-  switchSection('panorama');
+  // ==========================================================================
+  // RESTAURACIÓN DE SESIÓN Y ENLACES DIRECTOS (HASH ROUTING)
+  // ==========================================================================
+  function restoreSessionState() {
+    const saved = SessionStateManager.loadState() || {};
+    const hash = SessionStateManager.parseHash();
+
+    // 1. Restaurar Filtros
+    if (saved.filters) {
+      if (riskSearchInput && saved.filters.risk_search) riskSearchInput.value = saved.filters.risk_search;
+      if (riskFilterSelect && saved.filters.risk_level) riskFilterSelect.value = saved.filters.risk_level;
+      if (riskDeptoFilter && saved.filters.risk_depto) riskDeptoFilter.value = saved.filters.risk_depto;
+      if (analysisSearchInput && saved.filters.analysis_search) analysisSearchInput.value = saved.filters.analysis_search;
+      if (analysisPhaseFilter && saved.filters.analysis_phase) analysisPhaseFilter.value = saved.filters.analysis_phase;
+    }
+
+    // 2. Restaurar Simulador
+    if (saved.simulator) {
+      restoreSimulatorState(saved.simulator);
+    }
+
+    // 3. Restaurar Toggles de Gráficos
+    if (saved.chart_toggles) {
+      if (saved.chart_toggles.heatmap_metric) {
+        state.heatmapMetric = saved.chart_toggles.heatmap_metric;
+        updateHeatmapMetricBtns(state.heatmapMetric, false);
+      }
+      if (saved.chart_toggles.distribution_scale) {
+        state.distributionScale = saved.chart_toggles.distribution_scale;
+        if (btnScaleToggle) {
+          btnScaleToggle.textContent = state.distributionScale === 'log'
+            ? 'Alternar a Escala Natural (Bs)'
+            : 'Alternar a Escala Logarítmica log(1+x)';
+        }
+      }
+    }
+
+    // 4. Determinar sección y subtab inicial (URL Hash prevalece sobre localStorage)
+    const targetSection = hash?.section || saved.active_section || 'panorama';
+    const targetSubtab = hash?.subtab || saved?.active_subtabs?.[targetSection] || null;
+
+    switchSection(targetSection, targetSubtab, true);
+  }
+
+  // Sincronizar navegación cuando el usuario usa atrás/adelante en el navegador
+  window.addEventListener('hashchange', () => {
+    const hash = SessionStateManager.parseHash();
+    if (hash && hash.section) {
+      if (hash.section !== state.activeSection || (hash.subtab && hash.subtab !== SessionStateManager.loadState()?.active_subtabs?.[hash.section])) {
+        switchSection(hash.section, hash.subtab, false);
+      }
+    }
+  });
+
+  // Inicializar restaurando estado persistido
+  restoreSessionState();
 });
