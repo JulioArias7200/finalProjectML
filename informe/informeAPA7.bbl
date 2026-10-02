@@ -28,11 +28,14 @@ Duan, N. (1983).
 \newblock {\em Journal of the American Statistical Association},
   78(383):605--610.
 
-\bibitem[{Gobierno de Bolivia}, 1976]{ley1405}
-{Gobierno de Bolivia} (1976).
-\newblock Decreto ley n$^\circ$ 1405: Ley del sistema nacional de
-  informaci{\'o}n estad{\'\i}stica y secreto estad{\'\i}stico.
-\newblock Gaceta Oficial de Bolivia.
+\bibitem[{Estado Plurinacional de Bolivia}, 2021]{ley1405}
+{Estado Plurinacional de Bolivia} (2021).
+\newblock Ley n$^\circ$ 1405 de estad{\'\i}sticas oficiales del estado
+  plurinacional de bolivia: R{\'e}gimen del sistema de informaci{\'o}n
+  estad{\'\i}stica, secreto estad{\'\i}stico y protecci{\'o}n de datos.
+\newblock Gaceta Oficial del Estado Plurinacional de Bolivia. Edici{\'o}n
+  N$^\circ$ 1450NEC. Disponible en:
+  \url{https://www.lexivox.org/norms/BO-L-N1405.html}.
 
 \bibitem[Hastie et~al., 2009]{hastie2009elements}
 Hastie, T., Tibshirani, R., and Friedman, J. (2009).
