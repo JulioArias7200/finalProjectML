@@ -8,9 +8,10 @@ Este directorio contiene cuadernos interactivos Jupyter Notebook utilizados para
 
 ```text
 notebooks/
-├── README.md                    -> Guía y documentación de los cuadernos de trabajo
-├── convertir.ipynb              -> Conversión automatizada de microdatos SPSS (.sav) a CSV (.csv)
-└── comparacion_modelos.ipynb   -> Benchmark experimental, 5-Fold CV y evaluación de 7 modelos de regresión
+├── README.md                            -> Guía y documentación de los cuadernos de trabajo
+├── convertir.ipynb                      -> Conversión automatizada de microdatos SPSS (.sav) a CSV (.csv)
+├── 01_preprocesamiento_y_muestreo.ipynb -> Pipeline interactivo de ingestión, limpieza, ingeniería y muestreo
+└── comparacion_modelos.ipynb           -> Benchmark experimental, 5-Fold CV y evaluación de 7 modelos de regresión
 ```
 
 ---
@@ -27,7 +28,21 @@ notebooks/
 
 ---
 
-### 2. `comparacion_modelos.ipynb`
+### 2. `01_preprocesamiento_y_muestreo.ipynb`
+* **Propósito:** Demostrar de forma didáctica, visual y reproducible el flujo completo de ingeniería de datos desde los microdatos crudos hasta los conjuntos de modelado:
+  1. *Ingestión y auditoría de integridad* ($N = 3,153$ empresas y $6,428$ registros de insumos).
+  2. *Limpieza de centinelas e inconsistencias* (tratamiento de negativos y validación del código `99999`).
+  3. *Agregación relacional N-a-1* (cálculo de variedad `n_insumos`, compras `total_valor_co` y consumo `total_valor_uti`).
+  4. *Fusión 1-a-1 y normalización categórica* (departamentos y mapeo CAEB a macrosectores con gráficos de barras).
+  5. *Conciliación del target y prevención de fuga de datos* (conciliación `S00_01_A` vs `S05_04` con `Decimal` y exclusión de 19 variables *leakage*).
+  6. *Estabilización de varianza* (transformación `log1p` con histogramas comparativos).
+  7. *Muestreo estratificado en 3 cohortes* (Entrenamiento 60%, Calibración Conformal 20%, Prueba Ciega 20% mediante deciles del target).
+  8. *Aserciones de contrato y exportación* hacia `data/processed/dataset_procesado.csv`.
+* **Librerías utilizadas:** `pandas`, `numpy`, `matplotlib`, `seaborn`, `decimal`, `sklearn`.
+
+---
+
+### 3. `comparacion_modelos.ipynb`
 * **Propósito:** Benchmark experimental y reproducible que compara el desempeño de **7 algoritmos de regresión supervisada** sobre el dataset oficial procesado ($N = 3,153$ empresas) bajo validación cruzada estratificada de 5 pliegues (*5-Fold Stratified CV* por quintiles de ingreso):
   1. `LinearRegression` (Línea base OLS sin regularización)
   2. `Ridge` (Regularización $L_2$)
