@@ -1,7 +1,7 @@
 {
-  "run_id": "RUN-20260929-b3cfc0795ed7",
+  "run_id": "RUN-20261002-acff5297c9b3",
   "cohorte": {
-    "preprocesamiento_run_id": "PRE-20260928-d004f6ddd436",
+    "preprocesamiento_run_id": "PRE-20261002-d004f6ddd436",
     "n_total": 3153,
     "n_entrenamiento_ajuste": 1891,
     "n_calibracion": 631,

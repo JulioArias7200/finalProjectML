@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-28T22:33:47.067709",
-  "run_id": "PRE-20260928-d004f6ddd436",
+  "timestamp": "2026-10-02T16:34:16.021498",
+  "run_id": "PRE-20261002-d004f6ddd436",
   "dataset_nombre": "EAIMCS 2017-2018 (INE Bolivia)",
   "total_etapas": 5,
   "filas_iniciales": 3153,
@@ -60,8 +60,8 @@
     }
   ],
   "quality_report": {
-    "generated_at": "2026-09-28T22:33:47.067718",
-    "run_id": "PRE-20260928-d004f6ddd436",
+    "generated_at": "2026-10-02T16:34:16.021516",
+    "run_id": "PRE-20261002-d004f6ddd436",
     "source_sha256": {
       "MOD_ANUAL_S01-07_12_general_i.csv": "e711b839d1e83e62b7e81ec64d0f64ea7a2d0eb06974662e99c5bfdc204927f7",
       "MOD_ANUAL_S10_materiales_i.csv": "b41ad4ed15c427cb20c25a76732ff43f47834158b7eadf6c58a5141b80e18b4a"

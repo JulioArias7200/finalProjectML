@@ -147,7 +147,7 @@
     "poblacion": "casos completos en variables de drift (S01_05_A, S01_03_C, S02_09, S07_09_E, total_valor_uti)",
     "n_poblacion": 1614,
     "n_total": 3153,
-    "run_id_pre": "PRE-20260928-d004f6ddd436",
+    "run_id_pre": "PRE-20261002-d004f6ddd436",
     "nota": "Claves _* son metadatos; el resto mapea variable -> estadisticos de referencia."
   }
 }
