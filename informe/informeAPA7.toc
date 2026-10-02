@@ -17,25 +17,25 @@
 \contentsline {subsection}{\numberline {5.3}Justificación Metodológica}{16}{subsection.5.3}%
 \contentsline {section}{\numberline {6}Metodología, Desarrollo y Validación}{17}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Pipeline de Preprocesamiento e Ingeniería de Datos}{17}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Formulación Matemática del Modelo y Calibración}{18}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.2}Formulación Matemática del Modelo y Calibración}{19}{subsection.6.2}%
 \contentsline {subsubsection}{\numberline {6.2.1}Corrección del Sesgo de Retransformación (Duan Smearing)}{19}{subsubsection.6.2.1}%
-\contentsline {subsubsection}{\numberline {6.2.2}Construcción de Intervalos de Predicción al 90\%}{19}{subsubsection.6.2.2}%
-\contentsline {subsection}{\numberline {6.3}Estrategia de Validación Cruzada (5-Fold Stratified CV)}{20}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}Benchmark y Comparación de Modelos de Regresión}{20}{subsection.6.4}%
-\contentsline {subsubsection}{\numberline {6.4.1}Justificación de la Selección del Modelo Campeón}{21}{subsubsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.5}Análisis de Importancia de Variables (\textit {Feature Importance})}{22}{subsection.6.5}%
-\contentsline {subsection}{\numberline {6.6}Sistema de Priorización y Clasificación de Riesgo}{22}{subsection.6.6}%
-\contentsline {section}{\numberline {7}Herramientas y Técnicas}{24}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Ecosistema Científico y de Modelado (Python)}{24}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Arquitectura Web y Catálogo de la API REST (Flask)}{25}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Interfaz Interactiva y Visualización de Datos (Plotly.js)}{25}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}Técnicas Matemáticas de Gobernanza MLOps y Monitoreo de Data Drift}{26}{subsection.7.4}%
-\contentsline {subsubsection}{\numberline {7.4.1}Test de Dos Muestras de Kolmogorov-Smirnov (KS)}{26}{subsubsection.7.4.1}%
-\contentsline {subsubsection}{\numberline {7.4.2}Distancia de Wasserstein de Primer Orden (\textit {Earth Mover's Distance})}{26}{subsubsection.7.4.2}%
-\contentsline {subsubsection}{\numberline {7.4.3}Corrección de Bonferroni para Pruebas Múltiples}{27}{subsubsection.7.4.3}%
-\contentsline {section}{\numberline {8}Conclusiones}{28}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Limitaciones del Estudio}{29}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Recomendaciones y Trabajo Futuro}{30}{subsection.8.2}%
-\contentsline {section}{\numberline {A}Ficha Técnica de la Encuesta EAIMCS (INE Bolivia)}{33}{appendix.Alph1}%
-\contentsline {section}{\numberline {B}Matriz de Marco Lógico (MML) del Proyecto}{33}{appendix.Alph2}%
-\contentsline {section}{\numberline {C}Diccionario de Variables Productivas Empleadas}{35}{appendix.Alph3}%
+\contentsline {subsubsection}{\numberline {6.2.2}Construcción de Intervalos de Predicción al 90\%}{21}{subsubsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.3}Estrategia de Validación Cruzada (5-Fold Stratified CV)}{21}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Benchmark y Comparación de Modelos de Regresión}{22}{subsection.6.4}%
+\contentsline {subsubsection}{\numberline {6.4.1}Justificación de la Selección del Modelo Campeón}{22}{subsubsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.5}Análisis de Importancia de Variables (\textit {Feature Importance})}{25}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Sistema de Priorización y Clasificación de Riesgo}{26}{subsection.6.6}%
+\contentsline {section}{\numberline {7}Herramientas y Técnicas}{28}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Ecosistema Científico y de Modelado (Python)}{28}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Arquitectura Web y Catálogo de la API REST (Flask)}{29}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Interfaz Interactiva y Visualización de Datos (Plotly.js)}{29}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Técnicas Matemáticas de Gobernanza MLOps y Monitoreo de Data Drift}{30}{subsection.7.4}%
+\contentsline {subsubsection}{\numberline {7.4.1}Test de Dos Muestras de Kolmogorov-Smirnov (KS)}{33}{subsubsection.7.4.1}%
+\contentsline {subsubsection}{\numberline {7.4.2}Distancia de Wasserstein de Primer Orden (\textit {Earth Mover's Distance})}{33}{subsubsection.7.4.2}%
+\contentsline {subsubsection}{\numberline {7.4.3}Corrección de Bonferroni para Pruebas Múltiples}{33}{subsubsection.7.4.3}%
+\contentsline {section}{\numberline {8}Conclusiones}{35}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Limitaciones del Estudio}{36}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Recomendaciones y Trabajo Futuro}{37}{subsection.8.2}%
+\contentsline {section}{\numberline {A}Ficha Técnica de la Encuesta EAIMCS (INE Bolivia)}{40}{appendix.Alph1}%
+\contentsline {section}{\numberline {B}Matriz de Marco Lógico (MML) del Proyecto}{40}{appendix.Alph2}%
+\contentsline {section}{\numberline {C}Diccionario de Variables Productivas Empleadas}{42}{appendix.Alph3}%

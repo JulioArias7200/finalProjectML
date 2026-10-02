@@ -31,8 +31,30 @@ El procesamiento de los microdatos se organizó en un pipeline modular y determi
         y_{\log} = \ln(y + 1), \quad X_{\log, j} = \ln(X_j + 1)
         \label{eq:log1p}
     \end{equation}
-    Esta transformación estabiliza la varianza de los residuos y aproxima la distribución de errores a una forma cuasi-normal homocedástica.
+    Esta transformación estabiliza la varianza de los residuos y aproxima la distribución de errores a una forma cuasi-normal homocedástica, como se ilustra en la Figura \ref{fig:distribucion_asimetria_log}.
 \end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\caption{Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada.}
+\label{fig:distribucion_asimetria_log}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/distribucion_asimetria_log.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Comparativa de histogramas y boxplots del ingreso operativo en Bolivianos brutos (panel izquierdo, severamente asimétrico hacia la derecha) frente a la distribución log-normal estabilizada mediante $\ln(1+y)$ (panel derecho, apta para modelado supervisado).
+\end{figure}
+
+Asimismo, en la Figura \ref{fig:correlacion_heatmap} se presenta la matriz de correlación lineal entre las variables productivas normalizadas y la variable objetivo, evidenciando una fuerte asociación positiva entre la dotación de insumos y el volumen de ingresos.
+
+\begin{figure}[htbp]
+\centering
+\caption{Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo.}
+\label{fig:correlacion_heatmap}
+\includegraphics[width=0.85\textwidth,keepaspectratio]{imagenes/correlacion_heatmap.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Coeficientes de correlación de Pearson entre los 7 predictores cuantitativos principales y la variable objetivo en escala logarítmica, destacando la masa salarial ($r = 0.81$) y los activos fijos ($r = 0.68$) como los determinantes más correlacionados.
+\end{figure}
 
 \subsection{Formulación Matemática del Modelo y Calibración}
 La especificación base del modelo de aprendizaje supervisado en el espacio transformado se define como:
@@ -74,7 +96,17 @@ Para garantizar la validez externa de los resultados y prevenir el sobreajuste (
     \item Conjunto de Entrenamiento: 80\% ($N_{\text{train}} = 2,522$ empresas).
     \item Conjunto de Prueba (\textit{Hold-Out Test}): 20\% ($N_{\text{test}} = 631$ empresas).
 \end{itemize}
-La partición se estratificó en cinco estratos homogéneos definidos por los quintiles de la variable objetivo log-transformada (\texttt{StratifiedKFold}), asegurando que tanto las empresas medianas como las grandes estuvieran representadas equitativamente en cada pliegue y en el set de prueba. En la fase de entrenamiento, se ejecutó una validación cruzada estratificada de 5 particiones fijando la semilla aleatoria en 42.
+La partición se estratificó en cinco estratos homogéneos definidos por los quintiles de la variable objetivo log-transformada (\texttt{StratifiedKFold}), asegurando que tanto las empresas medianas como las grandes estuvieran representadas equitativamente en cada pliegue y en el set de prueba. En la fase de entrenamiento, se ejecutó una validación cruzada estratificada de 5 particiones fijando la semilla aleatoria en 42. En la Figura \ref{fig:cv_estabilidad_folds} se ilustra la consistencia del coeficiente de determinación a través de las 5 particiones.
+
+\begin{figure}[htbp]
+\centering
+\caption{Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV).}
+\label{fig:cv_estabilidad_folds}
+\includegraphics[width=0.88\textwidth,keepaspectratio]{imagenes/cv_estabilidad_folds.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Comparación de la estabilidad fold por fold y distribución en boxplot del $R^2$ para los tres modelos en arquitectura de producción (Ridge, Random Forest y HistGradientBoosting). Random Forest mantiene una varianza mínima entre particiones ($\sigma_{R^2} < 0.015$).
+\end{figure}
 
 \subsection{Benchmark y Comparación de Modelos de Regresión}
 Se entrenaron y evaluaron exhaustivamente \textbf{siete familias de algoritmos} bajo idénticas condiciones de preprocesamiento y validación. La Tabla \ref{tab:comparacion_modelos} resume las métricas de desempeño registradas en la bitácora oficial del proyecto (\texttt{bitacora\_modelos.json}).
@@ -112,6 +144,28 @@ Como se evidencia en la Tabla \ref{tab:comparacion_modelos}:
     \item El algoritmo \textbf{Random Forest} ($120$ árboles, $\text{max\_depth} = 16$, $\text{min\_samples\_split} = 4$) fue seleccionado como el \textbf{Modelo Campeón de Producción} debido a que obtuvo el mayor $R^2$ en escala natural retransformada ($R^2_{\text{Bs}} = 0.7529$), el menor error mediano relativo ($\text{MedAPE} = 36.20\%$, superando la meta de $\le 40\%$), la máxima estabilidad en colas pesadas y una interpretabilidad directa mediante la reducción de impureza de Gini.
 \end{itemize}
 
+En la Figura \ref{fig:dispersion_real_vs_predicho} se contrasta la dispersión entre los ingresos reales y las predicciones en el conjunto de prueba independiente ($N_{\text{test}} = 631$), junto con los límites empíricos de cobertura conformal al 90\%. Complementariamente, en la Figura \ref{fig:residuos_homocedasticidad} se presenta el diagnóstico de normalidad y homocedasticidad de los residuos del modelo.
+
+\begin{figure}[htbp]
+\centering
+\caption{Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%.}
+\label{fig:dispersion_real_vs_predicho}
+\includegraphics[width=0.90\textwidth,keepaspectratio]{imagenes/dispersion_real_vs_predicho.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Dispersión en escala logarítmica para el conjunto de prueba independiente ($N = 631$). La línea roja discontinua representa el ajuste ideal ($y = \hat{y}$), mientras que las bandas sombreadas delimitan el intervalo de predicción empírico al 90\% (cobertura empírica observada: 90.33\%).
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\caption{Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad.}
+\label{fig:residuos_homocedasticidad}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/residuos_homocedasticidad.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Panel izquierdo: distribución de residuos $e = y_{\log} - \hat{y}_{\log}$ centrada en cero con ajuste gaussiano teórico. Panel derecho: residuos vs. valores ajustados, demostrando la ausencia de patrones sistemáticos de heterocedasticidad a lo largo del rango de escala productiva.
+\end{figure}
+
 \subsection{Análisis de Importancia de Variables (\textit{Feature Importance})}
 El ranking de importancia relativa extraído del ensamble Random Forest reveló que los cuatro predictores con mayor poder explicativo sobre el ingreso operativo son:
 \begin{enumerate}
@@ -133,3 +187,15 @@ El sistema clasifica el 100\% de las empresas en tres estratos de riesgo:
     \item \textbf{Riesgo Medio ($30\% < |\Delta_i| \le 60\%$):} Empresas que presentan discrepancias moderadas respecto al promedio sectorial.
     \item \textbf{Riesgo Alto ($|\Delta_i| > 60\%$ con $y_{\text{real}} < \text{IC}_{\text{inf}}$):} Empresas cuyos ingresos declarados se ubican severamente por debajo del umbral mínimo plausible para su acervo de capital y personal, catalogadas como prioritarias para auditoría fiscal preventiva.
 \end{itemize}
+
+En la Figura \ref{fig:dashboard_auditoria_riesgo} se muestra la implementación interactiva de este módulo en el dashboard, permitiendo la exploración de casos con discrepancias extremas bajo reserva de confidencialidad.
+
+\begin{figure}[htbp]
+\centering
+\caption{Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo.}
+\label{fig:dashboard_auditoria_riesgo}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/dashboard_auditoria_riesgo.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Panel de fiscalización y auditoría que presenta el semáforo de riesgo para el universo empresarial evaluado, con filtros por departamento, sector económico e intervalo conformal.
+\end{figure}

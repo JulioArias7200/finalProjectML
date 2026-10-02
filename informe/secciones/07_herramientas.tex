@@ -27,6 +27,38 @@ La capa de presentación fue construida siguiendo el paradigma de \textit{Single
     \item \textbf{Diseño Visual Corporativo y Accesibilidad:} Implementación de un sistema de diseño con paleta de colores armónica, glassmorphism sutil y soporte dinámico para modo oscuro (\textit{Dark Mode}) y modo claro (\textit{Light Mode}).
 \end{itemize}
 
+En las Figuras \ref{fig:dashboard_panorama_heatmap}, \ref{fig:dashboard_comparativa_baseline} y \ref{fig:dashboard_simulador_conformal} se ilustran las interfaces de los módulos operativos del dashboard implementado.
+
+\begin{figure}[htbp]
+\centering
+\caption{Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica.}
+\label{fig:dashboard_panorama_heatmap}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/dashboard_panorama_heatmap.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Panel interactivo que presenta indicadores clave (KPIs de masa salarial, activos y valor agregado), mapa de calor correlacional y distribución territorial desagregada por departamento.
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\caption{Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base.}
+\label{fig:dashboard_comparativa_baseline}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/dashboard_comparativa_baseline.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Tablero analítico que compara cuantitativamente el desempeño de modelos no entrenados (Mediana, Regresión Simple) frente a los pipelines de Machine Learning (Ridge, Random Forest y HistGradientBoosting).
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\caption{Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%.}
+\label{fig:dashboard_simulador_conformal}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/dashboard_simulador_conformal.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Simulador interactivo en el que el analista ingresa los parámetros físicos y laborales de una empresa, obteniendo la estimación puntual en Bolivianos calibrada por Duan Smearing, el rango de predicción al 90\% y la clasificación de riesgo.
+\end{figure}
+
 \subsection{Técnicas Matemáticas de Gobernanza MLOps y Monitoreo de Data Drift}
 Dado que las condiciones macroeconómicas (inflación, variaciones de precios de insumos importados o shocks de demanda) pueden degradar la validez de un modelo entrenado con datos de 2017--2018, se implementó un sistema automatizado de detección de deriva estadística (\textit{Data Drift}) sustentado en dos pruebas complementarias:
 
@@ -44,7 +76,17 @@ A diferencia del test KS (que solo mide la máxima discrepancia vertical), la di
     W_1(u, v) = \int_{-\infty}^{+\infty} |U(x) - V(x)| \, dx
     \label{eq:wasserstein}
 \end{equation}
-donde $U(x)$ y $V(x)$ son las funciones de distribución acumulada de las muestras de referencia y de monitoreo, respectivamente. Esta métrica es insensible a fluctuaciones locales menores y provee una magnitud física del desplazamiento promedio en la escala de cada variable productiva.
+donde $U(x)$ y $V(x)$ son las funciones de distribución acumulada de las muestras de referencia y de monitoreo, respectivamente. Esta métrica es insensible a fluctuaciones locales menores y provee una magnitud física del desplazamiento promedio en la escala de cada variable productiva. En la Figura \ref{fig:data_drift_kolmogorov} se ilustra la comparación de curvas CDF y la cuantificación de $D_{KS}$ y $W_1$ ante escenarios de monitoreo.
+
+\begin{figure}[htbp]
+\centering
+\caption{Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF).}
+\label{fig:data_drift_kolmogorov}
+\includegraphics[width=0.92\textwidth,keepaspectratio]{imagenes/data_drift_kolmogorov.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Funciones de distribución empírica acumulada $F(x)$ para tres variables críticas (Masa Salarial, Activos Fijos y Materias Primas). Se ilustra la distancia máxima vertical de Kolmogorov-Smirnov ($D_{KS}$) y el área integrada de Wasserstein ($W_1$) entre la línea base de entrenamiento y un lote de monitoreo.
+\end{figure}
 
 \subsubsection{Corrección de Bonferroni para Pruebas Múltiples}
 Al evaluar simultáneamente $k = 11$ predictores continuos para detectar deriva, la probabilidad de cometer al menos un error de Tipo I (falso positivo) se incrementa según $1 - (1 - \alpha)^k$. Para controlar la tasa de error por familia (FWER), se implementa la corrección clásica de Bonferroni \citep{bonferroni1936teoria}:
