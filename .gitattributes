@@ -1,0 +1,14 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Explicit binary files
+*.joblib binary
+*.pkl binary
+*.sav binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.zip binary

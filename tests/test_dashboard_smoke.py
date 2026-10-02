@@ -69,11 +69,13 @@ class DashboardSmokeTests(unittest.TestCase):
         self.assertIn("status === 'suppressed'", js)
         self.assertIn("yaxis2", js)  # MedAPE en eje separado, nunca mezclado con R²
         self.assertIn("D04", js)
-        html = (PROJECT_ROOT / "dashboard" / "templates" / "index.html").read_text(encoding="utf-8")
+        res = self.client.get("/")
+        html = res.data.decode("utf-8")
         self.assertNotIn("predCapacidadMP", html)  # campo retirado del simulador (D07)
 
     def test_predict_form_fields_match_whitelist(self):
-        html = (PROJECT_ROOT / "dashboard" / "templates" / "index.html").read_text(encoding="utf-8")
+        res = self.client.get("/")
+        html = res.data.decode("utf-8")
         js = (PROJECT_ROOT / "dashboard" / "static" / "js" / "app.js").read_text(encoding="utf-8")
         for required in [
             "predDepto", "predSector", "predPersonal", "predSueldos", "predRemuneraciones",

@@ -79,6 +79,13 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def get_file_hashes(path: Path) -> set:
+    """Calcula hashes SHA-256 tolerando normalización de saltos de línea (CRLF/LF)."""
+    raw = path.read_bytes()
+    raw_lf = raw.replace(b"\r\n", b"\n")
+    return {hashlib.sha256(raw).hexdigest(), hashlib.sha256(raw_lf).hexdigest()}
+
+
 def load_dashboard_artifacts() -> None:
     """Carga atómica del paquete: manifest + hashes + run_id coherente, o rechazo total (A07)."""
     global MODEL, REGISTRY, FEATURE_IMPORTANCE, TEST_DIAGNOSTICS, CV_RESULTS
@@ -94,8 +101,8 @@ def load_dashboard_artifacts() -> None:
             artifact_path = ARTIFACTS_DIR / name
             if not artifact_path.exists():
                 raise FileNotFoundError(f"Artefacto ausente del paquete {run_id}: {name}")
-            actual_hash = sha256_file(artifact_path)
-            if actual_hash != expected_hash:
+            actual_hashes = get_file_hashes(artifact_path)
+            if expected_hash not in actual_hashes:
                 raise ValueError(f"Hash incompatible en {name}: el paquete {run_id} está mezclado o alterado")
         MODEL = joblib.load(ARTIFACTS_DIR / "best_model.joblib")
         with open(ARTIFACTS_DIR / "registry.json", "r", encoding="utf-8") as f:

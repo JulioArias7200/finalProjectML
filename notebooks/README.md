@@ -1,6 +1,6 @@
-# Cuadernos de Exploración y Conversión (`notebooks/`)
+# Cuadernos de Exploración, Conversión y Benchmark (`notebooks/`)
 
-Este directorio contiene cuadernos interactivos Jupyter Notebook utilizados para tareas iniciales de exploración de datos, pruebas de concepto y conversión de formatos de microdatos.
+Este directorio contiene cuadernos interactivos Jupyter Notebook utilizados para la extracción inicial de microdatos, pruebas de concepto y la evaluación experimental rigurosa de algoritmos de Machine Learning del proyecto **AprendizajeSupervisadoML** (EAIMCS - INE Bolivia).
 
 ---
 
@@ -8,43 +8,56 @@ Este directorio contiene cuadernos interactivos Jupyter Notebook utilizados para
 
 ```text
 notebooks/
-├── README.md              -> Esta guía de uso de cuadernos
-└── convertir.ipynb        -> Conversión automatizada de archivos SPSS (.sav) a CSV (.csv)
+├── README.md                    -> Guía y documentación de los cuadernos de trabajo
+├── convertir.ipynb              -> Conversión automatizada de microdatos SPSS (.sav) a CSV (.csv)
+└── comparacion_modelos.ipynb   -> Benchmark experimental, 5-Fold CV y evaluación de 7 modelos de regresión
 ```
 
 ---
 
 ## 2. Descripción de Cuadernos
 
-### [convertir.ipynb](file:///c:/Users/RAQUEL%20SERRANO/OneDrive/Documentos/AprendizajeSupervisadoML/notebooks/convertir.ipynb)
-- **Propósito:** Automatizar la extracción y exportación de microdatos provenientes del INE en formato IBM SPSS Statistics (`.sav`) hacia formato texto delimitado por comas (`.csv`, codificación UTF-8), garantizando su lectura eficiente y liviana dentro de los pipelines de Python.
-- **Librerías utilizadas:** `pandas`, `pyreadstat`.
-- **Flujo de operación:**
-  1. Identifica los archivos `.sav` de entrada (`MOD_ANUAL_S01-07_12_general_i.sav` y `MOD_ANUAL_S10_materiales_i.sav`).
-  2. Ejecuta `pandas.read_spss()`.
-  3. Exporta con `to_csv(index=False, encoding='utf-8')` sin alterar los valores originales ni nombres de columnas.
+### 1. `convertir.ipynb`
+* **Propósito:** Automatizar la extracción y exportación de microdatos oficiales del INE en formato IBM SPSS Statistics (`.sav`) hacia formato texto delimitado por comas (`.csv`, codificación UTF-8), garantizando su lectura eficiente y liviana dentro de los pipelines de Python.
+* **Librerías utilizadas:** `pandas`, `pyreadstat`, `os`.
+* **Archivos procesados:**
+  * `MOD_ANUAL_S01-07_12_general_i.sav` $\rightarrow$ `MOD_ANUAL_S01-07_12_general_i.csv`
+  * `MOD_ANUAL_S10_materiales_i.sav` $\rightarrow$ `MOD_ANUAL_S10_materiales_i.csv`
+* **Estado:** Los archivos ya se encuentran generados en `data/raw/`, por lo que su reejecución es opcional.
+
+---
+
+### 2. `comparacion_modelos.ipynb`
+* **Propósito:** Benchmark experimental y reproducible que compara el desempeño de **7 algoritmos de regresión supervisada** sobre el dataset oficial procesado ($N = 3,153$ empresas) bajo validación cruzada estratificada de 5 pliegues (*5-Fold Stratified CV* por quintiles de ingreso):
+  1. `LinearRegression` (Línea base OLS sin regularización)
+  2. `Ridge` (Regularización $L_2$)
+  3. `ElasticNet` (Regularización combinada $L_1 + L_2$)
+  4. `RandomForestRegressor` (**Modelo Campeón Serializado**)
+  5. `HistGradientBoostingRegressor` (Boosting con discretización por histogramas)
+  6. `XGBRegressor` (XGBoost optimizado)
+  7. `TweedieRegressor` (GLM Compound Poisson-Gamma con enlace logarítmico)
+* **Métricas calculadas:** $R^2$, $RMSE$, $MAE$ y $MedAPE (\%)$ tanto en escala logarítmica como monetaria (Bs) con corrección de sesgo de Duan Smearing y cálculo de cobertura empírica al 90%.
+* **Salidas:** Generación de gráficos comparativos con barras de error ($\pm 1\sigma$) y exportación auditable hacia `models/bitacora_modelos.json`.
 
 ---
 
 ## 3. Instrucciones de Ejecución
 
-Para abrir y ejecutar los cuadernos:
-
-1. Asegúrate de tener activo el entorno virtual del proyecto:
+1. **Activar el entorno virtual del proyecto:**
    ```bash
    # En Windows:
    .\venv\Scripts\activate
    # En Linux / macOS:
    source venv/bin/activate
    ```
-2. Instala el soporte de Jupyter si no está presente:
-   ```bash
-   pip install jupyter
-   ```
-3. Inicia Jupyter Lab o Notebook:
+
+2. **Iniciar Jupyter Notebook o JupyterLab:**
    ```bash
    jupyter notebook
+   # o bien:
+   jupyter lab
    ```
-4. Navega a `notebooks/convertir.ipynb` y ejecuta las celdas en orden.
 
-> ⚠️ **Nota:** Los archivos `.csv` ya se encuentran generados en `data/raw/`, por lo que **no es obligatorio** reejecutar este cuaderno para utilizar el pipeline principal de preprocesamiento, entrenamiento o el dashboard.
+3. **Ejecutar los cuadernos:**
+   * Para explorar los modelos y replicar el benchmark: abrir y ejecutar `notebooks/comparacion_modelos.ipynb`.
+   * El cuaderno carga automáticamente `data/processed/dataset_procesado.csv` y utiliza las semillas y constantes oficiales del proyecto (`RANDOM_STATE_SEED = 42`).

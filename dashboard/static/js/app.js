@@ -649,11 +649,27 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadKPIs() {
     try {
       const res = await fetch('/api/kpis');
+      if (!res.ok) {
+        console.warn('API /api/kpis respondió con código:', res.status);
+        return;
+      }
       const data = await res.json();
-      document.getElementById('kpiTotalEmpresas').textContent = Number(data.total_empresas).toLocaleString('es-BO');
-      document.getElementById('kpiIngresoMediano').textContent = `Bs ${(data.ingreso_mediano / 1e6).toFixed(2)} M`;
-      document.getElementById('kpiIngresoPromedio').textContent = `Bs ${(data.ingreso_promedio / 1e6).toFixed(2)} M`;
-      document.getElementById('kpiDeptos').textContent = `${data.num_departamentos} Deptos`;
+      if (!data || data.error) {
+        console.warn('API /api/kpis retornó error:', data?.error, data?.detalle);
+        return;
+      }
+      if (data.total_empresas !== undefined && document.getElementById('kpiTotalEmpresas')) {
+        document.getElementById('kpiTotalEmpresas').textContent = Number(data.total_empresas).toLocaleString('es-BO');
+      }
+      if (data.ingreso_mediano !== undefined && document.getElementById('kpiIngresoMediano')) {
+        document.getElementById('kpiIngresoMediano').textContent = `Bs ${(Number(data.ingreso_mediano) / 1e6).toFixed(2)} M`;
+      }
+      if (data.ingreso_promedio !== undefined && document.getElementById('kpiIngresoPromedio')) {
+        document.getElementById('kpiIngresoPromedio').textContent = `Bs ${(Number(data.ingreso_promedio) / 1e6).toFixed(2)} M`;
+      }
+      if (data.num_departamentos !== undefined && document.getElementById('kpiDeptos')) {
+        document.getElementById('kpiDeptos').textContent = `${data.num_departamentos} Deptos`;
+      }
     } catch (e) {
       console.error('Error al cargar KPIs:', e);
     }

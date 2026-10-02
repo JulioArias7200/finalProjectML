@@ -18,12 +18,10 @@ EXCLUDED_FOR_LEAKAGE = [
 ]
 
 
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as source:
-        for chunk in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+def get_file_hashes(path: Path) -> set:
+    raw = path.read_bytes()
+    raw_lf = raw.replace(b"\r\n", b"\n")
+    return {hashlib.sha256(raw).hexdigest(), hashlib.sha256(raw_lf).hexdigest()}
 
 
 class ModelEvaluationTests(unittest.TestCase):
@@ -46,7 +44,7 @@ class ModelEvaluationTests(unittest.TestCase):
         self.assertEqual(self.active["run_id"], run_id)
         self.assertEqual(set(self.test_predictions["run_id"].unique()), {run_id})
         for name, expected_hash in self.manifest["artifacts"].items():
-            self.assertEqual(sha256_file(ARTIFACTS / name), expected_hash, name)
+            self.assertIn(expected_hash, get_file_hashes(ARTIFACTS / name), name)
 
     def test_cohortes_partition_all_rows_exactly_once(self):
         cohorte = self.manifest["cohorte"]
