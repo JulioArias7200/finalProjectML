@@ -1,15 +1,15 @@
 {
-  "ultima_actualizacion": "2026-09-29T00:54:13.719305",
-  "iteracion_activa": "v1.20260929.0054",
-  "run_id": "RUN-20260929-b3cfc0795ed7",
+  "ultima_actualizacion": "2026-10-02T16:37:14.848637",
+  "iteracion_activa": "v1.20261002.1637",
+  "run_id": "RUN-20261002-acff5297c9b3",
   "modelo_campeon": "RandomForest",
   "cobertura_ic_90_campeon": 88.27,
   "modelos": [
     {
       "modelo": "Ridge",
       "tipo": "Ridge (Regresión Lineal L2)",
-      "fecha": "2026-09-29T00:54:13.717685",
-      "iteracion": "v1.20260929.0054",
+      "fecha": "2026-10-02T16:37:14.823921",
+      "iteracion": "v1.20261002.1637",
       "hiperparametros": {
         "alpha": 10.0,
         "fit_intercept": true,
@@ -81,8 +81,8 @@
     {
       "modelo": "RandomForest",
       "tipo": "Random Forest Regressor (Ensamble)",
-      "fecha": "2026-09-29T00:54:13.717748",
-      "iteracion": "v1.20260929.0054",
+      "fecha": "2026-10-02T16:37:14.823970",
+      "iteracion": "v1.20261002.1637",
       "hiperparametros": {
         "n_estimators": 120,
         "max_depth": 16,
@@ -155,8 +155,8 @@
     {
       "modelo": "HistGradientBoosting",
       "tipo": "HistGradientBoosting (Gradient Boosting)",
-      "fecha": "2026-09-29T00:54:13.717785",
-      "iteracion": "v1.20260929.0054",
+      "fecha": "2026-10-02T16:37:14.823995",
+      "iteracion": "v1.20261002.1637",
       "hiperparametros": {
         "max_iter": 150,
         "max_depth": 6,
@@ -227,6 +227,232 @@
     }
   ],
   "historial_iteraciones": [
+    {
+      "iteracion": "v1.20260929.0054",
+      "timestamp": "2026-09-29T00:54:13.719305",
+      "modelos": [
+        {
+          "modelo": "Ridge",
+          "tipo": "Ridge (Regresión Lineal L2)",
+          "fecha": "2026-09-29T00:54:13.717685",
+          "iteracion": "v1.20260929.0054",
+          "hiperparametros": {
+            "alpha": 10.0,
+            "fit_intercept": true,
+            "solver": "auto",
+            "random_state": 42
+          },
+          "pliegues_cv": [
+            {
+              "fold": 1,
+              "r2": 0.4847,
+              "rmse": 0.8155,
+              "mae": 0.617,
+              "medape": 58.61
+            },
+            {
+              "fold": 2,
+              "r2": 0.6106,
+              "rmse": 0.8131,
+              "mae": 0.6416,
+              "medape": 66.95
+            },
+            {
+              "fold": 3,
+              "r2": 0.559,
+              "rmse": 0.811,
+              "mae": 0.6389,
+              "medape": 76.07
+            },
+            {
+              "fold": 4,
+              "r2": 0.638,
+              "rmse": 0.7577,
+              "mae": 0.5873,
+              "medape": 62.1
+            },
+            {
+              "fold": 5,
+              "r2": 0.5387,
+              "rmse": 0.7988,
+              "mae": 0.6172,
+              "medape": 65.12
+            }
+          ],
+          "cv_resumen": {
+            "r2_promedio": 0.5662,
+            "r2_std": 0.054,
+            "rmse_promedio": 0.7992,
+            "rmse_std": 0.0216,
+            "mae_promedio": 0.6204,
+            "mae_std": 0.0196,
+            "medape_promedio": 65.77,
+            "medape_std": 5.87
+          },
+          "test_metricas": {
+            "r2_log": 0.5953,
+            "rmse_log": 0.7849,
+            "mae_log": 0.6171,
+            "r2_bs": 0.575,
+            "rmse_bs": 93314841.27,
+            "mae_bs": 32337037.61,
+            "medape": 67.41,
+            "smearing_factor": 1.4592,
+            "cobertura_ic_90": 84.47
+          },
+          "campeon": false,
+          "estado": "DESCARTADO",
+          "razon_decision": "Descartado como campeón: línea base lineal regularizada; captura parcialmente la relación (R² log = 0.5953, R² Bs = 0.5750) con MedAPE elevado (67.41%) y mayor sesgo en empresas grandes."
+        },
+        {
+          "modelo": "RandomForest",
+          "tipo": "Random Forest Regressor (Ensamble)",
+          "fecha": "2026-09-29T00:54:13.717748",
+          "iteracion": "v1.20260929.0054",
+          "hiperparametros": {
+            "n_estimators": 120,
+            "max_depth": 16,
+            "min_samples_split": 4,
+            "random_state": 42,
+            "n_jobs": 1
+          },
+          "pliegues_cv": [
+            {
+              "fold": 1,
+              "r2": 0.719,
+              "rmse": 0.6023,
+              "mae": 0.4352,
+              "medape": 32.89
+            },
+            {
+              "fold": 2,
+              "r2": 0.7774,
+              "rmse": 0.6148,
+              "mae": 0.4641,
+              "medape": 38.74
+            },
+            {
+              "fold": 3,
+              "r2": 0.7452,
+              "rmse": 0.6164,
+              "mae": 0.4413,
+              "medape": 34.51
+            },
+            {
+              "fold": 4,
+              "r2": 0.7986,
+              "rmse": 0.5652,
+              "mae": 0.4103,
+              "medape": 30.22
+            },
+            {
+              "fold": 5,
+              "r2": 0.7646,
+              "rmse": 0.5707,
+              "mae": 0.4287,
+              "medape": 33.7
+            }
+          ],
+          "cv_resumen": {
+            "r2_promedio": 0.7609,
+            "r2_std": 0.0272,
+            "rmse_promedio": 0.5939,
+            "rmse_std": 0.0218,
+            "mae_promedio": 0.4359,
+            "mae_std": 0.0175,
+            "medape_promedio": 34.01,
+            "medape_std": 2.77
+          },
+          "test_metricas": {
+            "r2_log": 0.7824,
+            "rmse_log": 0.5756,
+            "mae_log": 0.4402,
+            "r2_bs": 0.7396,
+            "rmse_bs": 73045490.26,
+            "mae_bs": 23310094.14,
+            "medape": 35.1,
+            "smearing_factor": 1.0404,
+            "cobertura_ic_90": 88.27
+          },
+          "campeon": true,
+          "estado": "SELECCIONADO (CAMPEÓN)",
+          "razon_decision": "Seleccionado (Modelo Campeón): mejor desempeño global (R² log = 0.7824, R² Bs = 0.7396) tras calibración Duan (factor 1.0404) y menor error mediano porcentual (MedAPE = 35.10%; umbral de aprobación D06 ≤ 40% con meta histórica ≤ 25% no alcanzada). Intervalo conformal calibrado (D02) con cobertura empírica del 88.27% en prueba dentro de la tolerancia predefinida [85%, 95%]."
+        },
+        {
+          "modelo": "HistGradientBoosting",
+          "tipo": "HistGradientBoosting (Gradient Boosting)",
+          "fecha": "2026-09-29T00:54:13.717785",
+          "iteracion": "v1.20260929.0054",
+          "hiperparametros": {
+            "max_iter": 150,
+            "max_depth": 6,
+            "learning_rate": 0.08,
+            "random_state": 42
+          },
+          "pliegues_cv": [
+            {
+              "fold": 1,
+              "r2": 0.7082,
+              "rmse": 0.6137,
+              "mae": 0.442,
+              "medape": 34.38
+            },
+            {
+              "fold": 2,
+              "r2": 0.778,
+              "rmse": 0.614,
+              "mae": 0.4652,
+              "medape": 40.5
+            },
+            {
+              "fold": 3,
+              "r2": 0.7685,
+              "rmse": 0.5876,
+              "mae": 0.4183,
+              "medape": 33.46
+            },
+            {
+              "fold": 4,
+              "r2": 0.7974,
+              "rmse": 0.5669,
+              "mae": 0.4126,
+              "medape": 32.2
+            },
+            {
+              "fold": 5,
+              "r2": 0.7627,
+              "rmse": 0.5729,
+              "mae": 0.4342,
+              "medape": 35.73
+            }
+          ],
+          "cv_resumen": {
+            "r2_promedio": 0.763,
+            "r2_std": 0.0298,
+            "rmse_promedio": 0.591,
+            "rmse_std": 0.0198,
+            "mae_promedio": 0.4345,
+            "mae_std": 0.0187,
+            "medape_promedio": 35.26,
+            "medape_std": 2.87
+          },
+          "test_metricas": {
+            "r2_log": 0.7744,
+            "rmse_log": 0.5861,
+            "mae_log": 0.454,
+            "r2_bs": 0.6286,
+            "rmse_bs": 87230993.22,
+            "mae_bs": 25922668.44,
+            "medape": 39.37,
+            "smearing_factor": 1.1012,
+            "cobertura_ic_90": 90.65
+          },
+          "campeon": false,
+          "estado": "DESCARTADO",
+          "razon_decision": "Descartado: rendimiento competitivo (R² log = 0.7744, R² Bs = 0.6286, MedAPE = 39.37%), pero inferior a Random Forest en escala natural en esta ejecución."
+        }
+      ]
+    },
     {
       "iteracion": "v1.20260929.0030",
       "timestamp": "2026-09-29T00:30:30.020351",

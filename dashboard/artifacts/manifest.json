@@ -1,9 +1,9 @@
 {
-  "run_id": "RUN-20260929-b3cfc0795ed7",
-  "active_version": "v1.20260929.0054",
-  "generated_at": "2026-09-29T00:54:13.773965",
+  "run_id": "RUN-20261002-acff5297c9b3",
+  "active_version": "v1.20261002.1637",
+  "generated_at": "2026-10-02T16:37:14.874364",
   "cohorte": {
-    "preprocesamiento_run_id": "PRE-20260928-d004f6ddd436",
+    "preprocesamiento_run_id": "PRE-20261002-d004f6ddd436",
     "n_total": 3153,
     "n_entrenamiento_ajuste": 1891,
     "n_calibracion": 631,
@@ -31,12 +31,12 @@
     "medape_cumple_umbral_aprobacion": true
   },
   "artifacts": {
-    "best_model.joblib": "441db573d0c2a6aa7f89aac22bf536dfaccadd3ca8a46966093775586e05a87c",
-    "test_predictions.csv": "f5947ab4a40aeb53b768064bc457e14b72f47ff02216e581a726ab12c51b408b",
-    "cv_results.json": "67721953a231171bee06e608506bfae6577b8674044a309933b440ed2c748f54",
+    "best_model.joblib": "a634e56c44298d7e68a49756f1990c055f1ebc298e82f9f6b50a69c3a5e78c1e",
+    "test_predictions.csv": "3f1bbc2376bc3f3be80977215720b722a9c2a03be012b6dd4343f997271f8a74",
+    "cv_results.json": "2ab0575da18d56767532b8bce1caa391655ccb0484b90b747fc672c82e1a622a",
     "feature_importance.json": "a0d91cac19019b517b6479e168a5ce61cab409cdd8abf67c7e8a32a955c60b7f",
-    "registry.json": "b680f763c5a6cf3f2f967230373f89352f51b886a93369f9a814a2257549767f",
-    "bitacora_modelos.json": "a9539a9a89001488ca7b7a2aa674025fe5108bcc2492f34b2d1312429a80c11c"
+    "registry.json": "c5fe49dd2715d1fecf513f2389be66a0d1344585c83c752d49907d5a682d9847",
+    "bitacora_modelos.json": "0a4f9258b7cc3d183009c98c5bb989c6d2fc942d2168451d8180eb37987076bf"
   },
-  "preprocessing_run_id": "PRE-20260928-d004f6ddd436"
+  "preprocessing_run_id": "PRE-20261002-d004f6ddd436"
 }
