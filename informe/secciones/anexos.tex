@@ -45,22 +45,20 @@ La Tabla \ref{tab:mml_resumen} presenta la síntesis formal de la Matriz de Marc
 \toprule
 \textbf{Nivel Jerárquico} & \textbf{Resumen Narrativo} & \textbf{Indicadores Verificables} & \textbf{Supuestos Críticos} \\
 \midrule
-\textbf{Fin (Impacto a Largo Plazo)} & Contribuir a fortalecer la consistencia estadística de Cuentas Nacionales y la equidad/recaudación tributaria en Bolivia. & Reducción de la brecha promedio sectorial entre ingreso declarado y capacidad productiva estimada respecto a línea base. & Las instituciones (SIN / INE) adoptan e institucionalizan formalmente el uso de la herramienta. \\
+\textbf{Fin (Impacto Esperado)} & Reducción de la brecha de recaudación fiscal e incremento en la confiabilidad de las mediciones macroeconómicas agregadas. & Disminución de la discrepancia residual promedio agregada y elevación de la consistencia del PIB sectorial. & Las entidades receptoras (SIN / INE) adoptan e institucionalizan formalmente el uso de la herramienta. \\
 \addlinespace
-\textbf{Propósito (Resultado Directo)} & Contar con un mecanismo automatizado (ML) que contraste el ingreso declarado contra el esperado según estructura productiva. & 1. $\text{MedAPE} \le 40\%$ y $R^2 \ge 0.60$ en 5-Fold CV.\newline 2. Cobertura empírica del IC al 90\% entre 85\% y 95\%. & Futuras rondas de EAIMCS o facturación electrónica mantienen estructura de variables compatible. \\
+\textbf{Propósito (Objetivo General)} & Identificación y contrastación oportuna de inconsistencias entre los ingresos declarados por medianas/grandes empresas y su rendimiento operativo estimado. & 1. $\text{MedAPE} \le 40\%$ y $R^2 \ge 0.60$ en 5-Fold Stratified CV.\newline 2. Cobertura empírica del IC al 90\% entre 85\% y 95\%. & Futuras rondas censales de EAIMCS o registros de facturación electrónica conservan compatibilidad estructural. \\
 \addlinespace
-\textbf{Componente 1} & Modelo de estimación de ingreso esperado (RF + Duan Smearing). & Modelo calibrado ($\hat{S} = 1.0401$) y comparativa de al menos 7 modelos de regresión supervisada. & Muestra EAIMCS representativa de los estratos medianos y grandes por sector. \\
+\textbf{Componente 1 (Modelado Predictivo)} & Implementación de modelos analíticos e inteligentes de estimación de ingresos basados en capacidad productiva e insumos. & Pipeline campeón calibrado ($\hat{S} = 1.0401$, $R^2 = 0.7868$, $\text{MedAPE} = 36.20\%$) y matrices sectoriales normalizadas. & Microdatos de la EAIMCS representativos de los estratos medianos y grandes por actividad CAEB. \\
 \addlinespace
-\textbf{Componente 2} & Sistema de priorización basado en riesgo y simulación interactiva. & 1. 100\% de empresas clasificadas en riesgo bajo/medio/alto.\newline 2. Latencia del simulador $< 2$ s. & Personal técnico cuenta con capacitación para interpretar el score sin confundirlo con evasión probada. \\
+\textbf{Componente 2 (Criterios de Selección)} & Automatización de la selección de contribuyentes para fiscalización basada en la brecha fiscal estimada. & 1. 100\% de unidades clasificadas en semáforos de riesgo (Bajo/Medio/Alto).\newline 2. Latencia del simulador $< 200$ ms. & Personal técnico cuenta con capacitación para interpretar el score como discrepancia y no como evasión tipificada. \\
 \addlinespace
-\textbf{Componente 3} & Pipeline de datos reproducible y respetuoso del secreto estadístico. & 1. Bitácora con filas/columnas antes/después por etapa.\newline 2. 0 casos de exposición de identidad. & El marco legal del Decreto Ley 1405 se mantiene inalterado. \\
-\addlinespace
-\textbf{Componente 4} & Monitoreo de vigencia del modelo (Data Drift). & Alerta automática ante pruebas KS y Wasserstein con corrección de Bonferroni. & Se dispone de cargas periódicas de datos para que el monitoreo tenga utilidad práctica. \\
+\textbf{Componente 3 (Parametrización Dinámica)} & Establecimiento de un esquema dinámico de parametrización y actualización de indicadores de control. & Alerta automática ante pruebas KS y Wasserstein ($D_{KS}, W_1$) con corrección de Bonferroni ($\alpha_{\text{ajustado}} = 0.004545$). & Se dispone de cargas periódicas de datos para que el monitoreo de deriva estadística tenga utilidad operativa. \\
 \bottomrule
 \end{tabularx}
 \vspace{2mm}
 \raggedright\footnotesize
-\textit{Nota.} Estructura metodológica basada en los estándares de evaluación de proyectos del Banco Interamericano de Desarrollo (BID), articulando la lógica vertical con indicadores verificables de desempeño cuantitativo.
+\textit{Nota.} Estructura metodológica basada en los estándares del Enfoque del Marco Lógico (EML) de CEPAL / BID, articulando la lógica vertical con indicadores cuantitativos auditables.
 \end{table}
 
 \section{Diccionario de Variables Productivas Empleadas}

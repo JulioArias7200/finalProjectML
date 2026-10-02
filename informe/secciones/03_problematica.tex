@@ -28,14 +28,36 @@ Para analizar sistemáticamente la cadena de causalidad que origina esta situaci
 \includegraphics[width=\textwidth,keepaspectratio]{imagenes/arbol_problemas.jpg}
 \vspace{1mm}
 \raggedright\footnotesize
-\textit{Nota.} Diagrama causal estructurado que identifica el problema central, causas directas e indirectas, y efectos de impacto en la consistencia fiscal y de Cuentas Nacionales.
+\textit{Nota.} Diagrama causal estructurado conforme a la metodología del Marco Lógico (CEPAL/BID), identificando el problema central, causas directas e indirectas, y efectos de impacto macroeconómico y fiscal.
 \end{figure}
 
-El diagnóstico sintetizado en la Figura \ref{fig:arbol_problemas} sitúa como \textbf{Problema Central} la \textit{carencia de un sistema automatizado para contrastar los ingresos declarados por medianas y grandes empresas frente a estimaciones fundamentadas en su dotación de personal, insumos y activos de producción}. Dicho problema se sustenta en tres causas estructurales directas:
+El diagnóstico sintetizado en la Figura \ref{fig:arbol_problemas} sitúa como \textbf{Problema Central (Núcleo del Análisis)} la \textit{inconsistencia no detectada entre los ingresos declarados por medianas y grandes empresas y su rendimiento operativo proyectado a partir de sus recursos de producción}. 
+
+Dicho problema se origina en tres \textbf{Causas Directas} e indirectas fundamentales:
 \begin{enumerate}
-    \item \textbf{Falta de un modelo formal multivariado:} No se ha construido previamente un modelo cuantitativo que relacione los insumos con el ingreso esperado, careciendo de valores de referencia sectoriales en un contexto donde la adopción de inteligencia artificial en instituciones públicas bolivianas es todavía incipiente.
-    \item \textbf{Desconexión en los criterios de fiscalización:} El personal técnico disponible es limitado frente al universo de contribuyentes y el Registro de Riesgo Tributario del SIN no incorpora un contraste formal frente a la capacidad productiva de las empresas.
-    \item \textbf{Desactualización sistemática de parámetros:} Los criterios de control fiscal, cuando existen, no se actualizan de manera continua y rigurosa ante fluctuaciones de la coyuntura económica y cambios estructurales.
+    \item \textbf{Causa Directa 1 (Modelado Predictivo): Inexistencia y debilidad de modelos predictivos de capacidad productiva e ingresos por sector.}
+    \begin{itemize}
+        \item \textit{Causa Indirecta 1.1 (Algoritmos / Insumos):} Omisión de funciones de producción que relacionen insumos y personal declarados con la expectativa de ventas.
+        \item \textit{Causa Indirecta 1.2 (Datos de Referencia):} Ausencia de matrices sectoriales normalizadas de consumo de insumos y rendimiento laboral.
+        \item \textit{Causa Indirecta 1.3 (Madurez Tecnológica):} Etapa incipiente de madurez tecnológica y analítica avanzada (IA/Machine Learning) en los procesos institucionales.
+    \end{itemize}
+    
+    \item \textbf{Causa Directa 2 (Criterios de Selección): Desalineación entre los algoritmos de selección para auditoría y la magnitud de la brecha fiscal esperada.}
+    \begin{itemize}
+        \item \textit{Causa Indirecta 2.1 (Capacidad Operativa):} Sobredemanda operativa sobre el equipo de fiscalización respecto al volumen de la base de contribuyentes.
+        \item \textit{Causa Indirecta 2.2 (Registro de Riesgo):} Exclusión de variables de capacidad productiva e ingreso potencial en el Registro de Riesgo Tributario (RRT).
+    \end{itemize}
+    
+    \item \textbf{Causa Directa 3 (Parametrización): Rigidez y desactualización de los parámetros de evaluación fiscal ante cambios de la economía real.}
+    \begin{itemize}
+        \item \textit{Causa Indirecta 3.1 (Mantenimiento Fiscal):} Permanencia de coeficientes y criterios de control estáticos frente a fluctuaciones coyunturales y del mercado.
+    \end{itemize}
 \end{enumerate}
 
-Esta configuración genera como impacto final una \textit{brecha de recaudación frente a la capacidad fiscal y menor confiabilidad en la medición económica agregada}, al permitir que existan ingresos no declarados no identificados, discrepancias no detectadas en los registros de Cuentas Nacionales y distorsiones en la priorización de auditorías tributarias.
+Esta configuración causal desencadena a nivel superior una serie de consecuencias negativas estructuradas en tres \textbf{Efectos Directos} y un \textbf{Efecto Macro (Fin de Impacto)}:
+\begin{itemize}
+    \item \textbf{Efecto Directo 1 (Recaudación):} Sub-recaudación tributaria efectiva en el segmento de medianas y grandes empresas por ingresos gravables omitidos o subdeclarados.
+    \item \textbf{Efecto Directo 2 (Cuentas Nacionales):} Integración de registros con discrepancias no detectadas en la contabilidad macroeconómica nacional.
+    \item \textbf{Efecto Directo 3 (Operativa Fiscal):} Asignación ineficiente de recursos de auditoría, priorizando contribuyentes de bajo impacto fiscal sobre casos con mayores desviaciones.
+    \item \textbf{Efecto Macro (Impacto Final):} Generación de brecha de recaudación respecto a la capacidad fiscal y pérdida de confiabilidad en la medición económica agregada del país.
+\end{itemize}
