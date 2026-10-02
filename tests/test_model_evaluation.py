@@ -19,9 +19,15 @@ EXCLUDED_FOR_LEAKAGE = [
 
 
 def get_file_hashes(path: Path) -> set:
+    """Calcula hashes SHA-256 tolerando normalización de saltos de línea (CRLF/LF en ambas direcciones)."""
     raw = path.read_bytes()
-    raw_lf = raw.replace(b"\r\n", b"\n")
-    return {hashlib.sha256(raw).hexdigest(), hashlib.sha256(raw_lf).hexdigest()}
+    hashes = {hashlib.sha256(raw).hexdigest()}
+    if path.suffix.lower() in {".csv", ".json", ".txt", ".md"}:
+        raw_lf = raw.replace(b"\r\n", b"\n")
+        raw_crlf = raw_lf.replace(b"\n", b"\r\n")
+        hashes.add(hashlib.sha256(raw_lf).hexdigest())
+        hashes.add(hashlib.sha256(raw_crlf).hexdigest())
+    return hashes
 
 
 class ModelEvaluationTests(unittest.TestCase):
