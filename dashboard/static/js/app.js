@@ -2701,8 +2701,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const values = isLog ? state.distributionData.log_values : state.distributionData.raw_values;
 
     const trace = {
-      x: values,
+      x: (values || []).map(Number),
       type: 'histogram',
+      autobinx: true,
       nbinsx: 35,
       marker: {
         color: isLog ? '#0B3D62' : '#F4B400',
@@ -2716,10 +2717,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: isLog ? 'Distribución Normalizada log(1 + Ingresos)' : 'Distribución en Bolivianos Naturales (Cola Pareto Severa)',
       xaxis: {
         ...state.plotlyLayoutBase.xaxis,
+        type: 'linear',
+        autorange: true,
+        tickangle: 0,
         title: isLog ? 'log(1 + Ingreso en Bs)' : 'Ingreso Operativo Anual (Bs)'
       },
       yaxis: {
         ...state.plotlyLayoutBase.yaxis,
+        type: 'linear',
+        autorange: true,
         title: 'Número de Empresas'
       },
       margin: { l: 60, r: 30, t: 50, b: 60 }
