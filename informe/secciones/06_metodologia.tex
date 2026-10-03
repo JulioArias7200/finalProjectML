@@ -34,6 +34,18 @@ El procesamiento de los microdatos se organizó en un pipeline modular y determi
     Esta transformación estabiliza la varianza de los residuos y aproxima la distribución de errores a una forma cuasi-normal homocedástica, como se ilustra en la Figura \ref{fig:distribucion_asimetria_log}.
 \end{enumerate}
 
+En la Figura \ref{fig:pipeline_linaje_datos} se expone el diagrama arquitectónico formal que representa el linaje integral de los datos, ilustrando la ingestión dual desde el perímetro de almacenamiento crudo del INE (Dataset Primario general y Dataset Secundario de insumos), los procesos de saneamiento y agregación relacional $N \rightarrow 1$, el ensamble \textit{Left Join}, el blindaje metodológico anti-fuga de datos y la partición estratificada consumida por el sistema de auditoría.
+
+\begin{figure}[htbp]
+\centering
+\caption{Arquitectura de Integración de Datos: Ingestión Dual (Dataset Primario y Secundario), Pipeline de Transformación y Flujo de Consumo Predictivo.}
+\label{fig:pipeline_linaje_datos}
+\includegraphics[width=0.98\textwidth,keepaspectratio]{imagenes/pipeline_linaje_datos.png}
+\vspace{1mm}
+\raggedright\footnotesize
+\textit{Nota.} Diagrama arquitectónico del flujo de datos en formato empresarial: Ingestión dual desde el perímetro de almacenamiento crudo (Dataset Primario general $N=3,153$ y Dataset Secundario de insumos $N=6,428$), exclusión de la fila vacía 6,429 y montos anómalos, condensación relacional $N \rightarrow 1$ ($N=1,614$), ensamble \textit{Left Join}, blindaje anti-fuga de datos (exclusión estricta de 19 variables contables), estabilización $\ln(1+x)$ y partición estratificada en tres cohortes (60\% entrenamiento, 20\% calibración conformal y 20\% prueba ciega) consumidas por el Dashboard de auditoría.
+\end{figure}
+
 \begin{figure}[htbp]
 \centering
 \caption{Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada.}

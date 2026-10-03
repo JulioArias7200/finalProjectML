@@ -30,6 +30,29 @@ Marco Legal de Reserva & Ley N$^\circ$ 1405 (2021): Secreto y Confidencialidad E
 \textit{Nota.} Fuente: Instituto Nacional de Estadística (INE), Catálogo ANDA BOL-INE-EAIMCS-2017-2018. Los microdatos corresponden al operativo censal por cuotas en estratos de medianas y grandes empresas bajo resguardo de confidencialidad de la Ley N$^\circ$ 1405 de Estadísticas Oficiales.
 \end{table}
 
+Asimismo, la Tabla \ref{tab:metadatos_datasets} detalla la ficha técnica de integridad de los archivos del corpus analítico, especificando sus dimensiones, cardinalidades relacionales, peso en disco y firmas criptográficas SHA-256 inmutables utilizadas para garantizar la reproducibilidad y gobernanza del proyecto.
+
+\begin{table}[htbp]
+\centering
+\caption{Metadatos Criptográficos, Cardinalidad y Estructura de los Datasets EAIMCS.}
+\label{tab:metadatos_datasets}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\bfseries}lp{3.6cm}cccX}
+\toprule
+\textbf{Rol en Pipeline} & \textbf{Archivo Físico} & \textbf{Filas} & \textbf{Cols.} & \textbf{Clave} & \textbf{Propósito / Regla de Gobernanza} \\
+\midrule
+\textbf{Dataset Primario} & {\scriptsize\texttt{MOD\_ANUAL\_S01-07\_}\newline\texttt{12\_general\_i.csv}} & 3,153 & 167 & \texttt{ID} (1:1) & Base censal maestra. Variables laborales, contables y geográficas. 100\% \texttt{ID} únicos. SHA-256: \texttt{e711b839...} (3.61 MB). \\
+\addlinespace
+\textbf{Dataset Secundario} & {\scriptsize\texttt{MOD\_ANUAL\_S10\_}\newline\texttt{materiales\_i.csv}} & 6,428* & 8 & \texttt{ID} (N:1) & Detalle desagregado de materias primas. Fila 6,429 vacía descartada; 1,614 empresas fabriles. SHA-256: \texttt{b41ad4ed...} (495 KB). \\
+\addlinespace
+\textbf{Dataset Procesado} & {\scriptsize\texttt{dataset\_procesado.csv}} & 3,153 & 184 & \texttt{ID} (1:1) & Base final integrada con \textit{Left Join}, agregación de insumos, blindaje anti-leakage y variables $\ln(1+x)$. SHA-256: \texttt{753510bc...} (4.30 MB). \\
+\bottomrule
+\end{tabularx}
+\vspace{2mm}
+\raggedright\footnotesize
+\textit{Nota.} *El archivo físico del Dataset Secundario contiene 6,428 líneas registradas en disco, de las cuales la fila 6,429 corresponde a una línea totalmente en blanco en el repositorio original del INE que fue descartada formalmente en la carga, consolidando 6,427 registros analíticos válidos que colapsan en 1,614 empresas manufactureras únicas.
+\end{table}
+
 \section{Matriz de Marco Lógico (MML) del Proyecto}
 \label{anexo:marco_logico}
 

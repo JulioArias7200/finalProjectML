@@ -24,7 +24,80 @@
 
   <!-- SUB-PANEL 1: PIPELINE & BITÁCORA DE PREPROCESAMIENTO (TAREA 2) -->
   <div id="subtab-content-gob-pipeline">
-    <!-- TABLA DE EVOLUCIÓN ETAPA POR ETAPA -->
+
+    <!-- SECCIÓN 1: CATÁLOGO DE METADATOS DE ARCHIVOS FUENTE Y PROCESADO -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Catálogo de Metadatos de Archivos del Corpus EAIMCS
+          </div>
+          <div class="card-subtitle">Fichas técnicas de integridad criptográfica SHA-256, cardinalidades relacionales y control de calidad</div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span class="status-pill-subtle active" style="font-size: 0.78rem; font-weight: 600;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 3px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Hashes Verificados
+          </span>
+        </div>
+      </div>
+
+      <!-- Grid de 3 Tarjetas de Metadatos de Archivos -->
+      <div class="metadata-cards-grid" id="metadataCardsContainer">
+        <!-- Renderizado dinámico vía app.js -->
+        <div style="text-align: center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">
+          Cargando catálogo criptográfico de metadatos...
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: DIAGRAMA DE ARQUITECTURA EMPRESARIAL INTERACTIVO (INFORMATICA / AWS STYLE) -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            Arquitectura de Integración de Datos: Ingestión Dual y Gobernanza
+          </div>
+          <div class="card-subtitle">Diagrama arquitectónico empresarial: interactúa con los iconos grandes para inspeccionar cada etapa y regla aplicada</div>
+        </div>
+        <div>
+          <span style="font-size: 0.78rem; color: var(--text-muted); background: var(--bg-surface-elevated); padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid var(--border-color);">
+            Estilo Arquitectura Cloud / Informatica
+          </span>
+        </div>
+      </div>
+
+      <!-- Diagrama Arquitectónico con Perímetros y Hero Icons -->
+      <div class="arch-diagram-wrapper" id="archDiagramWrapper">
+        <!-- Renderizado dinámico e interactivo vía app.js -->
+      </div>
+
+      <!-- Panel Inspector Lateral / Drill-down de la Etapa Seleccionada -->
+      <div id="archInspectorPanel" class="arch-inspector-panel" style="display: none; margin-top: 1.25rem;">
+        <!-- Se llena al hacer clic en cualquier icono -->
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: DIAGRAMA SANKEY INTERACTIVO DE LINAJE DE VOLÚMENES (PLOTLY.JS) -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            Trazabilidad y Linaje Cuantitativo de Datos (Diagrama Sankey)
+          </div>
+          <div class="card-subtitle">Flujo volumétrico exacto desde archivos brutos hasta cohortes de entrenamiento, calibración y prueba</div>
+        </div>
+      </div>
+
+      <div class="chart-wrapper">
+        <div id="chartDataLineageSankey" style="width: 100%; height: 420px;"></div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: TABLA DE EVOLUCIÓN ETAPA POR ETAPA (BITÁCORA PREEXISTENTE) -->
     <div class="card" style="margin-bottom: 2rem;">
       <div class="card-title">Evolución del Dataset a través de las Etapas de Limpieza (Bitácora de Preprocesamiento)</div>
       <div class="card-subtitle">Registro auditable generado automáticamente por preprocessing/preprocessing.py</div>
@@ -47,12 +120,31 @@
       </div>
     </div>
 
-    <!-- Línea de tiempo visual del pipeline -->
+    <!-- SECCIÓN 5: LÍNEA DE TIEMPO DEL PIPELINE -->
     <div class="card">
       <div class="card-title">Arquitectura del Pipeline de Limpieza y Transformación</div>
       <div class="card-subtitle">Flujo secuencial reproducible desde archivos crudos hasta la matriz final</div>
       <div class="prep-timeline" id="prepTimelineContainer">
         <!-- Renderizado dinámico vía app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INSPECTOR DE ESQUEMA / DICCIONARIO DE COLUMNAS -->
+  <div id="modalDatasetSchema" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 780px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <h3 id="modalSchemaTitle" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--text-primary);">Esquema del Archivo</h3>
+        </div>
+        <button id="modalSchemaCloseBtn" class="modal-close-btn" aria-label="Cerrar modal">&times;</button>
+      </div>
+      <div class="modal-body" id="modalSchemaBody" style="max-height: 480px; overflow-y: auto; padding: 1.25rem;">
+        <!-- Se inyecta dinámicamente -->
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 1rem; border-top: 1px solid var(--border-color);">
+        <button class="btn btn-secondary" id="modalSchemaDismissBtn">Cerrar</button>
       </div>
     </div>
   </div>

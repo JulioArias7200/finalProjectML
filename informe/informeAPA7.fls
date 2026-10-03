@@ -385,6 +385,13 @@ INPUT secciones\05_justificacion.tex
 INPUT .\secciones\06_metodologia.tex
 INPUT .\secciones\06_metodologia.tex
 INPUT secciones\06_metodologia.tex
+INPUT .\imagenes\pipeline_linaje_datos.png
+INPUT .\imagenes\pipeline_linaje_datos.png
+INPUT .\imagenes\pipeline_linaje_datos.png
+INPUT .\imagenes\pipeline_linaje_datos.png
+INPUT .\imagenes\pipeline_linaje_datos.png
+INPUT .\imagenes\pipeline_linaje_datos.png
+INPUT .\imagenes\pipeline_linaje_datos.png
 INPUT .\imagenes\distribucion_asimetria_log.png
 INPUT .\imagenes\distribucion_asimetria_log.png
 INPUT .\imagenes\distribucion_asimetria_log.png
@@ -477,6 +484,7 @@ INPUT informeAPA7.bbl
 INPUT .\secciones\anexos.tex
 INPUT .\secciones\anexos.tex
 INPUT secciones\anexos.tex
+INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt8.tfm
 INPUT informeAPA7.aux
 INPUT .\informeAPA7.out
 INPUT .\informeAPA7.out
@@ -528,5 +536,7 @@ INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\c
 INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt10.pfb
 INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt12.pfb
 INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt12.pfb
+INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt8.pfb
+INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt8.pfb
 INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
 INPUT C:\Users\julio\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb

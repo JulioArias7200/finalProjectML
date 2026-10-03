@@ -424,6 +424,226 @@ def get_bitacora_analisis():
 
 
 # -------------------------------------------------------------
+# API: METADATOS DE ARCHIVOS Y LINAJE INTERACTIVO DE DATOS
+# -------------------------------------------------------------
+_DATASETS_METADATA_CACHE = None
+
+def compute_dataset_metadata():
+    """Calcula y cachea los metadatos criptográficos y estructurales de los datasets del corpus."""
+    global _DATASETS_METADATA_CACHE
+    if _DATASETS_METADATA_CACHE is not None:
+        return _DATASETS_METADATA_CACHE
+
+    import hashlib
+    files_info = {}
+
+    # 1. Dataset Primario (General)
+    p_prim = PROJECT_ROOT / "data" / "raw" / "MOD_ANUAL_S01-07_12_general_i.csv"
+    if p_prim.exists():
+        sz = p_prim.stat().st_size
+        with open(p_prim, "rb") as f:
+            h = hashlib.sha256(f.read()).hexdigest()
+        df_prim = pd.read_csv(p_prim, nrows=5)
+        files_info["primary"] = {
+            "filename": "MOD_ANUAL_S01-07_12_general_i.csv",
+            "role": "Dataset Primario (General)",
+            "rows": 3153,
+            "columns": 167,
+            "size_bytes": sz,
+            "size_human": f"{sz / (1024*1024):.2f} MB",
+            "key": "ID (Clave Primaria, 100% única)",
+            "sha256": h,
+            "quality_status": "Óptimo",
+            "quality_note": "Universo censal completo (3,153 empresas). Integridad referencial 100%, 0 duplicados en ID.",
+            "sample_columns": list(df_prim.columns[:15])
+        }
+
+    # 2. Dataset Secundario (Insumos)
+    p_sec = PROJECT_ROOT / "data" / "raw" / "MOD_ANUAL_S10_materiales_i.csv"
+    if p_sec.exists():
+        sz = p_sec.stat().st_size
+        with open(p_sec, "rb") as f:
+            h = hashlib.sha256(f.read()).hexdigest()
+        df_sec = pd.read_csv(p_sec, nrows=5)
+        files_info["secondary"] = {
+            "filename": "MOD_ANUAL_S10_materiales_i.csv",
+            "role": "Dataset Secundario (Insumos y Materias Primas)",
+            "rows_physical": 6428,
+            "rows_valid": 6427,
+            "columns": 8,
+            "size_bytes": sz,
+            "size_human": f"{sz / 1024:.1f} KB",
+            "key": "ID (Clave Foránea, N:1)",
+            "sha256": h,
+            "quality_status": "Saneado",
+            "quality_note": "Fila física 6,429 vacía de origen descartada; importes monetarios negativos corregidos a NaN; 1,614 empresas manufactureras.",
+            "sample_columns": list(df_sec.columns)
+        }
+
+    # 3. Dataset Procesado (Consolidado)
+    p_proc = PROJECT_ROOT / "data" / "processed" / "dataset_procesado.csv"
+    if p_proc.exists():
+        sz = p_proc.stat().st_size
+        with open(p_proc, "rb") as f:
+            h = hashlib.sha256(f.read()).hexdigest()
+        files_info["processed"] = {
+            "filename": "dataset_procesado.csv",
+            "role": "Dataset Procesado Inmutable (Consolidado)",
+            "rows": 3153,
+            "columns": 184,
+            "size_bytes": sz,
+            "size_human": f"{sz / (1024*1024):.2f} MB",
+            "key": "ID (Clave Primaria, 100% única)",
+            "sha256": h,
+            "quality_status": "Certificado",
+            "quality_note": "Fusión Left Join sin sesgo; 19 variables de fuga contable excluidas; variables ln(1+x) estabilizadas.",
+            "sample_columns": ["ID", "target", "depto", "sector_macro", "n_insumos", "total_valor_co", "total_valor_uti", "log1p_target", "log1p_sueldos_salarios", "log1p_activos_fijos"]
+        }
+
+    _DATASETS_METADATA_CACHE = {
+        "datasets": files_info,
+        "summary": {
+            "total_files": len(files_info),
+            "empresas_totales": 3153,
+            "empresas_manufactureras_con_insumos": 1614,
+            "empresas_comercio_servicios": 1539,
+            "variables_fuga_excluidas": 19,
+            "estratificacion": {
+                "train_pct": 60,
+                "train_count": 1891,
+                "calib_pct": 20,
+                "calib_count": 631,
+                "test_pct": 20,
+                "test_count": 631
+            }
+        }
+    }
+    return _DATASETS_METADATA_CACHE
+
+
+@app.route("/api/dataset/metadata")
+def get_dataset_metadata():
+    """Retorna las fichas técnicas, criptográficas y de gobernanza de los archivos del corpus."""
+    meta_info = compute_dataset_metadata()
+    response = dict(meta_info)
+    response["meta"] = build_meta()
+    return jsonify(response)
+
+
+@app.route("/api/dataset/lineage")
+def get_dataset_lineage():
+    """Retorna la arquitectura relacional, nodos de flujo y operaciones para el diagrama interactivo."""
+    meta_info = compute_dataset_metadata()
+    lineage = {
+        "meta": build_meta(),
+        "datasets": meta_info["datasets"],
+        "summary": meta_info["summary"],
+        "sankey": {
+            "nodes": [
+                {"id": 0, "name": "MOD_ANUAL General (3,153 empresas)", "category": "raw_primary", "color": "#0284C7"},
+                {"id": 1, "name": "MOD_ANUAL Materiales (6,428 registros)", "category": "raw_secondary", "color": "#EA580C"},
+                {"id": 2, "name": "Depuración Fila 6,429 Vacía (-1)", "category": "cleaning", "color": "#DC2626"},
+                {"id": 3, "name": "Insumos Analíticos Útiles (6,427)", "category": "cleaning", "color": "#F59E0B"},
+                {"id": 4, "name": "Agregación Relacional N:1 (1,614)", "category": "aggregation", "color": "#4F46E5"},
+                {"id": 5, "name": "Cruce Left Join (3,153)", "category": "join", "color": "#2563EB"},
+                {"id": 6, "name": "Comercio/Servicios (1,539 n_insumos=0)", "category": "join", "color": "#64748B"},
+                {"id": 7, "name": "Blindaje Anti-Leakage (-19 vars)", "category": "governance", "color": "#991B1B"},
+                {"id": 8, "name": "Dataset Procesado (3,153 × 184)", "category": "processed", "color": "#0F172A"},
+                {"id": 9, "name": "Train 60% (1,891)", "category": "split", "color": "#16A34A"},
+                {"id": 10, "name": "Calib Conformal 20% (631)", "category": "split", "color": "#7C3AED"},
+                {"id": 11, "name": "Test Ciego 20% (631)", "category": "split", "color": "#0284C7"}
+            ],
+            "links": [
+                {"source": 1, "target": 2, "value": 1, "label": "Descarte fila 6,429 vacía"},
+                {"source": 1, "target": 3, "value": 6427, "label": "Registros analíticos útiles"},
+                {"source": 3, "target": 4, "value": 6427, "label": "Condensación a nivel ID"},
+                {"source": 0, "target": 5, "value": 3153, "label": "Clave primaria ID"},
+                {"source": 4, "target": 5, "value": 1614, "label": "Aporte materias primas"},
+                {"source": 5, "target": 6, "value": 1539, "label": "Imputación n_insumos=0"},
+                {"source": 5, "target": 7, "value": 3153, "label": "Exclusión 19 vars contables"},
+                {"source": 7, "target": 8, "value": 3153, "label": "Estabilización log1p"},
+                {"source": 8, "target": 9, "value": 1891, "label": "Entrenamiento modelos"},
+                {"source": 8, "target": 10, "value": 631, "label": "Calibración intervalos 90%"},
+                {"source": 8, "target": 11, "value": 631, "label": "Evaluación generalización"}
+            ]
+        },
+        "operations": [
+            {
+                "step": 1,
+                "title": "Ingestión Dual de Fuentes Crudas",
+                "icon": "database",
+                "badge": "Perímetro Crudo",
+                "badge_class": "badge-primary",
+                "summary": "Carga de microdatos oficiales de la EAIMCS 2017–2018 del INE Bolivia desde dos archivos relacionales independientes.",
+                "details": "Dataset Primario: 3,153 empresas informantes con 167 atributos censales. Dataset Secundario: 6,428 registros de compra y utilización de materias primas.",
+                "rules": "Preservación estricta de UTF-8 y verificación criptográfica de hashes de origen."
+            },
+            {
+                "step": 2,
+                "title": "Saneamiento y Depuración de Inconsistencias",
+                "icon": "filter",
+                "badge": "Calidad de Datos",
+                "badge_class": "badge-danger",
+                "summary": "Exclusión de la fila física 6,429 totalmente en blanco en el Dataset Secundario y corrección de valores monetarios negativos.",
+                "details": "El archivo crudo S10 contiene una fila en blanco al final generada en el volcado de base de datos original. Al descartarla quedan 6,427 registros. Valores negativos imputados a NaN.",
+                "rules": "df_mat = df_mat.dropna(how='all'); df_mat.loc[df_mat['valor_utilizado'] < 0, 'valor_utilizado'] = np.nan"
+            },
+            {
+                "step": 3,
+                "title": "Agregación Relacional N:1",
+                "icon": "layers",
+                "badge": "Ingeniería Relacional",
+                "badge_class": "badge-purple",
+                "summary": "Condensación de los 6,427 registros de materias primas a nivel de empresa única (ID).",
+                "details": "Reduce el módulo de materiales a 1,614 empresas industriales calculando: variedad de insumos (n_insumos), valor comprado (total_valor_co) y valor consumido (total_valor_uti).",
+                "rules": "df_mat.groupby('ID').agg(n_insumos=('id_insumo','nunique'), total_valor_co=('valor_comprado','sum'), total_valor_uti=('valor_utilizado','sum'))"
+            },
+            {
+                "step": 4,
+                "title": "Cruce Left Join y Normalización CAEB",
+                "icon": "git-merge",
+                "badge": "Ensamble",
+                "badge_class": "badge-info",
+                "summary": "Fusión 1-a-1 de la base general con los agregados de insumos y agrupación sectorial.",
+                "details": "Preserva las 3,153 empresas base. A las 1,539 empresas comerciales/servicios se les asigna n_insumos = 0 sin inventar compras monetarias. Mapeo a 16 macrosectores.",
+                "rules": "df = df_gen.merge(df_mat_agg, on='ID', how='left')"
+            },
+            {
+                "step": 5,
+                "title": "Blindaje Metodológico Anti-Leakage",
+                "icon": "shield",
+                "badge": "Gobernanza",
+                "badge_class": "badge-warning",
+                "summary": "Exclusión rigurosa de 19 variables contables y de Cuentas Nacionales que filtrarían el target.",
+                "details": "Eliminación de VBP, VA, CI, VIPP y los desgloses de ingresos S05_01 a S05_04 para garantizar que el modelo prediga por capacidad instalada y no por identidades contables.",
+                "rules": "cols_to_drop = ['VBP', 'VA', 'CI', 'VIPP', 'S05_01_A', ...]"
+            },
+            {
+                "step": 6,
+                "title": "Estabilización de Varianza ln(1+x)",
+                "icon": "trending-up",
+                "badge": "Econometría",
+                "badge_class": "badge-success",
+                "summary": "Transformación logarítmica monótona para corregir la cola pesada de Pareto.",
+                "details": "Aplica np.log1p sobre el target y los 11 predictores continuos, transformando una distribución asimétrica en una distribución residual cuasi-normal homocedástica.",
+                "rules": "y_log = np.log1p(y); X_log = np.log1p(X)"
+            },
+            {
+                "step": 7,
+                "title": "Muestreo Estratificado Inmutable",
+                "icon": "scissors",
+                "badge": "Partición ML",
+                "badge_class": "badge-primary",
+                "summary": "Partición fija 60% Train, 20% Calibración Conformal y 20% Prueba Ciega.",
+                "details": "Estratificada por deciles del ingreso operativo para garantizar idéntica representación de micro, pequeñas, medianas y grandes firmas en los 3 conjuntos.",
+                "rules": "Train (1,891 empresas) | Conformal (631 empresas) | Test (631 empresas)"
+            }
+        ]
+    }
+    return jsonify(lineage)
+
+
+# -------------------------------------------------------------
 # API: MÓDULO OPERATIVO DE EMPRESAS Y RIESGO (TAREA 3)
 # -------------------------------------------------------------
 @app.route("/api/empresas_riesgo")

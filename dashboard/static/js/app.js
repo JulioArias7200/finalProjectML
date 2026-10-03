@@ -532,6 +532,10 @@ document.addEventListener('DOMContentLoaded', () => {
         reloadChart('chartCorrelation', false),
         reloadChart('chartOutliers', false)
       ]);
+    } else if (subtabTarget === 'gob-pipeline') {
+      loadBitacoraPreprocesamiento();
+      loadDatasetMetadata();
+      loadDatasetLineage();
     } else if (subtabTarget === 'gob-diccionario' && state.dictionaryEntries.length === 0) {
       loadDictionary();
     }
@@ -604,6 +608,8 @@ document.addEventListener('DOMContentLoaded', () => {
       ]);
     } else if (sectionId === 'gobernanza') {
       loadBitacoraPreprocesamiento();
+      loadDatasetMetadata();
+      loadDatasetLineage();
       if (activeSubtab === 'gob-eda') {
         Promise.all([
           reloadChart('chartDistribution', false),
@@ -2181,6 +2187,495 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tableBody) {
         tableBody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Error al cargar bitácora de preprocesamiento.</td></tr>`;
       }
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // CARGA DE METADATOS CRIPTOGRÁFICOS DE LOS ARCHIVOS DEL CORPUS
+  // --------------------------------------------------------------------------
+  async function loadDatasetMetadata() {
+    const container = document.getElementById('metadataCardsContainer');
+    if (!container) return;
+
+    try {
+      const res = await fetch('/api/dataset/metadata');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      state.datasetMetadata = data;
+
+      const datasets = data.datasets || {};
+      const prim = datasets.primary;
+      const sec = datasets.secondary;
+      const proc = datasets.processed;
+
+      if (!prim || !sec || !proc) return;
+
+      container.innerHTML = `
+        <!-- CARD 1: DATASET PRIMARIO -->
+        <div class="metadata-file-card card-primary">
+          <div>
+            <div class="meta-header-row">
+              <span class="status-pill-subtle" style="background: rgba(2, 132, 199, 0.12); color: #0284C7; font-weight: 700;">
+                📘 DATASET PRIMARIO
+              </span>
+              <span class="status-pill-subtle active" style="font-size: 0.72rem;">${prim.quality_status}</span>
+            </div>
+            <div class="meta-file-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+              Base Maestra General
+            </div>
+            <div class="meta-filename-code">${prim.filename}</div>
+
+            <table class="meta-metrics-table">
+              <tr><td class="meta-label">Registros:</td><td class="meta-val">${Number(prim.rows).toLocaleString('es-BO')} empresas</td></tr>
+              <tr><td class="meta-label">Columnas:</td><td class="meta-val">${prim.columns} variables censales</td></tr>
+              <tr><td class="meta-label">Tamaño en Disco:</td><td class="meta-val">${prim.size_human}</td></tr>
+              <tr><td class="meta-label">Clave Relacional:</td><td class="meta-val"><strong style="color: #0284C7;">${prim.key}</strong></td></tr>
+            </table>
+
+            <div class="meta-hash-container">
+              <span class="meta-hash-text" title="${prim.sha256}">SHA-256: ${prim.sha256.substring(0, 16)}...</span>
+              <button class="btn-copy-hash" data-hash="${prim.sha256}" title="Copiar hash SHA-256">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copiar
+              </button>
+            </div>
+
+            <div class="meta-quality-note note-optimo">
+              <strong>Nota de Integridad:</strong> ${prim.quality_note}
+            </div>
+          </div>
+
+          <button class="btn-inspect-schema" data-target="primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Ver Esquema de Variables (167)
+          </button>
+        </div>
+
+        <!-- CARD 2: DATASET SECUNDARIO -->
+        <div class="metadata-file-card card-secondary">
+          <div>
+            <div class="meta-header-row">
+              <span class="status-pill-subtle" style="background: rgba(234, 88, 12, 0.12); color: #EA580C; font-weight: 700;">
+                📙 DATASET SECUNDARIO
+              </span>
+              <span class="status-pill-subtle" style="background: rgba(234, 88, 12, 0.15); color: #EA580C; font-size: 0.72rem; font-weight: 600;">${sec.quality_status}</span>
+            </div>
+            <div class="meta-file-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              Insumos y Materias Primas
+            </div>
+            <div class="meta-filename-code">${sec.filename}</div>
+
+            <table class="meta-metrics-table">
+              <tr><td class="meta-label">Registros Físicos:</td><td class="meta-val">${Number(sec.rows_physical).toLocaleString('es-BO')} líneas</td></tr>
+              <tr><td class="meta-label">Registros Válidos:</td><td class="meta-val">${Number(sec.rows_valid).toLocaleString('es-BO')} útiles</td></tr>
+              <tr><td class="meta-label">Columnas:</td><td class="meta-val">${sec.columns} campos de insumo</td></tr>
+              <tr><td class="meta-label">Tamaño en Disco:</td><td class="meta-val">${sec.size_human}</td></tr>
+              <tr><td class="meta-label">Clave Relacional:</td><td class="meta-val"><strong style="color: #EA580C;">${sec.key}</strong></td></tr>
+            </table>
+
+            <div class="meta-hash-container">
+              <span class="meta-hash-text" title="${sec.sha256}">SHA-256: ${sec.sha256.substring(0, 16)}...</span>
+              <button class="btn-copy-hash" data-hash="${sec.sha256}" title="Copiar hash SHA-256">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copiar
+              </button>
+            </div>
+
+            <div class="meta-quality-note note-saneado">
+              <strong>Alerta de Saneamiento:</strong> ${sec.quality_note}
+            </div>
+          </div>
+
+          <button class="btn-inspect-schema" data-target="secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Ver Esquema de Insumos (8)
+          </button>
+        </div>
+
+        <!-- CARD 3: DATASET PROCESADO -->
+        <div class="metadata-file-card card-processed">
+          <div>
+            <div class="meta-header-row">
+              <span class="status-pill-subtle" style="background: rgba(16, 185, 129, 0.12); color: #10B981; font-weight: 700;">
+                📗 DATASET PROCESADO
+              </span>
+              <span class="status-pill-subtle active" style="font-size: 0.72rem;">${proc.quality_status}</span>
+            </div>
+            <div class="meta-file-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              Matriz Consolidada Inmutable
+            </div>
+            <div class="meta-filename-code">${proc.filename}</div>
+
+            <table class="meta-metrics-table">
+              <tr><td class="meta-label">Registros Finales:</td><td class="meta-val">${Number(proc.rows).toLocaleString('es-BO')} empresas</td></tr>
+              <tr><td class="meta-label">Columnas Totales:</td><td class="meta-val">${proc.columns} predictores & target</td></tr>
+              <tr><td class="meta-label">Tamaño en Disco:</td><td class="meta-val">${proc.size_human}</td></tr>
+              <tr><td class="meta-label">Clave Relacional:</td><td class="meta-val"><strong style="color: #10B981;">${proc.key}</strong></td></tr>
+            </table>
+
+            <div class="meta-hash-container">
+              <span class="meta-hash-text" title="${proc.sha256}">SHA-256: ${proc.sha256.substring(0, 16)}...</span>
+              <button class="btn-copy-hash" data-hash="${proc.sha256}" title="Copiar hash SHA-256">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copiar
+              </button>
+            </div>
+
+            <div class="meta-quality-note note-certificado">
+              <strong>Gobernanza:</strong> ${proc.quality_note}
+            </div>
+          </div>
+
+          <button class="btn-inspect-schema" data-target="processed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Ver Esquema Consolidado (184)
+          </button>
+        </div>
+      `;
+
+      // Eventos de botones Copiar Hash
+      container.querySelectorAll('.btn-copy-hash').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const hashVal = btn.getAttribute('data-hash');
+          if (navigator.clipboard && hashVal) {
+            navigator.clipboard.writeText(hashVal).then(() => {
+              const prevHTML = btn.innerHTML;
+              btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> ¡Copiado!`;
+              btn.style.color = '#10B981';
+              btn.style.borderColor = '#10B981';
+              setTimeout(() => {
+                btn.innerHTML = prevHTML;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+              }, 2000);
+            });
+          }
+        });
+      });
+
+      // Eventos de Ver Esquema
+      container.querySelectorAll('.btn-inspect-schema').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetKey = btn.getAttribute('data-target');
+          openSchemaModal(targetKey, datasets[targetKey]);
+        });
+      });
+
+    } catch (e) {
+      console.error('Error al cargar metadatos de datasets:', e);
+      if (container) {
+        container.innerHTML = `<div style="color: red; padding: 1.5rem; text-align: center; grid-column: 1 / -1;">Error al cargar metadatos de los archivos fuente.</div>`;
+      }
+    }
+  }
+
+  function openSchemaModal(targetKey, fileData) {
+    const modal = document.getElementById('modalDatasetSchema');
+    const modalTitle = document.getElementById('modalSchemaTitle');
+    const modalBody = document.getElementById('modalSchemaBody');
+    if (!modal || !modalTitle || !modalBody || !fileData) return;
+
+    modalTitle.textContent = `Esquema de Variables: ${fileData.filename} (${fileData.role})`;
+
+    const sampleCols = fileData.sample_columns || [];
+    let colsHtml = `
+      <div style="margin-bottom: 1rem; font-size: 0.88rem; color: var(--text-secondary);">
+        Archivo con <strong>${fileData.columns} columnas</strong> y <strong>${Number(fileData.rows).toLocaleString('es-BO')} registros</strong>.
+        Clave: <strong style="color: var(--primary);">${fileData.key}</strong>.
+      </div>
+      <div class="custom-table-container">
+        <table class="custom-table" style="font-size: 0.82rem;">
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th>Nombre de Columna</th>
+              <th>Rol / Naturaleza</th>
+              <th>Descripción Metodológica</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    sampleCols.forEach((col, idx) => {
+      let desc = 'Variable censal del módulo anual EAIMCS.';
+      let rol = 'Predictor';
+      if (col === 'ID') { desc = 'Identificador único inmutable de la empresa.'; rol = 'Llave Primaria'; }
+      else if (col === 'target' || col === 'S00_01_A') { desc = 'Ingreso Operativo Anual declarado (Variable Objetivo).'; rol = 'Target'; }
+      else if (col.startsWith('log1p_')) { desc = 'Transformación estabilizadora ln(1+x).'; rol = 'Predictor log1p'; }
+      else if (col === 'depto') { desc = 'Departamento geográfico de operación.'; rol = 'Categórica'; }
+      else if (col === 'sector_macro') { desc = 'Macrosector de actividad normalizado según CAEB.'; rol = 'Categórica'; }
+      else if (col === 'n_insumos') { desc = 'Diversidad total de materias primas reportadas.'; rol = 'Ingeniería N:1'; }
+      else if (col.startsWith('total_valor_')) { desc = 'Consumo / compra monetaria agregada de materias primas.'; rol = 'Ingeniería N:1'; }
+
+      colsHtml += `
+        <tr>
+          <td style="font-family: monospace; color: var(--text-muted);">${idx + 1}</td>
+          <td><code style="font-weight: 700; color: var(--primary);">${col}</code></td>
+          <td><span class="status-pill-subtle" style="font-size: 0.72rem;">${rol}</span></td>
+          <td style="color: var(--text-secondary);">${desc}</td>
+        </tr>
+      `;
+    });
+
+    if (fileData.columns > sampleCols.length) {
+      colsHtml += `
+        <tr>
+          <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 0.75rem; font-style: italic;">
+            ... y ${fileData.columns - sampleCols.length} variables adicionales catalogadas en el diccionario completo de datos.
+          </td>
+        </tr>
+      `;
+    }
+
+    colsHtml += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    modalBody.innerHTML = colsHtml;
+    modal.style.display = 'flex';
+  }
+
+  // Cerrar modal
+  const modalSchemaCloseBtn = document.getElementById('modalSchemaCloseBtn');
+  const modalDismissBtn = document.getElementById('modalSchemaDismissBtn');
+  const modalElem = document.getElementById('modalDatasetSchema');
+  if (modalSchemaCloseBtn) modalSchemaCloseBtn.addEventListener('click', () => { modalElem.style.display = 'none'; });
+  if (modalDismissBtn) modalDismissBtn.addEventListener('click', () => { modalElem.style.display = 'none'; });
+  if (modalElem) {
+    modalElem.addEventListener('click', (e) => {
+      if (e.target === modalElem) modalElem.style.display = 'none';
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // CARGA DE ARQUITECTURA EMPRESARIAL INTERACTIVA Y DIAGRAMA SANKEY
+  // --------------------------------------------------------------------------
+  async function loadDatasetLineage() {
+    const archContainer = document.getElementById('archDiagramWrapper');
+    const sankeyContainer = document.getElementById('chartDataLineageSankey');
+    if (!archContainer && !sankeyContainer) return;
+
+    try {
+      const res = await fetch('/api/dataset/lineage');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      state.datasetLineage = data;
+
+      // 1. Renderizar Arquitectura Empresarial Interactiva con Hero Icons
+      if (archContainer) {
+        archContainer.innerHTML = `
+          <div class="arch-layout">
+            <!-- ZONA 1: ALMACENAMIENTO CRUDO INE -->
+            <div class="arch-perimeter perimeter-raw">
+              <span class="arch-perimeter-badge badge-raw-zone">INE RAW STORAGE</span>
+
+              <div class="arch-node-card" data-step="1" id="archNodeDP">
+                <div class="arch-hero-icon" style="background: rgba(2, 132, 199, 0.12); color: #0284C7;">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                </div>
+                <div class="arch-node-title">DATASET PRIMARIO</div>
+                <div class="arch-node-subtitle">
+                  <strong>3,153 empresas</strong> (167 cols)<br/>
+                  <span style="color: #0284C7; font-weight: 600;">Clave: ID (1:1 Base)</span>
+                </div>
+              </div>
+
+              <div class="arch-node-card" data-step="1" id="archNodeDS">
+                <div class="arch-hero-icon" style="background: rgba(234, 88, 12, 0.12); color: #EA580C;">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <div class="arch-node-title">DATASET SECUNDARIO</div>
+                <div class="arch-node-subtitle">
+                  <strong>6,428 líneas</strong> (8 cols)<br/>
+                  <span style="color: #EA580C; font-weight: 600;">Clave: ID (N:1 Crudo)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ZONA 2: MOTOR DE INTEGRACIÓN Y GOBERNANZA -->
+            <div class="arch-perimeter perimeter-engine">
+              <span class="arch-perimeter-badge badge-engine-zone">DATA INTEGRATION & GOVERNANCE</span>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                <!-- Saneamiento -->
+                <div class="arch-node-card" data-step="2">
+                  <div class="arch-hero-icon" style="background: rgba(220, 38, 38, 0.12); color: #DC2626;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                  </div>
+                  <div class="arch-node-title">SANEAMIENTO</div>
+                  <div class="arch-node-subtitle">
+                    Exclusión fila 6,429 vacía<br/>
+                    <strong style="color: #DC2626;">6,427 útiles</strong> | Negativos a NaN
+                  </div>
+                </div>
+
+                <!-- Agregación N:1 -->
+                <div class="arch-node-card" data-step="3">
+                  <div class="arch-hero-icon" style="background: rgba(79, 70, 229, 0.12); color: #4F46E5;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                  </div>
+                  <div class="arch-node-title">AGREGACIÓN N:1</div>
+                  <div class="arch-node-subtitle">
+                    Colapso a nivel ID<br/>
+                    <strong style="color: #4F46E5;">1,614 empresas fabriles</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Grid de Operaciones Nucleares -->
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.65rem; margin-top: 0.5rem;">
+                <div class="arch-node-card" data-step="4">
+                  <div style="color: #2563EB; font-weight: 700; margin-bottom: 0.25rem;">🔗 Cruce</div>
+                  <div style="font-size: 0.72rem; color: var(--text-secondary);">Left Join 3,153</div>
+                </div>
+                <div class="arch-node-card" data-step="5">
+                  <div style="color: #DC2626; font-weight: 700; margin-bottom: 0.25rem;">🛡️ Blindaje</div>
+                  <div style="font-size: 0.72rem; color: var(--text-secondary);">-19 vars fuga</div>
+                </div>
+                <div class="arch-node-card" data-step="6">
+                  <div style="color: #16A34A; font-weight: 700; margin-bottom: 0.25rem;">⚡ log1p</div>
+                  <div style="font-size: 0.72rem; color: var(--text-secondary);">Homocedasticidad</div>
+                </div>
+                <div class="arch-node-card" data-step="7">
+                  <div style="color: #7C3AED; font-weight: 700; margin-bottom: 0.25rem;">✂️ Muestreo</div>
+                  <div style="font-size: 0.72rem; color: var(--text-secondary);">60 / 20 / 20</div>
+                </div>
+              </div>
+
+              <!-- Bloque Final Procesado -->
+              <div class="arch-node-card" data-step="8" style="background: var(--bg-surface); border: 2px solid #10B981; padding: 0.75rem;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  <strong style="color: #10B981; font-size: 0.85rem;">DATASET PROCESADO INMUTABLE (3,153 × 184 cols)</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- ZONA 3: CONSUMIDORES Y AUDITORÍA -->
+            <div class="arch-perimeter perimeter-consumers">
+              <span class="arch-perimeter-badge badge-consumers-zone">CONSUMERS</span>
+
+              <div class="arch-node-card" style="cursor: default;">
+                <div class="arch-hero-icon" style="background: rgba(249, 115, 22, 0.12); color: #F97316;">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
+                </div>
+                <div class="arch-node-title" style="font-size: 0.82rem;">API GATEWAY</div>
+                <div class="arch-node-subtitle" style="font-family: monospace; font-size: 0.68rem;">/api/lineage</div>
+              </div>
+
+              <div class="arch-node-card" style="cursor: default;">
+                <div class="arch-hero-icon" style="background: rgba(30, 41, 59, 0.08); color: var(--text-primary);">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                </div>
+                <div class="arch-node-title" style="font-size: 0.82rem;">DASHBOARD</div>
+                <div class="arch-node-subtitle">5 Módulos Web<br/><span style="color: #10B981; font-weight: 600;">Inferencia 90%</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Eventos de clic en nodos de arquitectura para abrir el inspector
+        const inspector = document.getElementById('archInspectorPanel');
+        archContainer.querySelectorAll('.arch-node-card[data-step]').forEach(card => {
+          card.addEventListener('click', () => {
+            const stepNum = parseInt(card.getAttribute('data-step'), 10);
+            archContainer.querySelectorAll('.arch-node-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+
+            const op = data.operations.find(o => o.step === stepNum);
+            if (op && inspector) {
+              inspector.style.display = 'block';
+              inspector.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="status-pill-subtle ${op.badge_class}" style="font-weight: 700;">Etapa ${op.step}: ${op.badge}</span>
+                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${op.title}</h4>
+                  </div>
+                  <button id="closeInspectorBtn" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.45;">
+                  <strong>Resumen Operativo:</strong> ${op.summary}
+                </p>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 0.75rem; line-height: 1.45;">
+                  <strong>Trazabilidad y Calidad:</strong> ${op.details}
+                </p>
+                <div style="background: var(--bg-surface-elevated); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-color); font-family: monospace; font-size: 0.78rem; color: var(--primary);">
+                  <strong>Regla de Código / Pipeline:</strong> ${op.rules}
+                </div>
+              `;
+
+              const closeBtn = document.getElementById('closeInspectorBtn');
+              if (closeBtn) closeBtn.addEventListener('click', () => {
+                inspector.style.display = 'none';
+                card.classList.remove('active');
+              });
+
+              inspector.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          });
+        });
+      }
+
+      // 2. Renderizar Diagrama Sankey con Plotly.js
+      if (sankeyContainer && data.sankey && window.Plotly) {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const sankeyNodes = data.sankey.nodes;
+        const sankeyLinks = data.sankey.links;
+
+        const nodeLabels = sankeyNodes.map(n => n.name);
+        const nodeColors = sankeyNodes.map(n => n.color);
+
+        const linkSources = sankeyLinks.map(l => l.source);
+        const linkTargets = sankeyLinks.map(l => l.target);
+        const linkValues = sankeyLinks.map(l => l.value);
+        const linkLabels = sankeyLinks.map(l => l.label);
+
+        const trace = {
+          type: "sankey",
+          orientation: "h",
+          node: {
+            pad: 15,
+            thickness: 22,
+            line: { color: isDark ? "#0F172A" : "#FFFFFF", width: 1 },
+            label: nodeLabels,
+            color: nodeColors
+          },
+          link: {
+            source: linkSources,
+            target: linkTargets,
+            value: linkValues,
+            label: linkLabels,
+            color: linkSources.map(s => {
+              const baseColor = nodeColors[s] || "#64748B";
+              return baseColor.startsWith('#')
+                ? baseColor + '40'
+                : 'rgba(100, 116, 139, 0.25)';
+            })
+          }
+        };
+
+        const layout = {
+          margin: { l: 20, r: 20, t: 25, b: 25 },
+          font: {
+            family: "Inter, -apple-system, sans-serif",
+            size: 11,
+            color: isDark ? "#E2E8F0" : "#1E293B"
+          },
+          paper_bgcolor: "transparent",
+          plot_bgcolor: "transparent"
+        };
+
+        Plotly.newPlot(sankeyContainer, [trace], layout, { responsive: true, displayModeBar: false });
+      }
+
+    } catch (e) {
+      console.error('Error al cargar linaje de dataset:', e);
     }
   }
 

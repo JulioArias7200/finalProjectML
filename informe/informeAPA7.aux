@@ -54,48 +54,50 @@
 \newlabel{sec:metodologia}{{6}{19}{Metodología, Desarrollo y Validación}{section.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Pipeline de Preprocesamiento e Ingeniería de Datos}{19}{subsection.6.1}\protected@file@percent }
 \newlabel{eq:log1p}{{5}{20}{Pipeline de Preprocesamiento e Ingeniería de Datos}{equation.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Arquitectura de Integración de Datos: Ingestión Dual (Dataset Primario y Secundario), Pipeline de Transformación y Flujo de Consumo Predictivo.}}{21}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:pipeline_linaje_datos}{{3}{21}{Arquitectura de Integración de Datos: Ingestión Dual (Dataset Primario y Secundario), Pipeline de Transformación y Flujo de Consumo Predictivo}{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada.}}{21}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:distribucion_asimetria_log}{{4}{21}{Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo.}}{22}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:correlacion_heatmap}{{5}{22}{Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Formulación Matemática del Modelo y Calibración}{22}{subsection.6.2}\protected@file@percent }
+\newlabel{eq:model_spec}{{6}{22}{Formulación Matemática del Modelo y Calibración}{equation.6}{}}
 \citation{duan1983smearing}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada.}}{21}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:distribucion_asimetria_log}{{3}{21}{Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada}{figure.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Formulación Matemática del Modelo y Calibración}{21}{subsection.6.2}\protected@file@percent }
-\newlabel{eq:model_spec}{{6}{21}{Formulación Matemática del Modelo y Calibración}{equation.6}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.2.1}Corrección del Sesgo de Retransformación (Duan Smearing)}{21}{subsubsection.6.2.1}\protected@file@percent }
-\newlabel{eq:smearing_calc}{{7}{21}{Corrección del Sesgo de Retransformación (Duan Smearing)}{equation.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo.}}{22}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:correlacion_heatmap}{{4}{22}{Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.2.1}Corrección del Sesgo de Retransformación (Duan Smearing)}{23}{subsubsection.6.2.1}\protected@file@percent }
+\newlabel{eq:smearing_calc}{{7}{23}{Corrección del Sesgo de Retransformación (Duan Smearing)}{equation.7}{}}
 \newlabel{eq:pred_final_bs}{{8}{23}{Corrección del Sesgo de Retransformación (Duan Smearing)}{equation.8}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {6.2.2}Construcción de Intervalos de Predicción al 90\%}{23}{subsubsection.6.2.2}\protected@file@percent }
-\newlabel{eq:ic_inf}{{10}{23}{Construcción de Intervalos de Predicción al 90\%}{equation.10}{}}
-\newlabel{eq:ic_sup}{{11}{23}{Construcción de Intervalos de Predicción al 90\%}{equation.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Estrategia de Validación Cruzada (5-Fold Stratified CV)}{23}{subsection.6.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV).}}{24}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:cv_estabilidad_folds}{{5}{24}{Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV)}{figure.caption.8}{}}
+\newlabel{eq:ic_inf}{{10}{24}{Construcción de Intervalos de Predicción al 90\%}{equation.10}{}}
+\newlabel{eq:ic_sup}{{11}{24}{Construcción de Intervalos de Predicción al 90\%}{equation.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Estrategia de Validación Cruzada (5-Fold Stratified CV)}{24}{subsection.6.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Benchmark y Comparación de Modelos de Regresión}{24}{subsection.6.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.4.1}Justificación de la Selección del Modelo Campeón}{24}{subsubsection.6.4.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparativa Empírica de Modelos de Regresión Evaluados (5-Fold CV y Test Set)}}{25}{table.caption.9}\protected@file@percent }
-\newlabel{tab:comparacion_modelos}{{1}{25}{Comparativa Empírica de Modelos de Regresión Evaluados (5-Fold CV y Test Set)}{table.caption.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%.}}{26}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:dispersion_real_vs_predicho}{{6}{26}{Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%}{figure.caption.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad.}}{27}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:residuos_homocedasticidad}{{7}{27}{Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad}{figure.caption.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Análisis de Importancia de Variables (\textit  {Feature Importance})}{27}{subsection.6.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV).}}{25}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:cv_estabilidad_folds}{{6}{25}{Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV)}{figure.caption.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparativa Empírica de Modelos de Regresión Evaluados (5-Fold CV y Test Set)}}{25}{table.caption.10}\protected@file@percent }
+\newlabel{tab:comparacion_modelos}{{1}{25}{Comparativa Empírica de Modelos de Regresión Evaluados (5-Fold CV y Test Set)}{table.caption.10}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.4.1}Justificación de la Selección del Modelo Campeón}{26}{subsubsection.6.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Análisis de Importancia de Variables (\textit  {Feature Importance})}{26}{subsection.6.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%.}}{27}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:dispersion_real_vs_predicho}{{7}{27}{Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad.}}{28}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:residuos_homocedasticidad}{{8}{28}{Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad}{figure.caption.12}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.6}Sistema de Priorización y Clasificación de Riesgo}{28}{subsection.6.6}\protected@file@percent }
 \newlabel{eq:discrepancia}{{12}{28}{Sistema de Priorización y Clasificación de Riesgo}{equation.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo.}}{29}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:dashboard_auditoria_riesgo}{{8}{29}{Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo}{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo.}}{29}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:dashboard_auditoria_riesgo}{{9}{29}{Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo}{figure.caption.13}{}}
 \citation{pedregosa2011scikit}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Herramientas y Técnicas}{30}{section.7}\protected@file@percent }
 \newlabel{sec:herramientas}{{7}{30}{Herramientas y Técnicas}{section.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Ecosistema Científico y de Modelado (Python)}{30}{subsection.7.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Arquitectura Web y Catálogo de la API REST (Flask)}{31}{subsection.7.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Interfaz Interactiva y Visualización de Datos (Plotly.js)}{31}{subsection.7.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica.}}{32}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:dashboard_panorama_heatmap}{{9}{32}{Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica}{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica.}}{32}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:dashboard_panorama_heatmap}{{10}{32}{Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica}{figure.caption.14}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Técnicas Matemáticas de Gobernanza MLOps y Monitoreo de Data Drift}{32}{subsection.7.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base.}}{33}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:dashboard_comparativa_baseline}{{10}{33}{Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base}{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%.}}{34}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:dashboard_simulador_conformal}{{11}{34}{Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%}{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base.}}{33}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:dashboard_comparativa_baseline}{{11}{33}{Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base}{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%.}}{34}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:dashboard_simulador_conformal}{{12}{34}{Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%}{figure.caption.16}{}}
 \citation{massey1951kolmogorov}
 \citation{wasserman2006all}
 \citation{bonferroni1936teoria}
@@ -104,8 +106,8 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.2}Distancia de Wasserstein de Primer Orden (\textit  {Earth Mover's Distance})}{35}{subsubsection.7.4.2}\protected@file@percent }
 \newlabel{eq:wasserstein}{{14}{35}{Distancia de Wasserstein de Primer Orden (\textit {Earth Mover's Distance})}{equation.14}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.3}Corrección de Bonferroni para Pruebas Múltiples}{35}{subsubsection.7.4.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF).}}{36}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:data_drift_kolmogorov}{{12}{36}{Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF)}{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF).}}{36}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:data_drift_kolmogorov}{{13}{36}{Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF)}{figure.caption.17}{}}
 \newlabel{eq:bonferroni}{{15}{36}{Corrección de Bonferroni para Pruebas Múltiples}{equation.15}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {8}Conclusiones}{37}{section.8}\protected@file@percent }
 \newlabel{sec:conclusiones}{{8}{37}{Conclusiones}{section.8}{}}
@@ -128,14 +130,16 @@
 \bibcite{wasserman2006all}{Wasserman, 2006}
 \@writefile{toc}{\contentsline {section}{\numberline {A}Ficha Técnica de la Encuesta EAIMCS (INE Bolivia)}{42}{appendix.Alph1}\protected@file@percent }
 \newlabel{anexo:ficha_tecnica}{{A}{42}{Ficha Técnica de la Encuesta EAIMCS (INE Bolivia)}{appendix.Alph1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018}}{42}{table.caption.18}\protected@file@percent }
-\newlabel{tab:ficha_tecnica_eaimcs}{{2}{42}{Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018}{table.caption.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018}}{42}{table.caption.19}\protected@file@percent }
+\newlabel{tab:ficha_tecnica_eaimcs}{{2}{42}{Ficha Técnica Metodológica de la Encuesta EAIMCS 2017--2018}{table.caption.19}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {B}Matriz de Marco Lógico (MML) del Proyecto}{42}{appendix.Alph2}\protected@file@percent }
 \newlabel{anexo:marco_logico}{{B}{42}{Matriz de Marco Lógico (MML) del Proyecto}{appendix.Alph2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Matriz Resumida de Marco Lógico del Proyecto}}{43}{table.caption.19}\protected@file@percent }
-\newlabel{tab:mml_resumen}{{3}{43}{Matriz Resumida de Marco Lógico del Proyecto}{table.caption.19}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Diccionario de Variables Productivas Empleadas}{44}{appendix.Alph3}\protected@file@percent }
-\newlabel{anexo:diccionario_variables}{{C}{44}{Diccionario de Variables Productivas Empleadas}{appendix.Alph3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo}}{44}{table.caption.20}\protected@file@percent }
-\newlabel{tab:variables_modelo}{{4}{44}{Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo}{table.caption.20}{}}
-\gdef \@abspage@last{49}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Metadatos Criptográficos, Cardinalidad y Estructura de los Datasets EAIMCS.}}{43}{table.caption.20}\protected@file@percent }
+\newlabel{tab:metadatos_datasets}{{3}{43}{Metadatos Criptográficos, Cardinalidad y Estructura de los Datasets EAIMCS}{table.caption.20}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Matriz Resumida de Marco Lógico del Proyecto}}{44}{table.caption.21}\protected@file@percent }
+\newlabel{tab:mml_resumen}{{4}{44}{Matriz Resumida de Marco Lógico del Proyecto}{table.caption.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Diccionario de Variables Productivas Empleadas}{45}{appendix.Alph3}\protected@file@percent }
+\newlabel{anexo:diccionario_variables}{{C}{45}{Diccionario de Variables Productivas Empleadas}{appendix.Alph3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo}}{45}{table.caption.22}\protected@file@percent }
+\newlabel{tab:variables_modelo}{{5}{45}{Diccionario de Predictores y Variable Objetivo en el Modelo Predictivo}{table.caption.22}{}}
+\gdef \@abspage@last{50}

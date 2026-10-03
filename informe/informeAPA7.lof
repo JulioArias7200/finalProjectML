@@ -1,13 +1,14 @@
 \babel@toc {spanish}{}\relax 
 \contentsline {figure}{\numberline {1}{\ignorespaces Árbol de Problemas: Diagnóstico de Causas y Efectos del Proyecto.}}{10}{figure.caption.4}%
 \contentsline {figure}{\numberline {2}{\ignorespaces Árbol de Objetivos: Medios, Componentes y Fines de Impacto del Proyecto.}}{14}{figure.caption.5}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada.}}{21}{figure.caption.6}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo.}}{22}{figure.caption.7}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV).}}{24}{figure.caption.8}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%.}}{26}{figure.caption.10}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad.}}{27}{figure.caption.11}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo.}}{29}{figure.caption.12}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica.}}{32}{figure.caption.13}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base.}}{33}{figure.caption.14}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%.}}{34}{figure.caption.15}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF).}}{36}{figure.caption.16}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Arquitectura de Integración de Datos: Ingestión Dual (Dataset Primario y Secundario), Pipeline de Transformación y Flujo de Consumo Predictivo.}}{21}{figure.caption.6}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Distribución del Ingreso Operativo: Escala Bruta Asimétrica vs. Escala Log-Transformada.}}{21}{figure.caption.7}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Matriz de Correlación Lineal (Pearson) entre Predictores Productivos y el Ingreso Operativo.}}{22}{figure.caption.8}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Estabilidad del Coeficiente $R^2$ en los 5 Pliegues de Validación Cruzada (Stratified 5-Fold CV).}}{25}{figure.caption.9}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Diagrama de Dispersión: Valores Reales vs. Predichos con Bandas de Cobertura Conformal al 90\%.}}{27}{figure.caption.11}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Diagnóstico Residual: Histograma de Frecuencias y Gráfico de Homocedasticidad.}}{28}{figure.caption.12}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Interfaz del Módulo 2 del Dashboard: Tablero de Auditoría y Priorización de Riesgo.}}{29}{figure.caption.13}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Interfaz del Módulo 1 del Dashboard: Panorama General y Exploración Macroeconómica.}}{32}{figure.caption.14}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Interfaz del Módulo 3 del Dashboard: Cuadro Comparativo de Modelos ML vs. Línea Base.}}{33}{figure.caption.15}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Interfaz del Simulador Predictivo: Inferencia con Intervalos Conformal al 90\%.}}{34}{figure.caption.16}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Monitoreo de Data Drift: Comparación de Funciones de Distribución Acumulada Empírica (CDF).}}{36}{figure.caption.17}%

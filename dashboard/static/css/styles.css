@@ -1595,3 +1595,377 @@ body.sidebar-collapsed .main-wrapper {
   color: #94A3B8;
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
+
+/* ==========================================================================
+   CATÁLOGO DE METADATOS DE ARCHIVOS Y ARQUITECTURA EMPRESARIAL INTERACTIVA
+   ========================================================================== */
+.metadata-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.metadata-file-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.metadata-file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  border-color: var(--primary);
+}
+
+.metadata-file-card.card-primary {
+  border-top: 4px solid #0284C7;
+}
+
+.metadata-file-card.card-secondary {
+  border-top: 4px solid #EA580C;
+}
+
+.metadata-file-card.card-processed {
+  border-top: 4px solid #10B981;
+}
+
+.meta-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.meta-file-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meta-filename-code {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  background: var(--bg-surface-elevated);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 0.85rem;
+  word-break: break-all;
+}
+
+.meta-metrics-table {
+  width: 100%;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+}
+
+.meta-metrics-table td {
+  padding: 0.3rem 0;
+  vertical-align: top;
+}
+
+.meta-metrics-table td.meta-label {
+  color: var(--text-muted);
+  width: 38%;
+  font-weight: 500;
+}
+
+.meta-metrics-table td.meta-val {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+.meta-hash-container {
+  background: var(--bg-surface-elevated);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.meta-hash-text {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-copy-hash {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.70rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-hash:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.meta-quality-note {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.note-optimo {
+  background: rgba(16, 185, 129, 0.10);
+  color: #059669;
+  border-left: 3px solid #10B981;
+}
+
+.note-saneado {
+  background: rgba(234, 88, 12, 0.10);
+  color: #C2410C;
+  border-left: 3px solid #EA580C;
+}
+
+.note-certificado {
+  background: rgba(59, 130, 246, 0.10);
+  color: #1D4ED8;
+  border-left: 3px solid #3B82F6;
+}
+
+[data-theme="dark"] .note-optimo {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34D399;
+}
+
+[data-theme="dark"] .note-saneado {
+  background: rgba(234, 88, 12, 0.18);
+  color: #FB923C;
+}
+
+[data-theme="dark"] .note-certificado {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60A5FA;
+}
+
+.btn-inspect-schema {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-inspect-schema:hover {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+}
+
+/* DIAGRAMA DE ARQUITECTURA EMPRESARIAL INTERACTIVO */
+.arch-diagram-wrapper {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+
+.arch-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 200px;
+  gap: 1.25rem;
+  min-width: 950px;
+  align-items: stretch;
+}
+
+.arch-perimeter {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1rem 1rem 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.arch-perimeter.perimeter-raw {
+  border-color: #64748B;
+}
+
+.arch-perimeter.perimeter-engine {
+  border-color: #2563EB;
+}
+
+.arch-perimeter.perimeter-consumers {
+  border-color: #475569;
+}
+
+.arch-perimeter-badge {
+  position: absolute;
+  top: -12px;
+  left: 14px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.70rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  color: #FFFFFF;
+}
+
+.badge-raw-zone { background: #0F172A; }
+.badge-engine-zone { background: #2563EB; }
+.badge-consumers-zone { background: #0F172A; }
+
+.arch-node-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.arch-node-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.arch-node-card.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.arch-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.65rem auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
+
+.arch-node-card:hover .arch-hero-icon {
+  transform: scale(1.08);
+}
+
+.arch-node-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.arch-node-subtitle {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.arch-connector-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  gap: 0.25rem;
+}
+
+.arch-inspector-panel {
+  background: var(--bg-surface);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  animation: fadeIn 0.25s ease;
+}
+
+/* MODAL DE ESQUEMA */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-dialog {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-primary);
+}
